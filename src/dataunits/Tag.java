@@ -53,20 +53,33 @@ public enum Tag {
     PLUS(351), 
     MINUS(352), 
     TIMES(353), 
-    DIVIDE(354);
+    DIVIDE(354),
     
+    
+    
+    //OTHER
+    CONST(400),
+    IDENTIFIER(401);
     
     /**
     * Tag value container.
     */ 
-    private final int tagValue;
+    private final int tagId;
     
     /**
      * Constructor of the Tag enumerated.
      * @param tagValue : input argument to pass respective tag value.
      */
-    Tag(int tagValue){
-        this.tagValue = tagValue;
+    Tag(int tagId){
+        this.tagId = tagId;
+    }
+    
+    public String toString(){
+        return Integer.toString(tagId);
+    }
+    
+    public int getTagId(){
+        return tagId;
     }
     
 }
