@@ -23,13 +23,51 @@
  */
 package modules;
 
+import Exceptions.LexerException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  *
  * @author jr
  */
-public class Lexer {
+public class Lexer extends Thread {
+
+    private BufferedReader reader;
+    private int currentLine;
     
+    public Lexer(String filePath) throws LexerException{
+        
+        this.currentLine = 0;
+        
+        try{
+            this.reader = new BufferedReader(new FileReader(filePath));
+        }catch(FileNotFoundException ex){
+            throw new LexerException("ERROR: File not found.",ex);
+        }
+        
+    }
     
+    public void run() throws LexerException{
+        char character;
+        while((character = readChar()) != null){
+            
+        }
+        
+    }
     
-    
+    public char readChar() throws LexerException{
+        
+        char character;
+        try{
+            character = (char) this.reader.read();
+        }catch(IOException ex){
+            throw new LexerException("ERROR: input and output error reading file.",ex);
+        }
+        
+        return character;
+    }
+
 }
