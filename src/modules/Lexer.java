@@ -50,10 +50,11 @@ public class Lexer extends Thread {
         
     }
     
-    public void run() throws LexerException{
+    public void run(){
         char character;
-        while((character = readChar()) != null){
-            
+        while(true){
+            character = readChar();
+            System.out.println(character);
         }
         
     }
@@ -68,6 +69,11 @@ public class Lexer extends Thread {
         }
         
         return character;
+    }
+    
+    public static void main(String[] args) {
+        Lexer lexer = new Lexer("test.j");
+        lexer.start();
     }
 
 }
