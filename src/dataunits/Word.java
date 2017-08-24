@@ -29,4 +29,20 @@ package dataunits;
  */
 public class Word extends Token{
     
+    private String text;
+    
+    public Word(String text){
+        super(Tag.IDENTIFIER);
+        this.text = text;
+        
+    }
+    
+    public String getText(){
+        return text;
+    }
+    
+    public String toString(){
+        return text;
+    }
+    
 }
