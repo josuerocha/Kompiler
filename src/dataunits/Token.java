@@ -29,7 +29,17 @@ package dataunits;
  */
 public class Token {
     
-    public Token(){
-        
+    Tag tag;
+    
+    public Token(Tag tag){
+        this.tag = tag;
+    }
+    
+    public String toString(){
+        return tag.toString();
+    }
+    
+    public Tag getTag(){
+        return tag;
     }
 }

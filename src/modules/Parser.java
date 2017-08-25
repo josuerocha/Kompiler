@@ -21,65 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dataunits;
+package modules;
 
 /**
  *
  * @author jr
  */
-public enum Tag {
-    
-    /**
- * List of tokens and their corresponding code. 
- * 
- * <p>
- * **/
-    
-    //RESERVED WORDS
-    FOR(256), 
-    WHILE(257), 
-    STATIC(258), 
-    PRIVATE(259),
-    PUBLIC(260),
-    
-    //RELATIONAL OPERATORS
-    LESS(300), 
-    GREATER(301), 
-    LESS_EQUAL(302), 
-    GREATER_EQUAL(303),
-    
-    //MATHEMATICAL OPERATORS
-    ASSIGN(350), 
-    PLUS(351), 
-    MINUS(352), 
-    TIMES(353), 
-    DIVIDE(354),
-    
-    
-    
-    //OTHER
-    CONST(400),
-    IDENTIFIER(401);
-    
-    /**
-    * Tag value container.
-    */ 
-    private final int tagId;
-    
-    /**
-     * Constructor of the Tag enumerated.
-     * @param tagValue : input argument to pass respective tag value.
-     */
-    Tag(int tagId){
-        this.tagId = tagId;
-    }
-    
-    public int getTagId(){
-        return tagId;
-    }
-    
-    public String toString(){
-        return Integer.toString(tagId);
-    }
+public class Parser {
     
 }

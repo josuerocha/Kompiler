@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 jr.
+ * Copyright 2017 Josué Rocha Lima.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,4 +29,18 @@ package dataunits;
  */
 public class Constant extends Token{
     
+    private final int value;
+    
+    public Constant(int value){
+        super(Tag.CONST);
+        this.value = value;
+    }
+    
+    public int getValue(){
+        return this.value;
+    }
+    
+    public String toString(){
+        return Integer.toString(value);
+    }
 }
