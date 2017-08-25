@@ -25,9 +25,12 @@ package modules;
 
 import Exceptions.LexerException;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 /**
  *
@@ -36,6 +39,7 @@ import java.io.IOException;
 public class Lexer extends Thread {
 
     private BufferedReader reader;
+    FileInputStream fstream; 
     private int currentLine;
     
     public Lexer(String filePath) throws LexerException{
@@ -43,8 +47,11 @@ public class Lexer extends Thread {
         this.currentLine = 0;
         
         try{
-            this.reader = new BufferedReader(new FileReader(filePath));
+            this.fstream = new FileInputStream(filePath);
+            this.reader = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
         }catch(FileNotFoundException ex){
+            throw new LexerException("ERROR: File not found.",ex);
+        }catch(UnsupportedEncodingException ex){
             throw new LexerException("ERROR: File not found.",ex);
         }
         
@@ -52,8 +59,7 @@ public class Lexer extends Thread {
     
     public void run(){
         char character;
-        while(true){
-            character = readChar();
+        while((character = readChar()) != ((char)-1)){
             System.out.println(character);
         }
         
@@ -72,7 +78,7 @@ public class Lexer extends Thread {
     }
     
     public static void main(String[] args) {
-        Lexer lexer = new Lexer("test.j");
+        Lexer lexer = new Lexer("test.txt");
         lexer.start();
     }
 
