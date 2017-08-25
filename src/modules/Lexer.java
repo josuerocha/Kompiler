@@ -60,7 +60,8 @@ public class Lexer extends Thread {
     public void run(){
         char character;
         while((character = readChar()) != ((char)-1)){
-            System.out.println(character);
+            
+            System.out.print(character);
         }
         
     }
@@ -70,6 +71,10 @@ public class Lexer extends Thread {
         char character;
         try{
             character = (char) this.reader.read();
+            if(character == '\n'){
+                this.currentLine++;
+            }
+            
         }catch(IOException ex){
             throw new LexerException("ERROR: input and output error reading file.",ex);
         }
@@ -78,7 +83,7 @@ public class Lexer extends Thread {
     }
     
     public static void main(String[] args) {
-        Lexer lexer = new Lexer("test.txt");
+        Lexer lexer = new Lexer("test.j");
         lexer.start();
     }
 
