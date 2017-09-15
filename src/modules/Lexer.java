@@ -24,6 +24,7 @@
 package modules;
 
 import Exceptions.LexerException;
+import dataunits.Token;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,6 +41,7 @@ public class Lexer extends Thread {
     private BufferedReader reader;
     FileInputStream fstream; 
     private int currentLine;
+    private char currentChar;
     
     public Lexer(String filePath) throws LexerException{
         
@@ -61,7 +63,8 @@ public class Lexer extends Thread {
         char character;
         while((character = readChar()) != ((char)-1)){
             
-            System.out.print(character);
+            
+            
         }
         
     }
@@ -82,9 +85,35 @@ public class Lexer extends Thread {
         return character;
     }
     
-    public static void main(String[] args) {
-        Lexer lexer = new Lexer("test.j");
-        lexer.start();
+    public boolean readChar(char ch) throws LexerException{
+        return readChar() == ch;
+    }
+    
+    public Token getToken(){
+        
+        while(checkDelimiter()){
+            currentChar = readChar();
+        }
+        
+        switch(currentChar){
+            case '=':
+                
+                
+            break;
+        }
+        
+        
+        Token t = new Token(currentChar);
+        currentChar = '';
+        return t;
+    }
+    
+    private boolean checkDelimiter(){
+        if(currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n'){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }
