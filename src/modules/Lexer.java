@@ -56,6 +56,7 @@ public class Lexer extends Thread {
         
     }
     
+    
     public void run(){
         char character;
         while((character = readChar()) != ((char)-1)){
