@@ -24,6 +24,7 @@
 package modules;
 
 import Exceptions.LexerException;
+import dataunits.Constant;
 import dataunits.MathOperator;
 import dataunits.RelOperator;
 import dataunits.Token;
@@ -43,7 +44,7 @@ public class Lexer extends Thread {
     private BufferedReader reader;
     FileInputStream fstream; 
     private int currentLine;
-    private char currentChar;
+    private char currentChar = ' ';
     
     public Lexer(String filePath) throws LexerException{
         
@@ -129,9 +130,30 @@ public class Lexer extends Thread {
             
             case '*':
                 return new MathOperator(MathOperator.MUL_ID);
-            break;
+            
+            case '/':
+                return new MathOperator(MathOperator.MUL_ID);
+                
+            case '&':
+                if(readChar('&')){
+                    return new MathOperator(MathOperator.MUL_ID);
+                }
         }
         
+        //RECOGNIZE NUMERICAL CONSTANT
+        if(Character.isDigit(currentChar)){
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(currentChar);
+            do{
+                currentChar = readChar();
+                buffer.append(currentChar);
+            }while(Character.isDigit(currentChar));
+            
+            int number = Integer.parseInt(buffer.toString());
+            return new Constant(number);
+        }
+        
+        //
         
         Token t = new Token(currentChar);
         currentChar = ' ';
