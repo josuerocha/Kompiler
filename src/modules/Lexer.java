@@ -24,6 +24,8 @@
 package modules;
 
 import Exceptions.LexerException;
+import dataunits.MathOperator;
+import dataunits.RelOperator;
 import dataunits.Token;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -90,21 +92,49 @@ public class Lexer extends Thread {
     }
     
     public Token getToken(){
-        
+        //DISCARD DELIMITER CHARACTERS
         while(checkDelimiter()){
             currentChar = readChar();
         }
+        //IDENTIFY RESERVED WORDS
         
+        //IDENTIFY OPERATORS
         switch(currentChar){
             case '=':
+                if(readChar('=')){
+                    return new RelOperator(RelOperator.EQUAL_ID);
+                }else{
+                    return new MathOperator(MathOperator.ASSIGN);
+                }
+            case '<':
+                if(readChar('=')){
+                    return new RelOperator(RelOperator.LESS_EQUAL_ID);
+                }else{
+                    return new RelOperator(RelOperator.LESS_ID);
+                }
                 
+            case '>':
+                if(readChar('=')){
+                    return new RelOperator(RelOperator.GREATER_EQUAL_ID);
+                }else{
+                    return new RelOperator(RelOperator.LESS_EQUAL_ID);
+                }
                 
+            case '!':
+                if(readChar('=')){
+                    return new RelOperator(RelOperator.DIFFERENT_ID);
+                }else{
+                    return new Token('!');
+                }
+            
+            case '*':
+                return new MathOperator(MathOperator.MUL_ID);
             break;
         }
         
         
         Token t = new Token(currentChar);
-        currentChar = '';
+        currentChar = ' ';
         return t;
     }
     
