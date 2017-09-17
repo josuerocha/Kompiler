@@ -66,14 +66,6 @@ public class Lexer extends Thread {
         symbolTable = SymbolTable.getInstance();
     }
 
-    public void run() {
-        char character;
-        while ((character = readChar()) != ((char) -1)) {
-
-        }
-
-    }
-
     public char readChar() throws LexerException {
 
         char character;
@@ -113,7 +105,6 @@ public class Lexer extends Thread {
                 if (readChar('=')) {
                     return new RelOperator(RelOperator.EQUAL_ID);
                 } else {
-                    System.out.println(currentChar);
                     return new MathOperator(MathOperator.ASSIGN_ID);
                 }
             case '<':
