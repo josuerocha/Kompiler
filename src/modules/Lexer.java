@@ -48,6 +48,7 @@ public class Lexer extends Thread {
     FileInputStream fstream;
     private int currentLine;
     private char currentChar = ' ';
+    private SymbolTable symbolTable = null;
 
     public Lexer(String filePath) throws LexerException {
 
@@ -62,7 +63,7 @@ public class Lexer extends Thread {
             throw new LexerException("ERROR: File not found.", ex);
         }
         
-        registerReservedWords();
+        symbolTable = SymbolTable.getInstance();
     }
 
     public void run() {
@@ -90,11 +91,11 @@ public class Lexer extends Thread {
     }
 
     public boolean readChar(char ch) throws LexerException {
-        if (readChar() == ch) {
+        currentChar = readChar();
+        if (currentChar == ch) {
             currentChar = ' ';
             return true;
         } else {
-            currentChar = ch;
             return false;
         }
     }
@@ -112,6 +113,7 @@ public class Lexer extends Thread {
                 if (readChar('=')) {
                     return new RelOperator(RelOperator.EQUAL_ID);
                 } else {
+                    System.out.println(currentChar);
                     return new MathOperator(MathOperator.ASSIGN_ID);
                 }
             case '<':
@@ -171,8 +173,8 @@ public class Lexer extends Thread {
             } while (Character.isLetterOrDigit(currentChar));
 
             String lexeme = buffer.toString();
-            if (SymbolTable.getInstance().contains(lexeme)) {
-                Token t = SymbolTable.getInstance().get(lexeme);
+            if (symbolTable.contains(lexeme)) {
+                Token t = symbolTable.get(lexeme);
 
                 if (t instanceof ReservedWord) {
                     return new ReservedWord(lexeme);
@@ -181,7 +183,7 @@ public class Lexer extends Thread {
                 }
             }else{
                 Identifier id = new Identifier(lexeme);
-                SymbolTable.getInstance().put(lexeme,id);
+                symbolTable.put(lexeme,id);
                 return id;
             }
             
@@ -210,20 +212,6 @@ public class Lexer extends Thread {
         } else {
             return false;
         }
-    }
-    
-    private void registerReservedWords(){
-        SymbolTable.getInstance().put(ReservedWord.DO.getLexeme(), ReservedWord.DO);
-        SymbolTable.getInstance().put(ReservedWord.ELSE.getLexeme(), ReservedWord.ELSE);
-        SymbolTable.getInstance().put(ReservedWord.END.getLexeme(), ReservedWord.END);
-        SymbolTable.getInstance().put(ReservedWord.IF.getLexeme(), ReservedWord.IF);
-        SymbolTable.getInstance().put(ReservedWord.SCAN.getLexeme(), ReservedWord.PRINT);
-        SymbolTable.getInstance().put(ReservedWord.WHILE.getLexeme(), ReservedWord.WHILE);
-        SymbolTable.getInstance().put(ReservedWord.PRINT.getLexeme(), ReservedWord.PRINT);
-        SymbolTable.getInstance().put(ReservedWord.THEN.getLexeme(), ReservedWord.THEN);
-        SymbolTable.getInstance().put(ReservedWord.PROGRAM.getLexeme(), ReservedWord.PROGRAM);
-        SymbolTable.getInstance().put(ReservedWord.INT.getLexeme(), ReservedWord.INT);
-        SymbolTable.getInstance().put(ReservedWord.STRING.getLexeme(), ReservedWord.STRING);
     }
 
 }
