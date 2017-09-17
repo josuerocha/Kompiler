@@ -190,15 +190,19 @@ public class Lexer extends Thread {
         }
 
         //RECOGNIZE STRING LITERALS
-        if (currentChar == '"') {
+        if (currentChar == '“') {
             StringBuffer buffer = new StringBuffer();
 
-            while (!readChar('"')) {
+            while (!readChar('”')) {
                 buffer.append(currentChar);
             }
             currentChar = ' ';
             String literal = buffer.toString();
             return new LiteralConstant(literal);
+        }
+        
+        if(currentChar == ((char) -1)){
+            return null;
         }
 
         Token t = new Token(currentChar);
