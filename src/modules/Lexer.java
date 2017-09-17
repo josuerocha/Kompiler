@@ -24,17 +24,20 @@
 package modules;
 
 import Exceptions.LexerException;
-import dataunits.Constant;
+import datastructures.SymbolTable;
+import dataunits.IntConstant;
+import dataunits.LiteralConstant;
 import dataunits.MathOperator;
 import dataunits.RelOperator;
 import dataunits.Token;
+import dataunits.Identifier;
+import dataunits.ReservedWord;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-
 /**
  *
  * @author jr
@@ -42,130 +45,185 @@ import java.io.UnsupportedEncodingException;
 public class Lexer extends Thread {
 
     private BufferedReader reader;
-    FileInputStream fstream; 
+    FileInputStream fstream;
     private int currentLine;
     private char currentChar = ' ';
-    
-    public Lexer(String filePath) throws LexerException{
-        
+
+    public Lexer(String filePath) throws LexerException {
+
         this.currentLine = 0;
-        
-        try{
+
+        try {
             this.fstream = new FileInputStream(filePath);
             this.reader = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
-        }catch(FileNotFoundException ex){
-            throw new LexerException("ERROR: File not found.",ex);
-        }catch(UnsupportedEncodingException ex){
-            throw new LexerException("ERROR: File not found.",ex);
+        } catch (FileNotFoundException ex) {
+            throw new LexerException("ERROR: File not found.", ex);
+        } catch (UnsupportedEncodingException ex) {
+            throw new LexerException("ERROR: File not found.", ex);
         }
         
+        registerReservedWords();
     }
-    
-    
-    public void run(){
+
+    public void run() {
         char character;
-        while((character = readChar()) != ((char)-1)){
-            
-            
-            
+        while ((character = readChar()) != ((char) -1)) {
+
         }
-        
+
     }
-    
-    public char readChar() throws LexerException{
-        
+
+    public char readChar() throws LexerException {
+
         char character;
-        try{
+        try {
             character = (char) this.reader.read();
-            if(character == '\n'){
+            if (character == '\n') {
                 this.currentLine++;
             }
-            
-        }catch(IOException ex){
-            throw new LexerException("ERROR: input and output error reading file.",ex);
+
+        } catch (IOException ex) {
+            throw new LexerException("ERROR: input and output error reading file.", ex);
         }
-        
+
         return character;
     }
-    
-    public boolean readChar(char ch) throws LexerException{
-        return readChar() == ch;
+
+    public boolean readChar(char ch) throws LexerException {
+        if (readChar() == ch) {
+            currentChar = ' ';
+            return true;
+        } else {
+            currentChar = ch;
+            return false;
+        }
     }
-    
-    public Token getToken(){
+
+    public Token getToken() {
         //DISCARD DELIMITER CHARACTERS
-        while(checkDelimiter()){
+        while (checkDelimiter()) {
             currentChar = readChar();
         }
         //IDENTIFY RESERVED WORDS
-        
+
         //IDENTIFY OPERATORS
-        switch(currentChar){
+        switch (currentChar) {
             case '=':
-                if(readChar('=')){
+                if (readChar('=')) {
                     return new RelOperator(RelOperator.EQUAL_ID);
-                }else{
-                    return new MathOperator(MathOperator.ASSIGN);
+                } else {
+                    return new MathOperator(MathOperator.ASSIGN_ID);
                 }
             case '<':
-                if(readChar('=')){
+                if (readChar('=')) {
                     return new RelOperator(RelOperator.LESS_EQUAL_ID);
-                }else{
+                } else {
                     return new RelOperator(RelOperator.LESS_ID);
                 }
-                
+
             case '>':
-                if(readChar('=')){
+                if (readChar('=')) {
                     return new RelOperator(RelOperator.GREATER_EQUAL_ID);
-                }else{
+                } else {
                     return new RelOperator(RelOperator.LESS_EQUAL_ID);
                 }
-                
+
             case '!':
-                if(readChar('=')){
+                if (readChar('=')) {
                     return new RelOperator(RelOperator.DIFFERENT_ID);
-                }else{
+                } else {
                     return new Token('!');
                 }
-            
+
             case '*':
+                currentChar = ' ';
                 return new MathOperator(MathOperator.MUL_ID);
-            
+
             case '/':
+                currentChar = ' ';
                 return new MathOperator(MathOperator.MUL_ID);
-                
+
             case '&':
-                if(readChar('&')){
+                if (readChar('&')) {
                     return new MathOperator(MathOperator.MUL_ID);
                 }
         }
-        
+
         //RECOGNIZE NUMERICAL CONSTANT
-        if(Character.isDigit(currentChar)){
+        if (Character.isDigit(currentChar)) {
             StringBuffer buffer = new StringBuffer();
-            buffer.append(currentChar);
-            do{
-                currentChar = readChar();
+            do {
                 buffer.append(currentChar);
-            }while(Character.isDigit(currentChar));
-            
+                currentChar = readChar();
+            } while (Character.isDigit(currentChar));
+
             int number = Integer.parseInt(buffer.toString());
-            return new Constant(number);
+            return new IntConstant(number);
         }
-        
-        //
-        
+
+        //RECOGNIZE IDENTIFIERS
+        if (Character.isLetter(currentChar)) {
+            StringBuffer buffer = new StringBuffer();
+
+            do {
+                buffer.append(currentChar);
+                currentChar = readChar();
+            } while (Character.isLetterOrDigit(currentChar));
+
+            String lexeme = buffer.toString();
+            if (SymbolTable.getInstance().contains(lexeme)) {
+                Token t = SymbolTable.getInstance().get(lexeme);
+
+                if (t instanceof ReservedWord) {
+                    return new ReservedWord(lexeme);
+                } else {
+                    return new Identifier(lexeme);
+                }
+            }else{
+                Identifier id = new Identifier(lexeme);
+                SymbolTable.getInstance().put(lexeme,id);
+                return id;
+            }
+            
+        }
+
+        //RECOGNIZE STRING LITERALS
+        if (currentChar == '"') {
+            StringBuffer buffer = new StringBuffer();
+
+            while (!readChar('"')) {
+                buffer.append(currentChar);
+            }
+            currentChar = ' ';
+            String literal = buffer.toString();
+            return new LiteralConstant(literal);
+        }
+
         Token t = new Token(currentChar);
         currentChar = ' ';
         return t;
     }
-    
-    private boolean checkDelimiter(){
-        if(currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n'){
+
+    private boolean checkDelimiter() {
+        if (currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n') {
             return true;
-        }else{
+        } else {
             return false;
         }
+    }
+    
+    private void registerReservedWords(){
+        SymbolTable.getInstance().put(ReservedWord.DO.getLexeme(), ReservedWord.DO);
+        SymbolTable.getInstance().put(ReservedWord.ELSE.getLexeme(), ReservedWord.ELSE);
+        SymbolTable.getInstance().put(ReservedWord.END.getLexeme(), ReservedWord.END);
+        SymbolTable.getInstance().put(ReservedWord.IF.getLexeme(), ReservedWord.IF);
+        SymbolTable.getInstance().put(ReservedWord.SCAN.getLexeme(), ReservedWord.PRINT);
+        SymbolTable.getInstance().put(ReservedWord.WHILE.getLexeme(), ReservedWord.WHILE);
+        SymbolTable.getInstance().put(ReservedWord.PRINT.getLexeme(), ReservedWord.PRINT);
+        SymbolTable.getInstance().put(ReservedWord.THEN.getLexeme(), ReservedWord.THEN);
+        SymbolTable.getInstance().put(ReservedWord.PROGRAM.getLexeme(), ReservedWord.PROGRAM);
+        SymbolTable.getInstance().put(ReservedWord.INT.getLexeme(), ReservedWord.INT);
+        SymbolTable.getInstance().put(ReservedWord.STRING.getLexeme(), ReservedWord.STRING);
     }
 
 }
