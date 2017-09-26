@@ -118,7 +118,7 @@ public class Lexer extends Thread {
                     currentChar = ' ';
                 }
                 if(readChar('*')){
-                    
+                    discardMultiLineComment();
                 }else{
                     currentChar = ' ';
                     return new MathOperator(MathOperator.MUL_ID);
@@ -203,17 +203,19 @@ public class Lexer extends Thread {
         return currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n';
     }
     
-    private boolean matchStringToInput(String text){
-        boolean match = true;
-        for(char ch : text.toCharArray()){
-            if(currentChar != ch){
-               match = false;
-               break;
-            }
-            readChar();
-        }
+    private void discardMultiLineComment(){
         
-        return match;
+        while(true){
+            currentChar = readChar();
+            
+            if(currentChar == '*'){
+                if(readChar('/')){
+                    currentChar = ' ';
+                    break;
+                }
+            }
+            
+        }
     }
 
 }
