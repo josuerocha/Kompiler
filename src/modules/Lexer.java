@@ -114,7 +114,8 @@ public class Lexer extends Thread {
 
             case '/':
                 if(readChar('/')){
-                    
+                    while(!readChar('\n'));
+                    currentChar = ' ';
                 }
                 if(readChar('*')){
                     
