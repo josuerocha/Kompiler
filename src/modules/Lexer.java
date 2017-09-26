@@ -1,43 +1,18 @@
-/*
- * The MIT License
- *
- * Copyright 2017 Josué Rocha Lima.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+
+
+
 package modules;
 
 import Exceptions.LexerException;
 import datastructures.SymbolTable;
-import dataunits.IntConstant;
-import dataunits.LiteralConstant;
-import dataunits.MathOperator;
-import dataunits.RelOperator;
-import dataunits.Token;
-import dataunits.Identifier;
-import dataunits.ReservedWord;
+import dataunits.*;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+
 /**
  *
  * @author jr
@@ -185,7 +160,13 @@ public class Lexer extends Thread {
             StringBuffer buffer = new StringBuffer();
 
             while (!readChar('”')) {
+                if(currentChar == '\n'){
+                    return new Error("Unclosed string literal", currentLine);
+                }
+                
                 buffer.append(currentChar);
+                
+                
             }
             currentChar = ' ';
             String literal = buffer.toString();
