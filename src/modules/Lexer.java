@@ -1,6 +1,3 @@
-
-
-
 package modules;
 
 import Exceptions.LexerException;
@@ -38,12 +35,12 @@ public class Lexer extends Thread {
         } catch (UnsupportedEncodingException ex) {
             throw new LexerException("ERROR: File not found.", ex);
         }
-        
+
         symbolTable = SymbolTable.getInstance();
     }
 
     public char readChar() throws LexerException {
-        
+
         char character;
         try {
             character = (char) this.reader.read();
@@ -57,8 +54,24 @@ public class Lexer extends Thread {
 
         return character;
     }
+    
+    private void markReaderPosition() throws LexerException{
+        try{
+            reader.mark(50);
+        } catch (IOException ex) {
+            throw new LexerException("EXCEPTION: input and output error reading file.", ex);
+        }
+    }
+    
+    private void resetReaderPosition() throws LexerException{
+        try{
+            reader.reset();
+        } catch (IOException ex) {
+            throw new LexerException("EXCEPTION: input and output error reading file.", ex);
+        }
+    }
 
-    public boolean readChar(char ch) throws LexerException {
+    private boolean readChar(char ch) throws LexerException {
         currentChar = readChar();
         if (currentChar == ch) {
             currentChar = ' ';
@@ -73,14 +86,33 @@ public class Lexer extends Thread {
         while (checkDelimiter()) {
             currentChar = readChar();
         }
+
         //IDENTIFY INVALID CHARACTERS
-        if(checkInvalidCharacters()){
-            CompileError error = new CompileError("Invalid character: " + currentChar,currentLine);
+        if (checkInvalidCharacters()) {
+            CompileError error = new CompileError("Invalid character: " + currentChar, currentLine);
             currentChar = ' ';
             return error;
         }
-        
-        //IDENTIFY OPERATORS AND COMMENTS
+
+        //IDENTIFY MULTIPLE LINE COMMENTS AND SINGLE LINE COMMENTS
+        if (currentChar == '/') {
+            markReaderPosition();
+            int commentLine = currentLine;
+            if (readChar('/')) {
+                while (!readChar('\n'));
+                currentChar = ' ';
+            }
+            else if (currentChar == '*') {
+                if (!discardMultiLineComment()) {
+                    return new CompileError("Unclosed multiple line comment", commentLine);
+                }
+            }else{
+                currentChar = '/';
+                resetReaderPosition();
+            }
+        }
+
+        //IDENTIFY OPERATORS
         switch (currentChar) {
             case '=':
                 if (readChar('=')) {
@@ -114,19 +146,9 @@ public class Lexer extends Thread {
                 return new MathOperator(MathOperator.MUL_ID);
 
             case '/':
-                if(readChar('/')){
-                    while(!readChar('\n'));
-                    currentChar = ' ';
-                }
-                if(readChar('*')){
-                    if(!discardMultiLineComment()){
-                        return new CompileError("Unclosed multiple line comment",currentLine);
-                    }
-                }else{
-                    currentChar = ' ';
-                    return new MathOperator(MathOperator.MUL_ID);
-                }
-                
+                currentChar = ' ';
+                return new MathOperator(MathOperator.MUL_ID);
+
             case '&':
                 if (readChar('&')) {
                     return new MathOperator(MathOperator.MUL_ID);
@@ -163,33 +185,32 @@ public class Lexer extends Thread {
                 } else {
                     return new Identifier(lexeme);
                 }
-            }else{
+            } else {
                 Identifier id = new Identifier(lexeme);
-                symbolTable.put(lexeme,id);
+                symbolTable.put(lexeme, id);
                 return id;
             }
-            
+
         }
 
         //RECOGNIZE STRING LITERALS
-        if (currentChar == '“') {
+        if (currentChar == '"') {
             StringBuffer buffer = new StringBuffer();
 
-            while (!readChar('”')) {
-                if(currentChar == '\n'){
+            while (!readChar('"')) {
+                if (currentChar == '\n') {
                     return new CompileError("Unclosed string literal", currentLine);
                 }
-                
+
                 buffer.append(currentChar);
-                
-                
+
             }
             currentChar = ' ';
             String literal = buffer.toString();
             return new LiteralConstant(literal);
         }
-        
-        if(currentChar == ((char) -1)){
+
+        if (currentChar == ((char) -1)) {
             return null;
         }
 
@@ -197,27 +218,26 @@ public class Lexer extends Thread {
         currentChar = ' ';
         return t;
     }
-    
-    private boolean checkInvalidCharacters(){
+
+    private boolean checkInvalidCharacters() {
         return currentChar == 'ç' || currentChar == 'Ç';
     }
-    
+
     private boolean checkDelimiter() {
         return currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n';
     }
-    
-    private boolean discardMultiLineComment(){
-        
-        while(true){
+
+    private boolean discardMultiLineComment() {
+        while (true) {
             currentChar = readChar();
-            
-            if(currentChar == '*'){
-                if(readChar('/')){
+
+            if (currentChar == '*') {
+                if (readChar('/')) {
                     currentChar = ' ';
                     return true;
-                }else if(currentChar == (char) -1){
-                    return false;
                 }
+            } else if (currentChar == (char) -1) {
+                return false;
             }
         }
     }
