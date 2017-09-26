@@ -42,7 +42,7 @@ public class Lexer extends Thread {
     }
 
     public char readChar() throws LexerException {
-
+        
         char character;
         try {
             character = (char) this.reader.read();
@@ -51,7 +51,7 @@ public class Lexer extends Thread {
             }
 
         } catch (IOException ex) {
-            throw new LexerException("ERROR: input and output error reading file.", ex);
+            throw new LexerException("EXCEPTION: input and output error reading file.", ex);
         }
 
         return character;
@@ -72,9 +72,14 @@ public class Lexer extends Thread {
         while (checkDelimiter()) {
             currentChar = readChar();
         }
-        //IDENTIFY RESERVED WORDS
-
-        //IDENTIFY OPERATORS
+        //IDENTIFY INVALID CHARACTERS
+        if(checkInvalidCharacters()){
+            CompileError error = new CompileError("Invalid character: " + currentChar,currentLine);
+            currentChar = ' ';
+            return error;
+        }
+        
+        //IDENTIFY OPERATORS AND COMMENTS
         switch (currentChar) {
             case '=':
                 if (readChar('=')) {
@@ -108,9 +113,16 @@ public class Lexer extends Thread {
                 return new MathOperator(MathOperator.MUL_ID);
 
             case '/':
-                currentChar = ' ';
-                return new MathOperator(MathOperator.MUL_ID);
-
+                if(readChar('/')){
+                    
+                }
+                if(readChar('*')){
+                    
+                }else{
+                    currentChar = ' ';
+                    return new MathOperator(MathOperator.MUL_ID);
+                }
+                
             case '&':
                 if (readChar('&')) {
                     return new MathOperator(MathOperator.MUL_ID);
@@ -161,7 +173,7 @@ public class Lexer extends Thread {
 
             while (!readChar('”')) {
                 if(currentChar == '\n'){
-                    return new Error("Unclosed string literal", currentLine);
+                    return new CompileError("Unclosed string literal", currentLine);
                 }
                 
                 buffer.append(currentChar);
@@ -181,13 +193,26 @@ public class Lexer extends Thread {
         currentChar = ' ';
         return t;
     }
-
+    
+    private boolean checkInvalidCharacters(){
+        return currentChar == 'ç' || currentChar == 'Ç';
+    }
+    
     private boolean checkDelimiter() {
-        if (currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n') {
-            return true;
-        } else {
-            return false;
+        return currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n';
+    }
+    
+    private boolean matchStringToInput(String text){
+        boolean match = true;
+        for(char ch : text.toCharArray()){
+            if(currentChar != ch){
+               match = false;
+               break;
+            }
+            readChar();
         }
+        
+        return match;
     }
 
 }
