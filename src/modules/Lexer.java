@@ -87,31 +87,6 @@ public class Lexer extends Thread {
             currentChar = readChar();
         }
 
-        //IDENTIFY INVALID CHARACTERS
-        if (checkInvalidCharacters()) {
-            CompileError error = new CompileError("Invalid character: " + currentChar, currentLine);
-            currentChar = ' ';
-            return error;
-        }
-
-        //IDENTIFY MULTIPLE LINE COMMENTS AND SINGLE LINE COMMENTS
-        if (currentChar == '/') {
-            markReaderPosition();
-            int commentLine = currentLine;
-            if (readChar('/')) {
-                while (!readChar('\n'));
-                currentChar = ' ';
-            }
-            else if (currentChar == '*') {
-                if (!discardMultiLineComment()) {
-                    return new CompileError("Unclosed multiple line comment", commentLine);
-                }
-            }else{
-                currentChar = '/';
-                resetReaderPosition();
-            }
-        }
-
         //IDENTIFY OPERATORS
         switch (currentChar) {
             case '=':
