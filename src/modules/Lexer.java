@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import static jdk.nashorn.internal.parser.TokenType.EOF;
 
 /**
  *
@@ -118,7 +119,9 @@ public class Lexer extends Thread {
                     currentChar = ' ';
                 }
                 if(readChar('*')){
-                    discardMultiLineComment();
+                    if(!discardMultiLineComment()){
+                        return new CompileError("Unclosed multiple line comment",currentLine);
+                    }
                 }else{
                     currentChar = ' ';
                     return new MathOperator(MathOperator.MUL_ID);
@@ -203,7 +206,7 @@ public class Lexer extends Thread {
         return currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n';
     }
     
-    private void discardMultiLineComment(){
+    private boolean discardMultiLineComment(){
         
         while(true){
             currentChar = readChar();
@@ -211,10 +214,11 @@ public class Lexer extends Thread {
             if(currentChar == '*'){
                 if(readChar('/')){
                     currentChar = ' ';
-                    break;
+                    return true;
+                }else if(currentChar == (char) -1){
+                    return false;
                 }
             }
-            
         }
     }
 
