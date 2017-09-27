@@ -27,12 +27,12 @@ package dataunits;
  *
  * @author jr
  */
-public class Constant extends Token{
+public class IntConstant extends Token{
     
     private final int value;
     
-    public Constant(int value){
-        super(Tag.CONST);
+    public IntConstant(int value){
+        super(Token.INT_CONSTANT);
         this.value = value;
     }
     
@@ -41,6 +41,6 @@ public class Constant extends Token{
     }
     
     public String toString(){
-        return Integer.toString(value);
+        return "<INT_CONSTANT," + Integer.toString(value) + ">";
     }
 }

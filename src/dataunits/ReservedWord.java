@@ -16,14 +16,24 @@ public class ReservedWord extends Token{
     DO_ID = 261,
     WHILE_ID = 262,
     SCAN_ID = 263,
-    PRINT_ID = 264;
+    PRINT_ID = 264,
+    //DATATYPES
+    INT_ID = 265,
+    STRING_ID = 266;
     
     public static ReservedWord PROGRAM = new ReservedWord("program");
     public static ReservedWord IF = new ReservedWord("if");
     public static ReservedWord THEN = new ReservedWord("then");
     public static ReservedWord ELSE = new ReservedWord("else");
+    public static ReservedWord END = new ReservedWord("end");
+    public static ReservedWord DO = new ReservedWord("do");
+    public static ReservedWord WHILE = new ReservedWord("while");
+    public static ReservedWord SCAN = new ReservedWord("scan");
+    public static ReservedWord PRINT = new ReservedWord("print");
+    public static ReservedWord INT = new ReservedWord("int");
+    public static ReservedWord STRING = new ReservedWord("string");
     
-    private int id;
+    private int type;
     private String lexeme;
     
     public ReservedWord(String lexeme){
@@ -33,31 +43,29 @@ public class ReservedWord extends Token{
         
         switch(lexeme){
             case "program":
-                this.id = ReservedWord.PROGRAM_ID;
+                this.type = ReservedWord.PROGRAM_ID;
             break;
             case "if":
-                this.id = ReservedWord.IF_ID;
+                this.type = ReservedWord.IF_ID;
             break;
             case "then":
-                this.id = ReservedWord.THEN_ID;
+                this.type = ReservedWord.THEN_ID;
             break;
             case "else":
-                this.id = ReservedWord.ELSE_ID;
+                this.type = ReservedWord.ELSE_ID;
             case "end":
-                this.id = ReservedWord.END_ID;
+                this.type = ReservedWord.END_ID;
             case "do":
-                this.id = ReservedWord.DO_ID;
+                this.type = ReservedWord.DO_ID;
             case "while":
-                this.id = ReservedWord.WHILE_ID;
+                this.type = ReservedWord.WHILE_ID;
             case "scan":
-                this.id = ReservedWord.SCAN_ID;
+                this.type = ReservedWord.SCAN_ID;
             case "print":
-                this.id = ReservedWord.PRINT_ID;
+                this.type = ReservedWord.PRINT_ID;
         }
         
     }
-    
-    
 
     public String getLexeme() {
         return lexeme;

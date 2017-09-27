@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 Josué Rocha Lima.
+ * Copyright 2017 jr.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package datastructures;
+package dataunits;
 
 /**
  *
  * @author jr
  */
-public class SymbolTable {
+public class Identifier extends Token{
+    
+    private String lexeme;
+    
+    public Identifier(String text){
+        super(Token.IDENTIFIER);
+        this.lexeme = text;
+    }
+    
+    public String getLexeme(){
+        return lexeme;
+    }
+    
+    public String toString(){
+        return "< ID , " + lexeme + " >";
+    }
     
 }

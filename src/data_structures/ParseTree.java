@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 jr.
+ * Copyright 2017 Josué Rocha Lima.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dataunits;
+package data_structures;
 
 /**
  *
  * @author jr
  */
-public class Word extends Token{
-    
-    private String text;
-    
-    public Word(String text){
-        super(Tag.IDENTIFIER);
-        this.text = text;
-        
-    }
-    
-    public String getText(){
-        return text;
-    }
-    
-    public String toString(){
-        return text;
-    }
+public class ParseTree {
     
 }
