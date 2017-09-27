@@ -1,7 +1,7 @@
 package modules;
 
-import Exceptions.LexerException;
-import datastructures.SymbolTable;
+import exceptions.LexerException;
+import data_structures.SymbolTable;
 import dataunits.*;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -93,14 +93,15 @@ public class Lexer extends Thread {
 
             //IDENTIFY MULTIPLE LINE COMMENTS AND SINGLE LINE COMMENTS
             if (currentChar == '/') {
-                checkForDisposables = true;
                 markReaderPosition();
                 int commentLine = currentLine;
                 if (readChar('/')) {
+                    checkForDisposables = true;
                     while (!readChar('\n'));
                     currentChar = ' ';
                 }
                 else if (currentChar == '*') {
+                    checkForDisposables = true;
                     if (!discardMultiLineComment()) {
                         return new CompileError("Unclosed multiple line comment", commentLine);
                     }
@@ -121,42 +122,42 @@ public class Lexer extends Thread {
         switch (currentChar) {
             case '=':
                 if (readChar('=')) {
-                    return new RelOperator(RelOperator.EQUAL_ID);
+                    return Operator.EQ;
                 } else {
-                    return new MathOperator(MathOperator.ASSIGN_ID);
+                    return Operator.ASSIGN;
                 }
             case '<':
                 if (readChar('=')) {
-                    return new RelOperator(RelOperator.LESS_EQUAL_ID);
+                    return Operator.LE;
                 } else {
-                    return new RelOperator(RelOperator.LESS_ID);
+                    return Operator.LT;
                 }
 
             case '>':
                 if (readChar('=')) {
-                    return new RelOperator(RelOperator.GREATER_EQUAL_ID);
+                    return Operator.GE;
                 } else {
-                    return new RelOperator(RelOperator.LESS_EQUAL_ID);
+                    return Operator.GT;
                 }
 
             case '!':
                 if (readChar('=')) {
-                    return new RelOperator(RelOperator.DIFFERENT_ID);
+                    return Operator.DIFFERENT;
                 } else {
                     return new Token('!');
                 }
 
             case '*':
                 currentChar = ' ';
-                return new MathOperator(MathOperator.MUL_ID);
+                return Operator.MUL;
 
             case '/':
                 currentChar = ' ';
-                return new MathOperator(MathOperator.MUL_ID);
+                return Operator.DIV;
 
             case '&':
                 if (readChar('&')) {
-                    return new MathOperator(MathOperator.MUL_ID);
+                    return Operator.AND;
                 }
         }
 
