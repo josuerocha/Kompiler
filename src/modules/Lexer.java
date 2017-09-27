@@ -25,7 +25,7 @@ public class Lexer extends Thread {
 
     public Lexer(String filePath) throws LexerException {
 
-        this.currentLine = 0;
+        this.currentLine = 1;
 
         try {
             this.fstream = new FileInputStream(filePath);
@@ -205,7 +205,7 @@ public class Lexer extends Thread {
 
             while (!readChar('"')) {
                 if (currentChar == '\n') {
-                    return new CompileError("Unclosed string literal", currentLine);
+                    return new CompileError("Unclosed string literal", currentLine-1);
                 }
 
                 buffer.append(currentChar);
