@@ -1,6 +1,6 @@
 package dataunits;
 
-import util.Color;
+import util.*;
 /**
  *
  * @author jr
@@ -19,6 +19,6 @@ public class CompileError extends Token{
     }
     
     public String toString(){
-        return Color.RED + "ERROR: " + this.message + " on line " + this.line + Color.RESET;
+        return Color.RED + SpecialChars.ERROR_MARK + " ERROR: " + this.message + " on line " + this.line + Color.RESET;
     }
 }

@@ -8,10 +8,10 @@ program
 	scan (b);
 	scan (y)
 	result = (a*b ++ 1) / 2;
-	print “Resultado: ”;
+	print "Resultado: ";
 	print (result);
-	print (“Total: ”);
+	print ("Total: ");
 	total = y / x;
-	print (“Total: ”;
+	print ("Total: ";
 	print (total);
 end
