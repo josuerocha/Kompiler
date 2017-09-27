@@ -82,9 +82,39 @@ public class Lexer extends Thread {
     }
 
     public Token getToken() {
-        //DISCARD DELIMITER CHARACTERS
-        while (checkDelimiter()) {
-            currentChar = readChar();
+        boolean checkForDisposables = true;
+        while(checkForDisposables){
+            checkForDisposables = false;
+            //DISCARD DELIMITER CHARACTERS
+            while (checkDelimiter()) {
+                checkForDisposables = true;
+                currentChar = readChar();
+            }
+
+            //IDENTIFY MULTIPLE LINE COMMENTS AND SINGLE LINE COMMENTS
+            if (currentChar == '/') {
+                checkForDisposables = true;
+                markReaderPosition();
+                int commentLine = currentLine;
+                if (readChar('/')) {
+                    while (!readChar('\n'));
+                    currentChar = ' ';
+                }
+                else if (currentChar == '*') {
+                    if (!discardMultiLineComment()) {
+                        return new CompileError("Unclosed multiple line comment", commentLine);
+                    }
+                }else{
+                    currentChar = '/';
+                    resetReaderPosition();
+                }
+            }
+        }
+        //IDENTIFY INVALID CHARACTERS
+        if (checkInvalidCharacter()) {
+            CompileError error = new CompileError("Invalid character: " + currentChar, currentLine);
+            currentChar = ' ';
+            return error;
         }
 
         //IDENTIFY OPERATORS
@@ -188,13 +218,12 @@ public class Lexer extends Thread {
         if (currentChar == ((char) -1)) {
             return null;
         }
-
         Token t = new Token(currentChar);
         currentChar = ' ';
         return t;
     }
 
-    private boolean checkInvalidCharacters() {
+    private boolean checkInvalidCharacter() {
         return currentChar == 'ç' || currentChar == 'Ç';
     }
 
