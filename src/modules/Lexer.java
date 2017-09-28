@@ -54,17 +54,17 @@ public class Lexer extends Thread {
 
         return character;
     }
-    
-    private void markReaderPosition() throws LexerException{
-        try{
+
+    private void markReaderPosition() throws LexerException {
+        try {
             reader.mark(50);
         } catch (IOException ex) {
             throw new LexerException("EXCEPTION: input and output error reading file.", ex);
         }
     }
-    
-    private void resetReaderPosition() throws LexerException{
-        try{
+
+    private void resetReaderPosition() throws LexerException {
+        try {
             reader.reset();
         } catch (IOException ex) {
             throw new LexerException("EXCEPTION: input and output error reading file.", ex);
@@ -83,7 +83,7 @@ public class Lexer extends Thread {
 
     public Token getToken() {
         boolean checkForDisposables = true;
-        while(checkForDisposables){
+        while (checkForDisposables) {
             checkForDisposables = false;
             //DISCARD DELIMITER CHARACTERS
             while (checkDelimiter()) {
@@ -99,19 +99,38 @@ public class Lexer extends Thread {
                     checkForDisposables = true;
                     while (!readChar('\n'));
                     currentChar = ' ';
-                }
-                else if (currentChar == '*') {
+                } else if (currentChar == '*') {
                     checkForDisposables = true;
                     if (!discardMultiLineComment()) {
                         return new CompileError("Unclosed multiple line comment", commentLine);
                     }
-                }else{
+                } else {
                     currentChar = '/';
                     resetReaderPosition();
                 }
             }
         }
 
+        //IDENTIFY SEPARATORS
+        switch(currentChar){
+            case ';':
+                currentChar = ' ';
+                return new Token(';');
+                
+            case '(':
+                currentChar = ' ';
+                return new Token('(');
+                
+            case ')':
+                currentChar = ' ';
+                return new Token(')');
+                
+            case ',':
+                currentChar = ' ';
+                return new Token(',');
+        }
+        
+        
         //IDENTIFY OPERATORS
         switch (currentChar) {
             case '=':
@@ -153,6 +172,10 @@ public class Lexer extends Thread {
                 if (readChar('&')) {
                     return Operator.AND;
                 }
+
+            case '+':
+                currentChar = ' ';
+                return Operator.PLUS;
         }
 
         //RECOGNIZE NUMERICAL CONSTANT
@@ -199,7 +222,7 @@ public class Lexer extends Thread {
 
             while (!readChar('"')) {
                 if (currentChar == '\n') {
-                    return new CompileError("Unclosed string literal", currentLine-1);
+                    return new CompileError("Unclosed string literal", currentLine - 1);
                 }
 
                 buffer.append(currentChar);
@@ -213,7 +236,7 @@ public class Lexer extends Thread {
         if (currentChar == ((char) -1)) {
             return null;
         }
-        Token t = new Token(currentChar);
+        Token t = new CompileError("Invalid token " + currentChar, currentLine);
         currentChar = ' ';
         return t;
     }
