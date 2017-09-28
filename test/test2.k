@@ -7,9 +7,9 @@ program
 	Scan (c);
 	b = a * a;
 	c = b + a * (1 + a*c);
-	print (“Resultado: ”);
+	print ("Resultado: ");
 	print c;
 	a = b + c + d)/2;
 	e = val + c + a;
-	print (“E: ”);
+	print ("E: ");
 	print (e);

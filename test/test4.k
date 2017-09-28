@@ -2,10 +2,10 @@
 	string nome, sobrenome, msg;
 	print(Nome: );
 	scan (nome);
-	print(“Sobrenome: ”);
+	print("Sobrenome: ");
 	scan (sobrenome);
-	msg = “Ola, ” + nome + “ ” +
-	sobrenome + “!”;
+	msg = "Ola, " + nome + " " +
+	sobrenome + "!";
 	msg = msg + 1;
 	print (msg);
 	scan (a);
@@ -15,7 +15,7 @@
 		b = a;
 		a = aux;
 	end;
-	print (“Apos a troca: ”);
+	print ("Apos a troca: ");
 	out(a);
 	out(b)
 end

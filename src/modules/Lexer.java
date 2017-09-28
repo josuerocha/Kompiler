@@ -111,12 +111,6 @@ public class Lexer extends Thread {
                 }
             }
         }
-        //IDENTIFY INVALID CHARACTERS
-        if (checkInvalidCharacter()) {
-            CompileError error = new CompileError("Invalid character: " + currentChar, currentLine);
-            currentChar = ' ';
-            return error;
-        }
 
         //IDENTIFY OPERATORS
         switch (currentChar) {
