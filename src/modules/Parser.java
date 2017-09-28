@@ -1,5 +1,6 @@
 package modules;
 
+import dataunits.CompileError;
 import dataunits.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,11 +14,13 @@ public class Parser extends Thread {
     
     private static final int MAX_JOBS = 10;
     private String path;
-    private StringBuffer output;
+    private StringBuffer tokenFlow;
+    private StringBuffer errorMessages;
     
     public Parser(String path){
         this.path = path;
-        output = new StringBuffer();
+        tokenFlow = new StringBuffer();
+        errorMessages =  new StringBuffer();
     }
     
     public void run(){
@@ -25,17 +28,22 @@ public class Parser extends Thread {
 
         Token token;
         while ((token = lexer.getToken()) != null) {
-
-            output.append(token + " \n");
-                    
+            if(token instanceof CompileError){
+                errorMessages.append(token + " \n");
+            }else{
+                tokenFlow.append(token + " \n");
+            }  
         }
         
     }
     
-    public synchronized void printTokens(){
-        System.out.println("FILE: " + this.path);
-        System.out.print(this.output.toString());
-        System.out.println("__________________________");
+    public String getTokenFlow(){
+        return "FILE: " + this.path + "\n" + this.tokenFlow.toString();
+    }
+    
+    public String getErrorMessages(){
+        return errorMessages.toString() +
+        " _________________________________";
     }
     
     public static void main(String[] args) {
@@ -46,6 +54,8 @@ public class Parser extends Thread {
         }
         
         List<String> paths = new ArrayList<String>();
+        List<String> tokenFlow = new ArrayList<String>();
+        List<String> errorMessages = new ArrayList<String>();
         List<Parser> compileJobs = new ArrayList<Parser>();
         
         paths.addAll(Arrays.asList(args));
@@ -60,12 +70,16 @@ public class Parser extends Thread {
             
             for(int i=0 ; i<compileJobs.size(); i++){
                 if(!compileJobs.get(i).isAlive()){
-                    compileJobs.get(i).printTokens();
+                    tokenFlow.add(compileJobs.get(i).getTokenFlow());
+                    errorMessages.add(compileJobs.get(i).getErrorMessages());
                     compileJobs.remove(i);
                 }
             }
-            
-            
+        }
+        //PRINTING OUTPUT
+        for(int i = 0; i<tokenFlow.size(); i++){
+            System.out.println(errorMessages.get(i));
+            System.out.println(tokenFlow.get(i));
         }
        
     }
