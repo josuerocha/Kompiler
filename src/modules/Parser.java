@@ -1,6 +1,7 @@
 package modules;
 
 import dataunits.CompileError;
+import dataunits.ReservedWord;
 import dataunits.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,38 +14,62 @@ import java.util.List;
 public class Parser extends Thread {
     
     private static final int MAX_JOBS = 10;
-    private String path;
+    private String filepath;
     private StringBuffer tokenFlow;
     private StringBuffer errorMessages;
+    private Token currentToken;
+    Lexer lexer;
     
     public Parser(String path){
-        this.path = path;
+        this.filepath = path;
+        lexer = new Lexer(this.filepath);
         tokenFlow = new StringBuffer();
         errorMessages =  new StringBuffer();
     }
     
     public void run(){
-        Lexer lexer = new Lexer(this.path);
+        
 
         Token token;
         while ((token = lexer.getToken()) != null) {
             if(token instanceof CompileError){
-                errorMessages.append(token + " \n");
+                errorMessages.append(token).append(" \n");
             }else{
-                tokenFlow.append(token + " \n");
+                tokenFlow.append(token).append(" \n");
             }  
         }
-        
     }
     
     public String getTokenFlow(){
-        return "FILE: " + this.path + "\n" + this.tokenFlow.toString();
+        return "FILE: " + this.filepath + "\n" + this.tokenFlow.toString();
     }
     
     public String getErrorMessages(){
         return errorMessages.toString() +
         " _________________________________";
     }
+    
+    private void program(){
+        eat(ReservedWord.PROGRAM); declList(); stmtList(); eat(ReservedWord.END);
+    }
+    
+    private void declList(){
+        
+    }
+    
+    private void stmtList(){
+        
+    }
+    
+    private void eat(Token t){
+        if (currentToken == t) {
+            currentToken = lexer.getToken();
+        }
+        else {
+            System.out.println("ERROR: expected " + t + " on line " + lexer.getCurrentLine() + "\n");
+        }
+    }
+    
     
     public static void main(String[] args) {
         
@@ -53,10 +78,10 @@ public class Parser extends Thread {
             System.out.println("Usage: java -jar KPiler.jar file1.txt file2.txt");
         }
         
-        List<String> paths = new ArrayList<String>();
-        List<String> tokenFlow = new ArrayList<String>();
-        List<String> errorMessages = new ArrayList<String>();
-        List<Parser> compileJobs = new ArrayList<Parser>();
+        List<String> paths = new ArrayList<>();
+        List<String> tokenFlow = new ArrayList<>();
+        List<String> errorMessages = new ArrayList<>();
+        List<Parser> compileJobs = new ArrayList<>();
         
         paths.addAll(Arrays.asList(args));
         
