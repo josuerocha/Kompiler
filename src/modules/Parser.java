@@ -1,6 +1,7 @@
 package modules;
 
 import dataunits.CompileError;
+import dataunits.Identifier;
 import dataunits.ReservedWord;
 import dataunits.Token;
 import java.util.ArrayList;
@@ -58,15 +59,19 @@ public class Parser extends Thread {
     }
     
     private void stmtList(){
-        
+        stmt(); stmt();
     }
     
     private void declaration(){
         type(); identList(); eat(new Token(';'));
     }
     
-    private void identList(){
+    private void stmt(){
         
+    }
+    
+    private void identList(){
+        eat(new Token(Identifier.IDENTIFIER)); eat(new Token(',')) ; eat(new Token(Identifier.IDENTIFIER));
     }
     
     private void type(){
