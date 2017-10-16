@@ -54,11 +54,36 @@ public class Parser extends Thread {
     }
     
     private void declList(){
-        
+        declaration() ;
     }
     
     private void stmtList(){
         
+    }
+    
+    private void declaration(){
+        type(); identList(); eat(new Token(';'));
+    }
+    
+    private void identList(){
+        
+    }
+    
+    private void type(){
+        switch (currentToken.getTag()){
+            case ReservedWord.INT_ID:
+                    eat(ReservedWord.INT);
+                break;
+                
+            case ReservedWord.STRING_ID:
+                    eat(ReservedWord.STRING);
+                break;
+                
+            default:
+                
+                break;
+                
+        }
     }
     
     private void eat(Token t){
