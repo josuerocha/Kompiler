@@ -23,9 +23,14 @@ public class Token {
     INT_CONSTANT = 450,
     LITERAL_CONSTANT = 451,
     IDENTIFIER = 452,
-    SEMI_COLLON = 453,
-    PARENTHESIS = 454,
     ERROR = 455;
+    
+    
+    public static Token SEMI_COLON = new Token(';'),
+                        OPEN_PAREN = new Token('('),
+                        CLOSE_PAREN = new Token(')'),
+                        COMMA = new Token(',');
+    
 //------------------------------------------------------------------------------------
     
     private final int tag;

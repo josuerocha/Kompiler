@@ -58,6 +58,36 @@ public class Parser extends Thread {
         declaration() ;
     }
     
+    public void assignStatement(){
+        
+    }
+    
+    public void ifStatement(){
+        eat(ReservedWord.IF); expression(); eat(ReservedWord.THEN); 
+        stmtList(); eat(ReservedWord.END);
+    }
+    
+    public void whileStatement(){
+        eat(ReservedWord.WHILE); expression(); eat(ReservedWord.END);
+    }
+    
+    public void readStatement(){
+        eat(ReservedWord.SCAN); eat(Token.OPEN_PAREN); 
+        eat(new Identifier()); eat(Token.CLOSE_PAREN);
+    }
+    
+    public void writeStatement(){
+        eat(ReservedWord.PRINT); eat(Token.OPEN_PAREN); writable(); eat(Token.CLOSE_PAREN);
+    }
+    
+    private void expression(){
+        
+    }
+    
+    private void writable(){
+        
+    }
+    
     private void stmtList(){
         stmt(); stmt();
     }
@@ -71,7 +101,7 @@ public class Parser extends Thread {
     }
     
     private void identList(){
-        eat(new Token(Identifier.IDENTIFIER)); eat(new Token(',')) ; eat(new Token(Identifier.IDENTIFIER));
+        eat(new Identifier()); eat(new Token(',')) ; eat(new Token(Identifier.IDENTIFIER));
     }
     
     private void type(){
@@ -85,7 +115,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                
+                    
                 break;
                 
         }
@@ -94,8 +124,7 @@ public class Parser extends Thread {
     private void eat(Token t){
         if (currentToken == t) {
             currentToken = lexer.getToken();
-        }
-        else {
+        }else {
             System.out.println("ERROR: expected " + t + " on line " + lexer.getCurrentLine() + "\n");
         }
     }

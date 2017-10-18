@@ -241,6 +241,10 @@ public class Lexer extends Thread {
         return t;
     }
 
+    public int getCurrentLine() {
+        return currentLine;
+    }
+    
     private boolean checkInvalidCharacter() {
         return currentChar == 'ç' || currentChar == 'Ç';
     }

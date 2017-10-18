@@ -36,6 +36,11 @@ public class Identifier extends Token{
         this.lexeme = text;
     }
     
+    public Identifier(){
+        super(Token.IDENTIFIER);
+        this.lexeme = "";
+    }
+    
     public String getLexeme(){
         return lexeme;
     }

@@ -21,17 +21,17 @@ public class ReservedWord extends Token{
     INT_ID = 265,
     STRING_ID = 266;
     
-    public static ReservedWord PROGRAM = new ReservedWord("program");
-    public static ReservedWord IF = new ReservedWord("if");
-    public static ReservedWord THEN = new ReservedWord("then");
-    public static ReservedWord ELSE = new ReservedWord("else");
-    public static ReservedWord END = new ReservedWord("end");
-    public static ReservedWord DO = new ReservedWord("do");
-    public static ReservedWord WHILE = new ReservedWord("while");
-    public static ReservedWord SCAN = new ReservedWord("scan");
-    public static ReservedWord PRINT = new ReservedWord("print");
-    public static ReservedWord INT = new ReservedWord("int");
-    public static ReservedWord STRING = new ReservedWord("string");
+    public static final ReservedWord PROGRAM = new ReservedWord("program");
+    public static final ReservedWord IF = new ReservedWord("if");
+    public static final ReservedWord THEN = new ReservedWord("then");
+    public static final ReservedWord ELSE = new ReservedWord("else");
+    public static final ReservedWord END = new ReservedWord("end");
+    public static final ReservedWord DO = new ReservedWord("do");
+    public static final ReservedWord WHILE = new ReservedWord("while");
+    public static final ReservedWord SCAN = new ReservedWord("scan");
+    public static final ReservedWord PRINT = new ReservedWord("print");
+    public static final ReservedWord INT = new ReservedWord("int");
+    public static final ReservedWord STRING = new ReservedWord("string");
     
     private int type;
     private String lexeme;
