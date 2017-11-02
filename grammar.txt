@@ -1,0 +1,58 @@
+program_prime -> Program $
+
+Program -> program decllist stmt-list end
+
+decllist -> decl-list | LAMBDA
+
+decl-list -> decl decllist
+
+decl -> identifier possible-ident
+
+possible-ident -> , decl | LAMBDA
+
+type -> int | string
+
+stmt-list -> stmt stmtlist 
+
+stmtlist -> stmt-list | LAMBDA
+
+stmt ->   assign-stmt ; | if-stmt | while-stmt | read-stmt ; | write-stmt ;
+	
+assign-stmt -> identifier = simple-expr
+
+if-stmt -> if condition then stmt-list if-stmt-prime
+
+if-stmt-prime ->   end | else stmt-list end
+		 
+condition -> expression
+
+while-stmt -> do stmt-list stmt-sufix
+
+stmt-sufix -> while condition end
+
+read-stmt -> scan ( identifier )
+
+write-stmt -> print ( writable )
+
+writable -> simple-expr | literal
+
+expression -> simple-expr | simple-expr relop simple-expr
+
+simple-expr -> term simple-expr-prime
+
+simple-expr-prime -> 	  addop term simple-expr-prime | LAMBDA
+			
+term -> factor-a term-prime
+term-prime ->   mulop factor-a term-prime | LAMBDA
+
+factor-a -> factor | ! factor | - factor
+
+factor -> identifier | constant | ( expression )
+
+relop -> == | > | >= | < | <= | !=
+
+addop -> + | - | or
+
+mulop -> * | / | &&
+
+constant -> integer_const | literal
