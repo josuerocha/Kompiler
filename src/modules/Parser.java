@@ -156,7 +156,7 @@ public class Parser extends Thread {
     public void assignStatement(){
         switch(currentToken.getTag()){
             case Token.IDENTIFIER:
-                eat(new Identifier()); eat(new Operator('=')); simpleExpr();
+                eat(new Identifier()); eat(new Operator('=')); simpleExpression();
                 break;
             default:
                 System.out.println("ERROR: Expected IDENTIFIER");
@@ -184,8 +184,29 @@ public class Parser extends Thread {
         }
     }
     
-    private void simpleExpr(){
-        
+    private void simpleExpressionPrime(){
+        switch(currentToken.getTag()){
+            case '+':
+            case '-':
+            case Operator.OR_ID:
+                addop(); term(); simpleExpressionPrime();
+                break;
+            case Operator.EQUAL_ID:
+            case '>':
+            case Operator.GREATER_EQUAL_ID:
+            case '<':
+            case Operator.LESS_EQUAL_ID:
+            case Operator.DIFFERENT_ID:
+            case ')': 
+            case ReservedWord.END_ID:
+            case ReservedWord.THEN_ID:
+            case ';':
+                
+                break;
+                
+            default:
+                System.out.println("ERROR: operator expected");
+        }
     }
     
     private void whileStatement(){
@@ -264,6 +285,47 @@ public class Parser extends Thread {
         }
     }
     
+    private void simpleExprPrime(){
+        switch(currentToken.getTag()){
+            case '+':
+            case '-':
+            case Operator.OR_ID:
+                addop(); term(); simpleExprPrime();
+                break;
+            
+            case Operator.EQUAL_ID:
+            case '>':
+            case Operator.GREATER_EQUAL_ID:
+            case '<':
+            case Operator.LESS_EQUAL_ID:
+            case Operator.DIFFERENT_ID:
+            case ')':
+            case ReservedWord.END_ID:
+            case ReservedWord.THEN_ID:
+            case ';':
+                  
+                break;
+        }
+    }
+    
+    private void addop(){
+        switch(currentToken.getTag()){
+            case '+':
+                eat(Operator.PLUS);
+                break;
+            case '-':
+                eat(Operator.MINUS);
+                break;
+            case Operator.OR_ID:
+                eat(Operator.OR);
+                break;
+                
+            default:
+                System.out.println("ERROR: Add operator expected");
+            
+        }
+    }
+    
     private void term(){
         switch(currentToken.getTag()){
             case '!':
@@ -280,24 +342,176 @@ public class Parser extends Thread {
         }
     }
     
+    private void termPrime(){
+        switch(currentToken.getTag()){
+            case '*':
+            case '/':
+            case Operator.AND_ID:
+                mulop(); factora(); termPrime();
+                break;
+                
+            case '+':
+            case '-':
+            case Operator.OR_ID:
+            case Operator.EQUAL_ID:    
+            case '>':
+            case Operator.GREATER_EQUAL_ID:
+            case '<':
+            case Operator.LESS_EQUAL_ID:
+            case Operator.DIFFERENT_ID:
+            case ')':
+            case ReservedWord.END_ID:
+            case ReservedWord.THEN_ID:
+            case ';':
+                
+                break;
+                
+            default:
+                System.out.println("ERROR: expected operator");
+        }
+    }
+    
+    private void mulop(){
+        switch(currentToken.getTag()){
+            case '*':
+                eat(Operator.MUL);
+                break;
+                
+            case '/':
+                eat(Operator.DIV);
+                break;
+                
+            case Operator.OR_ID:
+                eat(Operator.OR);
+                break;
+        }
+    }
+    
     private void expressionPrime(){
-        
+        switch(currentToken.getTag()){
+            case Operator.EQUAL_ID:
+            case '>':
+            case Operator.GREATER_EQUAL_ID:
+            case '<':
+            case Operator.LESS_EQUAL_ID:
+            case Operator.DIFFERENT_ID:
+                relop(); simpleExpression();
+                break;
+                
+            case ')':
+            case ReservedWord.END_ID:
+            case ReservedWord.THEN_ID:
+                
+                break;
+            default:
+                System.out.println("ERROR: Operator expected");
+        }
     }
     
     private void factora(){
-        
+
+        switch(currentToken.getTag()){
+            case '!':
+                eat(Operator.NEG); factor();
+                break;
+            case '-':
+                eat(Operator.MINUS); factor();
+                break;
+                
+            case Token.IDENTIFIER:
+            case '(':
+            case IntConstant.INT_CONSTANT:
+            case LiteralConstant.LITERAL_CONSTANT:
+                factor();
+                break;
+        }
     }
     
-    private void termPrime(){
-        
+    private void factor(){
+        switch(currentToken.getTag()){
+            case Token.IDENTIFIER:
+                eat(new Identifier());
+                break;
+                
+            case Token.INT_CONSTANT:
+            case Token.LITERAL_CONSTANT:
+                constant();
+                break;
+                
+            case '(':
+                eat(Token.OPEN_PAREN); expression(); eat(Token.CLOSE_PAREN);
+                
+                
+        }
+    }
+    
+    private void constant(){
+        switch(currentToken.getTag()){
+            case Token.INT_CONSTANT:
+                eat(new IntConstant(1));
+                break;
+            case Token.LITERAL_CONSTANT:
+                eat(new LiteralConstant("a"));
+                break;
+            default:
+                System.out.println("ERROR: constant expected");
+        }
     }
     
     private void writable(){
-        
+
+        switch(currentToken.getTag()){
+            case Token.LITERAL_CONSTANT:
+                eat(new LiteralConstant("a"));
+                break;
+                
+            case '!':
+            case '-':
+            case Token.IDENTIFIER:
+            case '(':
+            case Token.INT_CONSTANT:
+                simpleExpression();
+                break;
+                
+            default:
+                System.out.println("ERROR: expected literal or expression");
+        }
+
     }
     
     private void declaration(){
         
+    }
+    
+    private void relop(){
+        switch(currentToken.getTag()){
+            case Operator.EQUAL_ID:
+                eat(Operator.EQUAL);
+                break;
+                
+            case '>':
+                eat(Operator.GT);
+                break;
+                
+            case Operator.GREATER_EQUAL_ID:
+                eat(Operator.GE);
+                break;
+                
+            case '<':
+                eat(Operator.LT);
+                break;
+                
+            case Operator.LESS_EQUAL_ID:
+                eat(Operator.LE);
+                break;
+                
+            case Operator.DIFFERENT_ID:
+                eat(Operator.DIFFERENT);
+                break;
+                
+            default:
+                System.out.println("ERROR: operator expected");
+        }
     }
     
     private void condition(){
@@ -400,7 +614,7 @@ public class Parser extends Thread {
         //PRINTING OUTPUT
         for(int i = 0; i<tokenFlow.size(); i++){
             System.out.println(errorMessages.get(i));
-            System.out.println(tokenFlow.get(i));
+            //System.out.println(tokenFlow.get(i));
         }
        
     }
