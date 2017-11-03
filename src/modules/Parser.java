@@ -234,9 +234,62 @@ public class Parser extends Thread {
     
     private void expression(){
         switch(currentToken.getTag()){
-            case ReservedWord.PRINT_ID:
+            case '!':
+            case '-':
+            case Token.IDENTIFIER:
+            case '(':
+            case IntConstant.INT_CONSTANT:
+            case LiteralConstant.LITERAL_CONSTANT:
+                simpleExpression(); expressionPrime();
+                break;
                 
+            default:
+                System.out.println("ERROR: Expected expression");
         }
+    }
+    
+    private void simpleExpression(){
+        switch(currentToken.getTag()){
+            case '!':
+            case '-':
+            case Token.IDENTIFIER:
+            case '(':
+            case IntConstant.INT_CONSTANT:
+            case LiteralConstant.LITERAL_CONSTANT:
+                term(); simpleExprPrime();
+                break;
+                
+            default:
+                System.out.println("ERROR: Expected expression");
+        }
+    }
+    
+    private void term(){
+        switch(currentToken.getTag()){
+            case '!':
+            case '-':
+            case Token.IDENTIFIER:
+            case '(':
+            case IntConstant.INT_CONSTANT:
+            case LiteralConstant.LITERAL_CONSTANT:
+                factora(); termPrime();
+            break;
+            
+            default:
+                System.out.println("ERROR: Expected expression");
+        }
+    }
+    
+    private void expressionPrime(){
+        
+    }
+    
+    private void factora(){
+        
+    }
+    
+    private void termPrime(){
+        
     }
     
     private void writable(){
