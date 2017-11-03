@@ -6,9 +6,11 @@ decllist -> decl-list | LAMBDA
 
 decl-list -> decl decllist
 
-decl -> identifier possible-ident
+decl -> type identifier-list; 
 
-possible-ident -> , decl | LAMBDA
+identifier-list -> identifier possible-ident
+
+possible-ident -> , identifier possible-ident | LAMBDA
 
 type -> int | string
 
@@ -36,13 +38,16 @@ write-stmt -> print ( writable )
 
 writable -> simple-expr | literal
 
-expression -> simple-expr | simple-expr relop simple-expr
+expression -> simple-expr expression-prime
+
+expression-prime -> relop simple-expr | LAMBDA
 
 simple-expr -> term simple-expr-prime
 
 simple-expr-prime -> 	  addop term simple-expr-prime | LAMBDA
 			
 term -> factor-a term-prime
+
 term-prime ->   mulop factor-a term-prime | LAMBDA
 
 factor-a -> factor | ! factor | - factor

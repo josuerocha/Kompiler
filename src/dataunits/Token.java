@@ -52,6 +52,23 @@ public class Token {
         return this.line;
     }
     
+    @Override
+public boolean equals(Object obj) {
+    if (obj == null) {
+        return false;
+    }
+    if (!Token.class.isAssignableFrom(obj.getClass())) {
+        return false;
+    }
+    final Token other = (Token) obj;
+    
+    if (this.tag != other.tag) {
+        return false;
+    }else{
+        return true;
+    }
+}
+    
     public String toString(){
         return "<" + ((char) tag) + ">";
     }

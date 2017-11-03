@@ -135,7 +135,7 @@ public class Lexer extends Thread {
         switch (currentChar) {
             case '=':
                 if (readChar('=')) {
-                    return Operator.EQ;
+                    return Operator.EQUAL;
                 } else {
                     return Operator.ASSIGN;
                 }

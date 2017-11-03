@@ -7,6 +7,7 @@ import dataunits.LiteralConstant;
 import dataunits.Operator;
 import dataunits.ReservedWord;
 import dataunits.Token;
+import util.PrintColor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,19 +30,14 @@ public class Parser extends Thread {
         lexer = new Lexer(this.filepath);
         tokenFlow = new StringBuffer();
         errorMessages =  new StringBuffer();
+        errorMessages.append("ARQUIVO: " + this.filepath + "\n");
     }
     
     public void run(){
         
 
-        Token token;
-        while ((token = lexer.getToken()) != null) {
-            if(token instanceof CompileError){
-                errorMessages.append(token).append(" \n");
-            }else{
-                tokenFlow.append(token).append(" \n");
-            }  
-        }
+        currentToken = lexer.getToken();
+        program();
     }
     
     public String getTokenFlow(){
@@ -59,7 +55,7 @@ public class Parser extends Thread {
                 eat(ReservedWord.PROGRAM); declList(); stmtList(); eat(ReservedWord.END);
                 break;
             default:
-                System.out.println("PROGRAM initializer expected.");
+                errorMessages.append(PrintColor.RED +"PROGRAM initializer expected. \n" + PrintColor.RESET);
                 break;
         }
     }
@@ -77,7 +73,42 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("Expected IDENTIFIER");
+                errorMessages.append(PrintColor.RED + "Expected IDENTIFIER line " + currentToken + lexer.getCurrentLine() + "\n" + PrintColor.RESET);
+        }
+    }
+    
+        private void declListPrime(){
+        switch(currentToken.getTag()){
+            case Token.IDENTIFIER:
+                decl(); declList();
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR: expected ID \n" + PrintColor.RESET);
+        }
+    }
+    
+    private void decl(){
+        switch(currentToken.getTag()){
+            case Token.IDENTIFIER:
+                eat(new Identifier()); possibleIdentifier();
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR: expected ID \n" + PrintColor.RESET);
+        }
+    }
+    
+    private void possibleIdentifier(){
+        switch(currentToken.getTag()){
+            case ',':
+                eat(Token.COMMA); decl();
+                break;
+            case Token.IDENTIFIER:
+            case ReservedWord.DO_ID:
+            case ReservedWord.PRINT_ID:
+            case ReservedWord.IF_ID:
+            case ReservedWord.SCAN_ID:
+                
+                break;
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR: COMMA EXPECTED\n" + PrintColor.RESET);
         }
     }
     
@@ -98,7 +129,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("Syntax error on stmtList");
+                errorMessages.append(PrintColor.RED + "Syntax error on stmtList \n" + PrintColor.RESET);
         } 
      
     }
@@ -114,44 +145,11 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("Expected statement");
+                errorMessages.append(PrintColor.RED + "ERROR: Expected statement \n" + PrintColor.RESET);
         }
     }
     
-    private void declListPrime(){
-        switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
-                decl();
-            default:
-                System.out.println("ERROR: expected ID");
-        }
-    }
-    
-    private void decl(){
-        switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
-                eat(new Identifier()); possibleIdentifier();
-            default:
-                System.out.println("ERROR: expected ID");
-        }
-    }
-    
-    private void possibleIdentifier(){
-        switch(currentToken.getTag()){
-            case ',':
-                eat(Token.COMMA); decl();
-                break;
-            case Token.IDENTIFIER:
-            case ReservedWord.DO_ID:
-            case ReservedWord.PRINT_ID:
-            case ReservedWord.IF_ID:
-            case ReservedWord.SCAN_ID:
-                
-                break;
-            default:
-                System.out.println("ERROR: COMMA EXPECTED");
-        }
-    }
+
     
     public void assignStatement(){
         switch(currentToken.getTag()){
@@ -159,7 +157,7 @@ public class Parser extends Thread {
                 eat(new Identifier()); eat(new Operator('=')); simpleExpression();
                 break;
             default:
-                System.out.println("ERROR: Expected IDENTIFIER");
+                errorMessages.append(PrintColor.RED + "ERROR: Expected IDENTIFIER\n" + PrintColor.RESET);
         }
     }
     
@@ -169,7 +167,7 @@ public class Parser extends Thread {
                 eat(ReservedWord.IF); condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
                 break;
             default:
-                System.out.println("ERROR: expected if");
+                errorMessages.append(PrintColor.RED + "ERROR: expected if\n" + PrintColor.RESET);
         }
     }
     
@@ -180,7 +178,7 @@ public class Parser extends Thread {
             case ReservedWord.ELSE_ID:
                 eat(ReservedWord.ELSE); stmtList(); eat(ReservedWord.END);
             default:
-                System.out.println("ERROR: Expected END or ELSE");
+                errorMessages.append(PrintColor.RED + "ERROR: Expected END or ELSE\n" + PrintColor.RESET);
         }
     }
     
@@ -205,7 +203,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: operator expected");
+                errorMessages.append(PrintColor.RED + "ERROR: operator expected\n" + PrintColor.RESET);
         }
     }
     
@@ -215,7 +213,7 @@ public class Parser extends Thread {
                 eat(ReservedWord.DO); stmtListPrime(); stmtSufix();
                 
             default:
-                System.out.println("ERROR: expected do");
+                errorMessages.append(PrintColor.RED + "ERROR: expected do" + PrintColor.RESET);
         }
     }
     
@@ -225,7 +223,7 @@ public class Parser extends Thread {
                 eat(ReservedWord.WHILE); condition(); eat(ReservedWord.END);
                 break;
             default:
-                System.out.println("ERROR: WHILE keyword expected");
+                errorMessages.append(PrintColor.RED + "ERROR: WHILE keyword expected\n" + PrintColor.RESET);
         }
     }
     
@@ -237,7 +235,7 @@ public class Parser extends Thread {
                 break;
             
             default:
-                System.out.println("ERROR: expected SCAN operator");
+                errorMessages.append(PrintColor.RED + "ERROR: expected SCAN operator\n" + PrintColor.RESET);
         }
         
     }
@@ -249,7 +247,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: expected PRINT keyword");
+                errorMessages.append(PrintColor.RED + "ERROR: expected PRINT keyword\n" + PrintColor.RESET);
         }
     }
     
@@ -265,7 +263,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: Expected expression");
+                errorMessages.append(PrintColor.RED + "ERROR: Expected expression\n" + PrintColor.RESET);
         }
     }
     
@@ -281,7 +279,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: Expected expression");
+                errorMessages.append(PrintColor.RED + "ERROR: Expected expression\n" + PrintColor.RESET);
         }
     }
     
@@ -305,6 +303,9 @@ public class Parser extends Thread {
             case ';':
                   
                 break;
+                
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR in simpleExprPrime\n" + PrintColor.RESET);
         }
     }
     
@@ -321,7 +322,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: Add operator expected");
+                errorMessages.append(PrintColor.RED + "ERROR: Add operator expected\n" + PrintColor.RESET);
             
         }
     }
@@ -338,7 +339,7 @@ public class Parser extends Thread {
             break;
             
             default:
-                System.out.println("ERROR: Expected expression");
+                errorMessages.append(PrintColor.RED + "ERROR: Expected expression\n" + PrintColor.RESET);
         }
     }
     
@@ -367,7 +368,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: expected operator");
+                errorMessages.append(PrintColor.RED + "ERROR: expected operator\n" + PrintColor.RESET);
         }
     }
     
@@ -404,7 +405,7 @@ public class Parser extends Thread {
                 
                 break;
             default:
-                System.out.println("ERROR: Operator expected");
+                errorMessages.append(PrintColor.RED + "ERROR: Operator expected\n" + PrintColor.RESET);
         }
     }
     
@@ -424,6 +425,9 @@ public class Parser extends Thread {
             case LiteralConstant.LITERAL_CONSTANT:
                 factor();
                 break;
+                
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR: factora\n" + PrintColor.RESET);
         }
     }
     
@@ -440,8 +444,10 @@ public class Parser extends Thread {
                 
             case '(':
                 eat(Token.OPEN_PAREN); expression(); eat(Token.CLOSE_PAREN);
+                break; 
                 
-                
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR: factor\n" + PrintColor.RESET);
         }
     }
     
@@ -454,7 +460,7 @@ public class Parser extends Thread {
                 eat(new LiteralConstant("a"));
                 break;
             default:
-                System.out.println("ERROR: constant expected");
+                errorMessages.append(PrintColor.RED + "ERROR: constant expected\n" + PrintColor.RESET);
         }
     }
     
@@ -474,7 +480,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: expected literal or expression");
+                errorMessages.append(PrintColor.RED + "ERROR: expected literal or expression\n" + PrintColor.RESET);
         }
 
     }
@@ -510,7 +516,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("ERROR: operator expected");
+                errorMessages.append(PrintColor.RED + "ERROR: operator expected\n" + PrintColor.RESET);
         }
     }
     
@@ -526,7 +532,7 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                System.out.println("Error in condition production");
+                errorMessages.append(PrintColor.RED + "Error in condition production\n" + PrintColor.RESET);
         }
     }
     
@@ -550,7 +556,7 @@ public class Parser extends Thread {
                 ifStatement();
                 break;
             default:
-                System.out.println("ERROR: expected statement");
+                errorMessages.append(PrintColor.RED + "ERROR: expected statement\n" + PrintColor.RESET);
         }
     }
     
@@ -566,17 +572,17 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                    System.out.println("ERROR: type expected (INT/STRING)");
+                    errorMessages.append(PrintColor.RED + "ERROR: type expected (INT/STRING)\n" + PrintColor.RESET);
                 break;
                 
         }
     }
     
     private void eat(Token t){
-        if (currentToken == t) {
+        if (currentToken.equals(t)) {
             currentToken = lexer.getToken();
         }else {
-            System.out.println("ERROR: expected " + t + " on line " + lexer.getCurrentLine() + "\n");
+            //System.out.println("ERROR: expected " + t + " on line " + lexer.getCurrentLine() + "\n");
         }
     }
     

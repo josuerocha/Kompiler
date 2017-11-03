@@ -19,6 +19,6 @@ public class CompileError extends Token{
     }
     
     public String toString(){
-        return Color.RED + SpecialChars.ERROR_MARK + " ERROR: " + this.message + " on line " + this.line + Color.RESET;
+        return PrintColor.RED + SpecialChars.ERROR_MARK + " ERROR: " + this.message + " on line " + this.line + PrintColor.RESET;
     }
 }

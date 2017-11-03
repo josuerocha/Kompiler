@@ -6,7 +6,7 @@ package util;
  */
 
 
-public class Color{
+public class PrintColor{
     public static final String BLACK = "\u001B[30m";
     public static final String RED = "\u001B[31m";
     public static final String GREEN = "\u001B[32m";
