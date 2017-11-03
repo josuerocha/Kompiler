@@ -61,8 +61,10 @@ public class Parser extends Thread {
     }
     
     private void declList(){
+        
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case ReservedWord.INT_ID:
+            case ReservedWord.STRING_ID:
                 declListPrime();
                 break;
             case ReservedWord.IF_ID:
@@ -82,23 +84,34 @@ public class Parser extends Thread {
             case Token.IDENTIFIER:
                 decl(); declList();
             default:
-                errorMessages.append(PrintColor.RED + "ERROR: expected ID \n" + PrintColor.RESET);
+                errorMessages.append(PrintColor.RED + "ERROR: expected ID declListPrime \n" + PrintColor.RESET);
         }
     }
     
     private void decl(){
         switch(currentToken.getTag()){
+            case ReservedWord.INT_ID:
+            case ReservedWord.STRING_ID:
+                type(); identifierList(); eat(Token.SEMI_COLON);
+                break;
+                
+            default:
+                errorMessages.append(PrintColor.RED + "ERROR: expected ID decl\n" + PrintColor.RESET);
+        }
+    }
+    
+    private void identifierList(){
+        switch(currentToken.getTag()){
             case Token.IDENTIFIER:
                 eat(new Identifier()); possibleIdentifier();
-            default:
-                errorMessages.append(PrintColor.RED + "ERROR: expected ID \n" + PrintColor.RESET);
+                break;
         }
     }
     
     private void possibleIdentifier(){
         switch(currentToken.getTag()){
             case ',':
-                eat(Token.COMMA); decl();
+                eat(Token.COMMA); eat(new Identifier()); possibleIdentifier();
                 break;
             case Token.IDENTIFIER:
             case ReservedWord.DO_ID:
