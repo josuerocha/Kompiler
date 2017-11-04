@@ -14,7 +14,6 @@ public class Token {
  * **/
     //RESERVED WORDS
     public final static int
-    RESERVED_WORD = 256,
     
     //
     OPERATOR = 300,
@@ -33,8 +32,7 @@ public class Token {
     
 //------------------------------------------------------------------------------------
     
-    private final int tag;
-    private int line;
+    public int tag;
     
     public Token(int tag){
         this.tag = tag;
@@ -44,13 +42,6 @@ public class Token {
         return tag;
     }
     
-    public void setLine(int line){
-        this.line = line;
-    }
-    
-    public int getLine(){
-        return this.line;
-    }
     
     @Override
 public boolean equals(Object obj) {

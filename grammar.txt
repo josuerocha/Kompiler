@@ -6,7 +6,7 @@ decllist -> decl-list | LAMBDA
 
 decl-list -> decl decllist
 
-decl -> type identifier-list; 
+decl -> type identifier-list ; 
 
 identifier-list -> identifier possible-ident
 

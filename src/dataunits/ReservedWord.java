@@ -33,36 +33,49 @@ public class ReservedWord extends Token{
     public static final ReservedWord INT = new ReservedWord("int");
     public static final ReservedWord STRING = new ReservedWord("string");
     
-    private int type;
     private String lexeme;
     
     public ReservedWord(String lexeme){
-        super(Token.RESERVED_WORD);
-        
+        super(0);
         this.lexeme = lexeme;
-        
-        switch(lexeme){
+                
+        switch(this.lexeme){
             case "program":
-                this.type = ReservedWord.PROGRAM_ID;
-            break;
+                super.tag = ReservedWord.PROGRAM_ID;
+                break;
+            case "int":
+                super.tag = ReservedWord.INT_ID;
+                break;
+            case "string":
+                super.tag = ReservedWord.STRING_ID;
+                break;
             case "if":
-                this.type = ReservedWord.IF_ID;
-            break;
+                super.tag = ReservedWord.IF_ID;
+                break;
             case "then":
-                this.type = ReservedWord.THEN_ID;
+                super.tag = ReservedWord.THEN_ID;
+                
             break;
             case "else":
-                this.type = ReservedWord.ELSE_ID;
+                super.tag = ReservedWord.ELSE_ID;
+                break;
             case "end":
-                this.type = ReservedWord.END_ID;
+                super.tag = ReservedWord.END_ID;
+                break;
             case "do":
-                this.type = ReservedWord.DO_ID;
+                super.tag = ReservedWord.DO_ID;
+                break;
             case "while":
-                this.type = ReservedWord.WHILE_ID;
+                super.tag = ReservedWord.WHILE_ID;
+                break;
             case "scan":
-                this.type = ReservedWord.SCAN_ID;
+                super.tag = ReservedWord.SCAN_ID;
+                break;
             case "print":
-                this.type = ReservedWord.PRINT_ID;
+                super.tag = ReservedWord.PRINT_ID;
+                break;
+            default:
+                System.out.println(lexeme);
         }
         
     }

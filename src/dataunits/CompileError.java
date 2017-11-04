@@ -11,14 +11,16 @@ public class CompileError extends Token{
     
     private String message;
     private int line;
+    private String lexeme;
     
-    public CompileError(String message,int line){
+    public CompileError(String message,int line,String lexeme){
         super(Token.ERROR);
         this.message = message;
         this.line = line;
+        this.lexeme = lexeme;
     }
     
     public String toString(){
-        return PrintColor.RED + SpecialChars.ERROR_MARK + " ERROR: " + this.message + " on line " + this.line + PrintColor.RESET;
+        return "< LEXICAL_ERROR, " + lexeme + ">" +  PrintColor.RESET;
     }
 }
