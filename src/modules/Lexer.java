@@ -102,7 +102,7 @@ public class Lexer extends Thread {
                 } else if (currentChar == '*') {
                     checkForDisposables = true;
                     if (!discardMultiLineComment()) {
-                        return new CompileError("Unclosed multiple line comment", commentLine);
+                        return new CompileError("Unclosed multiple line comment", commentLine,""+currentChar);
                     }
                 } else {
                     currentChar = '/';
@@ -222,7 +222,7 @@ public class Lexer extends Thread {
 
             while (!readChar('"')) {
                 if (currentChar == '\n') {
-                    return new CompileError("Unclosed string literal", currentLine - 1);
+                    return new CompileError("Unclosed string literal", currentLine - 1,buffer.toString());
                 }
 
                 buffer.append(currentChar);
@@ -236,7 +236,7 @@ public class Lexer extends Thread {
         if (currentChar == ((char) -1)) {
             return null;
         }
-        Token t = new CompileError("Invalid token " + currentChar, currentLine);
+        Token t = new CompileError("Invalid token " + currentChar, currentLine, ""+currentChar);
         currentChar = ' ';
         return t;
     }
