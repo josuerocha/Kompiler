@@ -8,10 +8,12 @@ package dataunits;
 
 public class LiteralConstant extends Token{
     
+    public static LiteralConstant LIT_CONSTANT = new LiteralConstant("");
+    
     private String lexeme;
     
     public LiteralConstant(String lexeme){
-        super(Token.LITERAL_CONSTANT);
+        super(Token.LIT_CONSTANT_ID);
         this.lexeme = lexeme;
     }
     

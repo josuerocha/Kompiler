@@ -12,17 +12,15 @@ public class Token {
  * 
  * <p>
  * **/
-    //RESERVED WORDS
+    
     public final static int
     
-    //
-    OPERATOR = 300,
             
     //OTHER
-    INT_CONSTANT = 450,
-    LITERAL_CONSTANT = 451,
-    IDENTIFIER = 452,
-    ERROR = 455,
+    INT_CONSTANT_ID = 450,
+    LIT_CONSTANT_ID = 451,
+    IDENTIFIER_ID = 452,
+    ERROR_ID = 455,
     EOF_ID = 500;
     
     

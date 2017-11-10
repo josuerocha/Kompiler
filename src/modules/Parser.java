@@ -25,6 +25,46 @@ public class Parser extends Thread {
     private Token currentToken;
     Lexer lexer;
     
+    
+    //FOLLOW SETS OF EACH PRODUCTION
+    Token[] declistFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            declistPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            declFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            possibleIdentFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            typeFollow = {Identifier.IDENTIFIER},
+            stmtListFollow = {ReservedWord.WHILE,ReservedWord.END,ReservedWord.ELSE},
+            assignStmtFollow = {Token.SEMI_COLON},
+            ifStmtFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            ifStmtPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            whileFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            stmtSuffixFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            readStmtFollow = {Token.SEMI_COLON},
+            writeStmtFollow = {Token.SEMI_COLON},
+            writableFollow = {Token.CLOSE_PAREN},
+            simpleExpressionPrimeFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
+                                     Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN,
+                                     Token.SEMI_COLON},
+            termPrimeFollow = {Operator.PLUS, Operator.MINUS, Operator.OR, Operator.EQUAL, Operator.GT, 
+                                Operator.GE,Operator.LT, Operator.LE, Operator.DIFFERENT, Token.CLOSE_PAREN, 
+                                ReservedWord.END, ReservedWord.THEN, ReservedWord.SEMI_COLON},
+            factoraFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS, Operator.OR,
+                            Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT,Operator.LE, Operator.DIFFERENT, 
+                            Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
+            factorFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS, Operator.OR,
+                            Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT,Operator.LE, Operator.DIFFERENT, 
+                            Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
+            relopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
+                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
+            addopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
+                            IntConstant.INT_CONSTANT,LiteralConstant.LITERAL_CONSTANT},
+            mulopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
+                            IntConstant.INT_CONSTANT,LiteralConstant.LITERAL_CONSTANT},
+            
+    
     public Parser(String path){
         this.filepath = path;
         lexer = new Lexer(this.filepath);
@@ -110,7 +150,7 @@ public class Parser extends Thread {
     private void identifierList(){
         switch(currentToken.getTag()){
             case Token.IDENTIFIER:
-                eat(new Identifier()); possibleIdentifier();
+                eat(Identifier.IDENTIFIER); possibleIdentifier();
                 break;
                 
             default:
@@ -122,7 +162,7 @@ public class Parser extends Thread {
     private void possibleIdentifier(){
         switch(currentToken.getTag()){
             case ',':
-                eat(Token.COMMA); eat(new Identifier()); possibleIdentifier();
+                eat(Token.COMMA); eat(Identifier.IDENTIFIER); possibleIdentifier();
                 break;
             case ';':
             
@@ -179,7 +219,7 @@ public class Parser extends Thread {
     public void assignStatement(){
         switch(currentToken.getTag()){
             case Token.IDENTIFIER:
-                eat(new Identifier()); eat(new Operator('=')); simpleExpression();
+                eat(Identifier.IDENTIFIER); eat(new Operator('=')); simpleExpression();
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "assignStatement" + PrintColor.RESET);
@@ -260,7 +300,7 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case ReservedWord.SCAN_ID:
                 eat(ReservedWord.SCAN); eat(Token.OPEN_PAREN); 
-                eat(new Identifier()); eat(Token.CLOSE_PAREN);
+                eat(Identifier.IDENTIFIER); eat(Token.CLOSE_PAREN);
                 break;
             
             default:
@@ -475,7 +515,7 @@ public class Parser extends Thread {
     private void factor(){
         switch(currentToken.getTag()){
             case Token.IDENTIFIER:
-                eat(new Identifier());
+                eat(Identifier.IDENTIFIER);
                 break;
                 
             case Token.INT_CONSTANT:
@@ -629,7 +669,7 @@ public class Parser extends Thread {
         }
     }
     
-    private void skipTo(List<Token> followSet){
+    private void skipTo(Token[] followSet){
         
         boolean followElementFound = false;
         while(!followElementFound){

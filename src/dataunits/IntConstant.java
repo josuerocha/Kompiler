@@ -7,10 +7,17 @@ package dataunits;
  */
 public class IntConstant extends Token{
     
+    public static IntConstant INT_CONSTANT = new IntConstant();
+    
     private final int value;
     
+    private IntConstant(){
+        super(Token.INT_CONSTANT_ID);
+        this.value = 0;
+    }
+    
     public IntConstant(int value){
-        super(Token.INT_CONSTANT);
+        super(Token.INT_CONSTANT_ID);
         this.value = value;
     }
     
