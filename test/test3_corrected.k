@@ -19,3 +19,4 @@ program
 		end
 	while (pontuação >= 0)end
 end*/
+end

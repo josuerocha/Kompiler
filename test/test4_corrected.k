@@ -15,7 +15,7 @@ program
 		aux = b;
 		b = a;
 		a = aux;
-	
+	end
 	
 	print ("Apos a troca: ");
 	print(a);
