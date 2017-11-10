@@ -150,6 +150,7 @@ public class Parser extends Thread {
     }
     
     private void decl(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.INT_ID:
             case ReservedWord.STRING_ID:
@@ -163,6 +164,7 @@ public class Parser extends Thread {
     }
     
     private void identifierList(){
+        
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER); possibleIdentifier();
@@ -175,6 +177,7 @@ public class Parser extends Thread {
     }
     
     private void possibleIdentifier(){
+        
         switch(currentToken.getTag()){
             case ',':
                 eat(Token.COMMA); eat(Identifier.IDENTIFIER); possibleIdentifier();
@@ -232,6 +235,7 @@ public class Parser extends Thread {
 
     
     public void assignStatement(){
+        
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER); eat(new Operator('=')); simpleExpression();
@@ -243,6 +247,7 @@ public class Parser extends Thread {
     }
     
     private void ifStatement(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.IF_ID:
                 eat(ReservedWord.IF); condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
@@ -254,6 +259,7 @@ public class Parser extends Thread {
     }
     
     private void ifStatementPrime(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.END_ID:
                 eat(ReservedWord.END);
@@ -261,33 +267,6 @@ public class Parser extends Thread {
                 eat(ReservedWord.ELSE); stmtList(); eat(ReservedWord.END);
             default:
                 errorMessages.append(PrintColor.BLUE + "ifStatementPrime\n" + PrintColor.RESET);
-        }
-    }
-    
-    private void simpleExpressionPrime(){
-        
-        switch(currentToken.getTag()){
-            case '+':
-            case '-':
-            case Operator.OR_ID:
-                addop(); term(); simpleExpressionPrime();
-                break;
-            case Operator.EQUAL_ID:
-            case '>':
-            case Operator.GREATER_EQUAL_ID:
-            case '<':
-            case Operator.LESS_EQUAL_ID:
-            case Operator.DIFFERENT_ID:
-            case ')': 
-            case ReservedWord.END_ID:
-            case ReservedWord.THEN_ID:
-            case ';':
-                
-                break;
-                
-            default:
-                errorMessages.append(PrintColor.BLUE + "simpleExpressionPrime\n" + PrintColor.RESET);
-                error();
         }
     }
     
@@ -541,6 +520,7 @@ public class Parser extends Thread {
     }
     
     private void factor(){
+        
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER);
