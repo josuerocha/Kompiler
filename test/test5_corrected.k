@@ -22,5 +22,5 @@ program
 		print (maior);
 		print ("Outro? ");
 		scan(outro);
-	while (outro >= 0)
+	while (outro >= 0) end
 end

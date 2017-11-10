@@ -234,7 +234,7 @@ public class Lexer extends Thread {
         }
 
         if (currentChar == ((char) -1)) {
-            return null;
+            return Token.EOF;
         }
         Token t = new CompileError("Invalid token " + currentChar, currentLine, ""+currentChar);
         currentChar = ' ';
@@ -243,10 +243,6 @@ public class Lexer extends Thread {
 
     public int getCurrentLine() {
         return currentLine;
-    }
-    
-    private boolean checkInvalidCharacter() {
-        return currentChar == 'ç' || currentChar == 'Ç';
     }
 
     private boolean checkDelimiter() {

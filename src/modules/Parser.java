@@ -135,6 +135,7 @@ public class Parser extends Thread {
     }
     
     private void stmtList(){
+        System.out.println(currentToken);
         switch(currentToken.getTag()){
             case Token.IDENTIFIER:
             case ReservedWord.DO_ID:
@@ -240,7 +241,7 @@ public class Parser extends Thread {
                 eat(ReservedWord.DO); stmtListPrime(); stmtSufix();
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "whileStatement" + PrintColor.RESET);
+                errorMessages.append(PrintColor.BLUE + "whileStatement\n" + PrintColor.RESET);
         }
     }
     

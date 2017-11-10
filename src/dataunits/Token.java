@@ -22,13 +22,15 @@ public class Token {
     INT_CONSTANT = 450,
     LITERAL_CONSTANT = 451,
     IDENTIFIER = 452,
-    ERROR = 455;
+    ERROR = 455,
+    EOF_ID = 500;
     
     
     public static Token SEMI_COLON = new Token(';'),
                         OPEN_PAREN = new Token('('),
                         CLOSE_PAREN = new Token(')'),
-                        COMMA = new Token(',');
+                        COMMA = new Token(','),
+                        EOF = new Token(EOF_ID);
     
 //------------------------------------------------------------------------------------
     
@@ -61,6 +63,10 @@ public boolean equals(Object obj) {
 }
     
     public String toString(){
-        return "<" + ((char) tag) + ">";
+        if(this.tag == EOF_ID){
+            return "<EOF>";
+        }else{
+            return "<" + ((char) tag) + ">";
+        }
     }
 }
