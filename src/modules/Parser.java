@@ -708,29 +708,33 @@ public class Parser extends Thread {
         if (currentToken.equals(t)) {
             currentToken = lexer.getToken();
         }else {
-            error();
+            error(t);
         }
     }
     
     private void synchTo(Token[] followSet){
        
         boolean followElementFound = false;
-        while(!followElementFound){
+        
+        do{
             
             for(Token followElement : followSet){
-                if(followElement.equals(currentToken) || currentToken.equals(Token.EOF)){
+                if(followElement.equals(currentToken)){
                     followElementFound = true;
                     break;
                 }
             }
             
             
-            currentToken = lexer.getToken();
-        }
+        }while(!((currentToken = lexer.getToken()) == Token.EOF) && !followElementFound);
     }
     
     private void error(){
         errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+    }
+    
+    private void error(Token expected){
+        errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "Expected " + expected + "\n");
     }
     
     public static void main(String[] args) {
