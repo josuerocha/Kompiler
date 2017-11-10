@@ -30,20 +30,21 @@ public class Parser extends Thread {
     Token[] declistFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
             declistPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
             declFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
-            possibleIdentFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            identifierListFollow = {Token.SEMI_COLON},
+            possibleIdentifierFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
             typeFollow = {Identifier.IDENTIFIER},
             stmtListFollow = {ReservedWord.WHILE,ReservedWord.END,ReservedWord.ELSE},
-            assignStmtFollow = {Token.SEMI_COLON},
-            ifStmtFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+            assignStatementFollow = {Token.SEMI_COLON},
+            ifStatementFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
                             ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            ifStmtPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+            ifStatementPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
                             ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            whileFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+            whileStatementFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
                             ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
             stmtSuffixFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
                             ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            readStmtFollow = {Token.SEMI_COLON},
-            writeStmtFollow = {Token.SEMI_COLON},
+            readStatementFollow = {Token.SEMI_COLON},
+            writeStatementFollow = {Token.SEMI_COLON},
             writableFollow = {Token.CLOSE_PAREN},
             simpleExpressionPrimeFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
                                      Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN,
@@ -72,10 +73,11 @@ public class Parser extends Thread {
                               Operator.LT, Operator.LE, Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END,
                               ReservedWord.THEN, Token.SEMI_COLON},
             stmtListPrimeFollow = {ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            simpleExprFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
+            simpleExpressionFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
                                 Operator.DIFFERENT, Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.END,
                                 Token.SEMI_COLON},
             expressionFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
+            expressionPrimeFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
             conditionFollow = {ReservedWord.END, ReservedWord.THEN};
             
     
@@ -88,14 +90,8 @@ public class Parser extends Thread {
     }
     
     public void run(){
-        
-
         currentToken = lexer.getToken();
         program();
-    }
-    
-    public String getTokenFlow(){
-        return "FILE: " + this.filepath + "\n" + this.tokenFlow.toString();
     }
     
     public String getErrorMessages(){
@@ -133,6 +129,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "declList\n" + PrintColor.RESET);
                 error();
+                synchTo(declistFollow);
         }
     }
     
@@ -146,6 +143,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "declListPrime \n" + PrintColor.RESET);
                 error();
+                synchTo(declistPrimeFollow);
         }
     }
     
@@ -160,6 +158,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "decl\n" + PrintColor.RESET);
                 error();
+                synchTo(declFollow);
         }
     }
     
@@ -173,6 +172,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "identifierList\n" + PrintColor.RESET);
                 error();
+                synchTo(identifierListFollow);
         }
     }
     
@@ -189,6 +189,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "possibleIdentifier\n" + PrintColor.RESET);
                 error();
+                synchTo(possibleIdentifierFollow);
         }
     }
     
@@ -212,6 +213,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "stmtList \n" + PrintColor.RESET);
                 error();
+                synchTo(stmtListFollow);
         } 
      
     }
@@ -229,6 +231,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "stmtListPrime \n" + PrintColor.RESET);
                 error();
+                synchTo(stmtListPrimeFollow);
         }
     }
     
@@ -243,6 +246,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "assignStatement" + PrintColor.RESET);
                 error();
+                synchTo(assignStatementFollow);
         }
     }
     
@@ -255,6 +259,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "ifStatement\n" + PrintColor.RESET);
                 error();
+                synchTo(ifStatementFollow);
         }
     }
     
@@ -267,6 +272,8 @@ public class Parser extends Thread {
                 eat(ReservedWord.ELSE); stmtList(); eat(ReservedWord.END);
             default:
                 errorMessages.append(PrintColor.BLUE + "ifStatementPrime\n" + PrintColor.RESET);
+                error();
+                synchTo(ifStatementPrimeFollow);
         }
     }
     
@@ -278,6 +285,8 @@ public class Parser extends Thread {
                 
             default:
                 errorMessages.append(PrintColor.BLUE + "whileStatement\n" + PrintColor.RESET);
+                error();
+                synchTo(whileStatementFollow);
         }
     }
     
@@ -290,6 +299,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "stmtSufix\n" + PrintColor.RESET);
                 error();
+                synchTo(stmtSuffixFollow);
         }
     }
     
@@ -303,6 +313,9 @@ public class Parser extends Thread {
             
             default:
                 errorMessages.append(PrintColor.BLUE + "readStatement\n" + PrintColor.RESET);
+                error();
+                synchTo(readStatementFollow);
+                
         }
         
     }
@@ -317,6 +330,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "writeStatement\n" + PrintColor.RESET);
                 error();
+                synchTo(writeStatementFollow);
         }
     }
     
@@ -334,6 +348,8 @@ public class Parser extends Thread {
                 
             default:
                 errorMessages.append(PrintColor.BLUE + "expression\n" + PrintColor.RESET);
+                error();
+                synchTo(expressionFollow);
         }
     }
     
@@ -346,22 +362,23 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                term(); simpleExprPrime();
+                term(); simpleExpressionPrime();
                 break;
                 
             default:
                 errorMessages.append(PrintColor.BLUE + "simpleExpression\n" + PrintColor.RESET);
                 error();
+                synchTo(simpleExpressionFollow);
         }
     }
     
-    private void simpleExprPrime(){
+    private void simpleExpressionPrime(){
         
         switch(currentToken.getTag()){
             case '+':
             case '-':
             case Operator.OR_ID:
-                addop(); term(); simpleExprPrime();
+                addop(); term(); simpleExpressionPrime();
                 break;
             
             case Operator.EQUAL_ID:
@@ -380,6 +397,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "simpleExprPrime\n" + PrintColor.RESET);
                 error();
+                synchTo(simpleExpressionPrimeFollow);
                 
         }
     }
@@ -400,6 +418,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "addop\n" + PrintColor.RESET);
                 error();
+                synchTo(addopFollow);
         }
     }
     
@@ -418,6 +437,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "term\n" + PrintColor.RESET);
                 error();
+                synchTo(termFollow);
         }
     }
     
@@ -449,6 +469,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "termPrime\n" + PrintColor.RESET);
                 error();
+                synchTo(termPrimeFollow);
         }
     }
     
@@ -470,6 +491,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "mulop\n" + PrintColor.RESET);
                 error();
+                synchTo(mulopFollow);
         }
     }
     
@@ -493,6 +515,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "expressionPrime\n" + PrintColor.RESET);
                 error();
+                synchTo(expressionPrimeFollow);
         }
     }
     
@@ -516,6 +539,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "factora\n" + PrintColor.RESET);
                 error();
+                synchTo(factoraFollow);
         }
     }
     
@@ -538,6 +562,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "factor\n" + PrintColor.RESET);
                 error();
+                synchTo(factorFollow);
         }
     }
     
@@ -552,6 +577,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "constant\n" + PrintColor.RESET);
                 error();
+                synchTo(constantFollow);
         }
     }
     
@@ -573,6 +599,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "writable\n" + PrintColor.RESET);
                 error();
+                synchTo(writableFollow);
         }
 
     }
@@ -606,6 +633,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "relop\n" + PrintColor.RESET);
                 error();
+                synchTo(relopFollow);
             }
     }
     
@@ -623,6 +651,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "condition\n" + PrintColor.RESET);
                 error();
+                synchTo(conditionFollow);
         }
     }
     
@@ -648,6 +677,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "stmt\n" + PrintColor.RESET);
                 error();
+                synchTo(stmtFollow);
         }
     }
     
@@ -665,7 +695,7 @@ public class Parser extends Thread {
             default:
                 errorMessages.append(PrintColor.BLUE + "type\n" + PrintColor.RESET);
                 error();
-                
+                synchTo(typeFollow);
         }
     }
     
@@ -677,13 +707,13 @@ public class Parser extends Thread {
         }
     }
     
-    private void skipTo(Token[] followSet){
+    private void synchTo(Token[] followSet){
         
         boolean followElementFound = false;
         while(!followElementFound){
             
             for(Token followElement : followSet){
-                if(followElement.equals(currentToken)){
+                if(followElement.equals(currentToken) || currentToken.equals(Token.EOF)){
                     followElementFound = true;
                     break;
                 }
@@ -694,7 +724,7 @@ public class Parser extends Thread {
     }
     
     private void error(){
-        errorMessages.append(PrintColor.RED + "Unexpected token " + currentToken + " on line " + lexer.getCurrentLine() + PrintColor.RESET + "\n");
+        errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
     }
     
     public static void main(String[] args) {
@@ -705,7 +735,6 @@ public class Parser extends Thread {
         }
         
         List<String> paths = new ArrayList<>();
-        List<String> tokenFlow = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
         List<Parser> compileJobs = new ArrayList<>();
         
@@ -721,16 +750,15 @@ public class Parser extends Thread {
             
             for(int i=0 ; i<compileJobs.size(); i++){
                 if(!compileJobs.get(i).isAlive()){
-                    tokenFlow.add(compileJobs.get(i).getTokenFlow());
                     errorMessages.add(compileJobs.get(i).getErrorMessages());
                     compileJobs.remove(i);
                 }
             }
         }
         //PRINTING OUTPUT
-        for(int i = 0; i<tokenFlow.size(); i++){
+        for(int i = 0; i<errorMessages.size(); i++){
             System.out.println(errorMessages.get(i));
-            //System.out.println(tokenFlow.get(i));
+            
         }
        
     }
