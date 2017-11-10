@@ -14,7 +14,7 @@ public class CompileError extends Token{
     private String lexeme;
     
     public CompileError(String message,int line,String lexeme){
-        super(Token.ERROR);
+        super(Token.ERROR_ID);
         this.message = message;
         this.line = line;
         this.lexeme = lexeme;

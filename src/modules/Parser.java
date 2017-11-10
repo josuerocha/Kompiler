@@ -60,9 +60,23 @@ public class Parser extends Thread {
             relopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
                             IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
             addopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
-                            IntConstant.INT_CONSTANT,LiteralConstant.LITERAL_CONSTANT},
+                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
             mulopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
-                            IntConstant.INT_CONSTANT,LiteralConstant.LITERAL_CONSTANT},
+                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
+            constantFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS,Operator.OR,
+                                Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE, Operator.DIFFERENT,
+                                Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
+            stmtFollow =      {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.IF,ReservedWord.SCAN,
+                                ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            termFollow =     {Operator.PLUS, Operator.MINUS, Operator.OR, Operator.EQUAL,Operator.GT, Operator.GE,
+                              Operator.LT, Operator.LE, Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END,
+                              ReservedWord.THEN, Token.SEMI_COLON},
+            stmtListPrimeFollow = {ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            simpleExprFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
+                                Operator.DIFFERENT, Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.END,
+                                Token.SEMI_COLON},
+            expressionFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
+            conditionFollow = {ReservedWord.END, ReservedWord.THEN};
             
     
     public Parser(String path){
@@ -90,6 +104,7 @@ public class Parser extends Thread {
     }
     
     private void program(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.PROGRAM_ID:
                 eat(ReservedWord.PROGRAM); declList(); stmtList(); eat(ReservedWord.END);
@@ -111,7 +126,7 @@ public class Parser extends Thread {
             case ReservedWord.DO_ID:
             case ReservedWord.SCAN_ID:
             case ReservedWord.PRINT_ID:
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
                 
                 break;
                 
@@ -149,7 +164,7 @@ public class Parser extends Thread {
     
     private void identifierList(){
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER); possibleIdentifier();
                 break;
                 
@@ -177,7 +192,7 @@ public class Parser extends Thread {
     private void stmtList(){
         System.out.println(currentToken);
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case ReservedWord.DO_ID:
             case ReservedWord.PRINT_ID:
             case ReservedWord.SCAN_ID:
@@ -200,7 +215,7 @@ public class Parser extends Thread {
     
     private void stmtListPrime(){
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case ReservedWord.DO_ID:
             case ReservedWord.PRINT_ID:
             case ReservedWord.IF_ID:
@@ -218,7 +233,7 @@ public class Parser extends Thread {
     
     public void assignStatement(){
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER); eat(new Operator('=')); simpleExpression();
                 break;
             default:
@@ -250,6 +265,7 @@ public class Parser extends Thread {
     }
     
     private void simpleExpressionPrime(){
+        
         switch(currentToken.getTag()){
             case '+':
             case '-':
@@ -276,6 +292,7 @@ public class Parser extends Thread {
     }
     
     private void whileStatement(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.DO_ID:
                 eat(ReservedWord.DO); stmtListPrime(); stmtSufix();
@@ -286,6 +303,7 @@ public class Parser extends Thread {
     }
     
     private void stmtSufix(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.WHILE_ID:
                 eat(ReservedWord.WHILE); condition(); eat(ReservedWord.END);
@@ -297,6 +315,7 @@ public class Parser extends Thread {
     }
     
     public void readStatement(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.SCAN_ID:
                 eat(ReservedWord.SCAN); eat(Token.OPEN_PAREN); 
@@ -310,6 +329,7 @@ public class Parser extends Thread {
     }
     
     public void writeStatement(){
+        
         switch(currentToken.getTag()){
             case ReservedWord.PRINT_ID:
                 eat(ReservedWord.PRINT); eat(Token.OPEN_PAREN); writable(); eat(Token.CLOSE_PAREN);
@@ -322,13 +342,14 @@ public class Parser extends Thread {
     }
     
     private void expression(){
+        
         switch(currentToken.getTag()){
             case '!':
             case '-':
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case '(':
-            case IntConstant.INT_CONSTANT:
-            case LiteralConstant.LITERAL_CONSTANT:
+            case IntConstant.INT_CONSTANT_ID:
+            case LiteralConstant.LIT_CONSTANT_ID:
                 simpleExpression(); expressionPrime();
                 break;
                 
@@ -338,13 +359,14 @@ public class Parser extends Thread {
     }
     
     private void simpleExpression(){
+        
         switch(currentToken.getTag()){
             case '!':
             case '-':
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case '(':
-            case IntConstant.INT_CONSTANT:
-            case LiteralConstant.LITERAL_CONSTANT:
+            case IntConstant.INT_CONSTANT_ID:
+            case LiteralConstant.LIT_CONSTANT_ID:
                 term(); simpleExprPrime();
                 break;
                 
@@ -355,6 +377,7 @@ public class Parser extends Thread {
     }
     
     private void simpleExprPrime(){
+        
         switch(currentToken.getTag()){
             case '+':
             case '-':
@@ -383,6 +406,7 @@ public class Parser extends Thread {
     }
     
     private void addop(){
+        
         switch(currentToken.getTag()){
             case '+':
                 eat(Operator.PLUS);
@@ -401,13 +425,14 @@ public class Parser extends Thread {
     }
     
     private void term(){
+        
         switch(currentToken.getTag()){
             case '!':
             case '-':
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case '(':
-            case IntConstant.INT_CONSTANT:
-            case LiteralConstant.LITERAL_CONSTANT:
+            case IntConstant.INT_CONSTANT_ID:
+            case LiteralConstant.LIT_CONSTANT_ID:
                 factora(); termPrime();
             break;
             
@@ -418,6 +443,7 @@ public class Parser extends Thread {
     }
     
     private void termPrime(){
+        
         switch(currentToken.getTag()){
             case '*':
             case '/':
@@ -448,6 +474,7 @@ public class Parser extends Thread {
     }
     
     private void mulop(){
+        
         switch(currentToken.getTag()){
             case '*':
                 eat(Operator.MUL);
@@ -468,6 +495,7 @@ public class Parser extends Thread {
     }
     
     private void expressionPrime(){
+        
         switch(currentToken.getTag()){
             case Operator.EQUAL_ID:
             case '>':
@@ -499,10 +527,10 @@ public class Parser extends Thread {
                 eat(Operator.MINUS); factor();
                 break;
                 
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case '(':
-            case IntConstant.INT_CONSTANT:
-            case LiteralConstant.LITERAL_CONSTANT:
+            case IntConstant.INT_CONSTANT_ID:
+            case LiteralConstant.LIT_CONSTANT_ID:
                 factor();
                 break;
                 
@@ -514,12 +542,12 @@ public class Parser extends Thread {
     
     private void factor(){
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER);
                 break;
                 
-            case Token.INT_CONSTANT:
-            case Token.LITERAL_CONSTANT:
+            case Token.INT_CONSTANT_ID:
+            case Token.LIT_CONSTANT_ID:
                 constant();
                 break;
                 
@@ -535,10 +563,10 @@ public class Parser extends Thread {
     
     private void constant(){
         switch(currentToken.getTag()){
-            case Token.INT_CONSTANT:
+            case Token.INT_CONSTANT_ID:
                 eat(new IntConstant(1));
                 break;
-            case Token.LITERAL_CONSTANT:
+            case Token.LIT_CONSTANT_ID:
                 eat(new LiteralConstant("a"));
                 break;
             default:
@@ -550,15 +578,15 @@ public class Parser extends Thread {
     private void writable(){
 
         switch(currentToken.getTag()){
-            case Token.LITERAL_CONSTANT:
+            case Token.LIT_CONSTANT_ID:
                 eat(new LiteralConstant("a"));
                 break;
                 
             case '!':
             case '-':
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case '(':
-            case Token.INT_CONSTANT:
+            case Token.INT_CONSTANT_ID:
                 simpleExpression();
                 break;
                 
@@ -605,10 +633,10 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case '!':
             case '-':
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
             case '(':
-            case IntConstant.INT_CONSTANT:
-            case LiteralConstant.LITERAL_CONSTANT:
+            case IntConstant.INT_CONSTANT_ID:
+            case LiteralConstant.LIT_CONSTANT_ID:
                 expression();
                 break;
                 
@@ -620,7 +648,7 @@ public class Parser extends Thread {
     
     private void stmt(){
         switch(currentToken.getTag()){
-            case Token.IDENTIFIER:
+            case Token.IDENTIFIER_ID:
                     assignStatement(); eat(Token.SEMI_COLON);
                 break;
                 
