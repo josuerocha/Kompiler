@@ -268,8 +268,12 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case ReservedWord.END_ID:
                 eat(ReservedWord.END);
+                break;
+                
             case ReservedWord.ELSE_ID:
                 eat(ReservedWord.ELSE); stmtList(); eat(ReservedWord.END);
+                break;
+                
             default:
                 errorMessages.append(PrintColor.BLUE + "ifStatementPrime\n" + PrintColor.RESET);
                 error();
@@ -282,6 +286,7 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case ReservedWord.DO_ID:
                 eat(ReservedWord.DO); stmtListPrime(); stmtSufix();
+                break;
                 
             default:
                 errorMessages.append(PrintColor.BLUE + "whileStatement\n" + PrintColor.RESET);
@@ -708,7 +713,7 @@ public class Parser extends Thread {
     }
     
     private void synchTo(Token[] followSet){
-        
+       
         boolean followElementFound = false;
         while(!followElementFound){
             
@@ -718,6 +723,7 @@ public class Parser extends Thread {
                     break;
                 }
             }
+            
             
             currentToken = lexer.getToken();
         }
