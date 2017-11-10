@@ -416,8 +416,8 @@ public class Parser extends Thread {
                 eat(Operator.DIV);
                 break;
                 
-            case Operator.OR_ID:
-                eat(Operator.OR);
+            case Operator.AND_ID:
+                eat(Operator.AND);
                 break;
                 
             default:
@@ -625,6 +625,22 @@ public class Parser extends Thread {
             currentToken = lexer.getToken();
         }else {
             error();
+        }
+    }
+    
+    private void skipTo(List<Token> followSet){
+        
+        boolean followElementFound = false;
+        while(!followElementFound){
+            
+            for(Token followElement : followSet){
+                if(followElement.equals(currentToken)){
+                    followElementFound = true;
+                    break;
+                }
+            }
+            
+            currentToken = lexer.getToken();
         }
     }
     
