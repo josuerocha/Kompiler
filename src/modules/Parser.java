@@ -242,12 +242,16 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
-                eat(Identifier.IDENTIFIER); eat(new Operator('=')); simpleExpression();
+                eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); simpleExpression();
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "assignStatement" + PrintColor.RESET);
                 error();
                 synchTo(assignStatementFollow);
+        }
+        
+        if(recoveringFromError){
+            synchTo(assignStatementFollow);
         }
     }
     
