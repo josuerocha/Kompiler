@@ -3,15 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/LiteralConstant.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/Identifier.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/CompileError.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/ReservedWord.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/Operator.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/modules/Lexer.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/IntConstant.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/modules/Parser.java</file>
-            <file>file:/mnt/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/dataunits/Token.java</file>
+            <file>file:/home/jr/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/modules/Parser.java</file>
+            <file>file:/home/jr/Dropbox/CEFET-MG/7º%20período/Compiladores/KPiler/src/modules/Lexer.java</file>
         </group>
     </open-files>
 </project-private>

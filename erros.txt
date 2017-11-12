@@ -1,0 +1,53 @@
+TESTE 1
+
+unexpected <ID, a> on line 4
+unexpected token <.> on line 7
+unexpected token <id,result> on line 10 (corrigido com ;)
+unexpected token <+> on line 10
+unexpected token <Literal_const, Resultado:> on line 11
+unexpected token <;> on line 15
+
+TESTE 2
+
+unexpected token <:> on line 2
+unexpected token <ID,d> on line 3
+unexpected token <-> on line 3
+unexpected token <.> on line 4
+unexpected token <ID, c> on line 5
+unexpected token <.> on line 5
+unexpected token <(> on line 6
+unexpected token <(> on line 7
+unexpected token <ID, c> on line 11
+unexpected token <)> on line 12
+missing end line 16
+
+TESTE 3
+
+missing comment closure */
+
+TESTE 4
+
+unexpected token <int> on line 1
+unexpected token <:> on line 2
+unexpected token <$> on line 2
+unexpected token <:> on line 4
+unexpected token <;> on line 18
+unexpected token <(> on line 21
+unexpected token <(> on line 22
+
+TESTE 5
+
+Unexpected token < ID , maior > on line 13 (inserção da palavra reservada then)
+
+Unexpected token <)> on line 14 (retirada do token ")" )
+
+Unexpected token < ELSE > on line 16 (inserção de ";" após maior = a)
+
+Unclosed Literal on line 22
+
+TESTE 6
+
+Unexpected token <=> on line 6
+Unexpected token <INT> on line 8
+Unexpected token <ID,i> on line 12
+Unexpected token <WHILE> on line 17
