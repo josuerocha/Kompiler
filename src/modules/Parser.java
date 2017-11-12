@@ -738,19 +738,29 @@ public class Parser extends Thread {
            
         }while(!followElementFound && (currentToken = lexer.getToken()) != Token.EOF);
         
-        errorMessages.append(currentToken).append("\n");
+        //errorMessages.append(currentToken).append("\n");
     }
     
     private void error(){
         if(!recoveringFromError){
-            errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+            if(currentToken instanceof CompileError){
+                CompileError compileError = (CompileError) currentToken;
+                errorMessages.append(PrintColor.RED + "Lexical error: " + compileError.getMessage() + " on line " + compileError.getLine() + PrintColor.RESET + "\n");
+            }else{
+                errorMessages.append(PrintColor.RED + "Syntax error: unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+            }
             recoveringFromError = true;
         }
     }
     
     private void error(Token expected){
         if(!recoveringFromError){
-            errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(expected).append(PrintColor.RESET + "\n");
+            if(currentToken instanceof CompileError){
+                CompileError compileError = (CompileError) currentToken;
+                errorMessages.append(PrintColor.RED + "Lexical error: " + compileError.getMessage() + " on line " + compileError.getLine() + PrintColor.RESET + "\n");
+            }else{
+                errorMessages.append(PrintColor.RED + "Syntax error: unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+            }
             recoveringFromError = true;
         }
     }
