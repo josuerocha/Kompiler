@@ -102,7 +102,7 @@ public class Lexer extends Thread {
                 } else if (currentChar == '*') {
                     checkForDisposables = true;
                     if (!discardMultiLineComment()) {
-                        return new CompileError("Unclosed multiple line comment", commentLine,""+currentChar);
+                        return new CompileError("Unclosed multiple line comment", commentLine, "EOF");
                     }
                 } else {
                     currentChar = '/';
