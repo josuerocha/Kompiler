@@ -19,8 +19,18 @@ public class CompileError extends Token{
         this.line = line;
         this.lexeme = lexeme;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getLine() {
+        return line;
+    }
+    
+    
     
     public String toString(){
-        return "< LEXICAL_ERROR, " + lexeme + ">" +  PrintColor.RESET;
+        return "< LEXICAL_ERROR, " + lexeme + ">" ;
     }
 }
