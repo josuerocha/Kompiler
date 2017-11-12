@@ -589,7 +589,10 @@ public class Parser extends Thread {
     }
     
     private void writable(){
-
+        if(recoveringFromError){
+            synchTo(writeStatementFollow);
+        }
+        
         switch(currentToken.getTag()){
             case Token.LIT_CONSTANT_ID:
                 eat(new LiteralConstant("a"));
@@ -711,7 +714,7 @@ public class Parser extends Thread {
         if (currentToken.equals(t)) {
             currentToken = lexer.getToken();
         }else {
-            error();
+            error(t);
         }
     }
     
@@ -729,11 +732,20 @@ public class Parser extends Thread {
             }
            
         }while(!followElementFound && (currentToken = lexer.getToken()) != Token.EOF);
+        
+        errorMessages.append(currentToken).append("\n");
     }
     
     private void error(){
         if(!recoveringFromError){
             errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+            recoveringFromError = true;
+        }
+    }
+    
+    private void error(Token expected){
+        if(!recoveringFromError){
+            errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(expected).append(PrintColor.RESET + "\n");
             recoveringFromError = true;
         }
     }
