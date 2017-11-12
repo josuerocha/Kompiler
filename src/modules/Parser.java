@@ -18,12 +18,15 @@ import java.util.List;
  */
 public class Parser extends Thread {
     
+    Lexer lexer;
     private static final int MAX_JOBS = 10;
     private String filepath;
+    private boolean recoveringFromError = false;
+
     private StringBuffer tokenFlow;
     private StringBuffer errorMessages;
     private Token currentToken;
-    Lexer lexer;
+    
     
     
     //FOLLOW SETS OF EACH PRODUCTION
@@ -219,6 +222,7 @@ public class Parser extends Thread {
     }
     
     private void stmtListPrime(){
+        
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
             case ReservedWord.DO_ID:
@@ -235,13 +239,39 @@ public class Parser extends Thread {
         }
     }
     
+    private void stmt(){
+        
+        switch(currentToken.getTag()){
+            case Token.IDENTIFIER_ID:
+                    assignStatement(); eat(Token.SEMI_COLON);
+                break;
+                
+            case ReservedWord.DO_ID:
+                whileStatement();
+                break;
+                
+            case ReservedWord.PRINT_ID:
+                writeStatement(); eat(Token.SEMI_COLON);
+                break;
+            case ReservedWord.SCAN_ID:
+                readStatement(); eat(Token.SEMI_COLON);
+                break;
+            case ReservedWord.IF_ID:
+                ifStatement();
+                break;
+            default:
+                errorMessages.append(PrintColor.BLUE + "stmt\n" + PrintColor.RESET);
+                error();
+                synchTo(stmtFollow);
+        }
+    }
 
     
     public void assignStatement(){
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
-                eat(Identifier.IDENTIFIER); eat(new Operator('=')); simpleExpression();
+                eat(Identifier.IDENTIFIER); eat(Operator.EQUAL); simpleExpression();
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "assignStatement" + PrintColor.RESET);
@@ -643,6 +673,7 @@ public class Parser extends Thread {
     }
     
     private void condition(){
+        
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -660,34 +691,8 @@ public class Parser extends Thread {
         }
     }
     
-    private void stmt(){
-        switch(currentToken.getTag()){
-            case Token.IDENTIFIER_ID:
-                    assignStatement(); eat(Token.SEMI_COLON);
-                break;
-                
-            case ReservedWord.DO_ID:
-                whileStatement();
-                break;
-                
-            case ReservedWord.PRINT_ID:
-                writeStatement(); eat(Token.SEMI_COLON);
-                break;
-            case ReservedWord.SCAN_ID:
-                readStatement(); eat(Token.SEMI_COLON);
-                break;
-            case ReservedWord.IF_ID:
-                ifStatement();
-                break;
-            default:
-                errorMessages.append(PrintColor.BLUE + "stmt\n" + PrintColor.RESET);
-                error();
-                synchTo(stmtFollow);
-        }
-    }
-    
-    
     private void type(){
+        
         switch (currentToken.getTag()){
             case ReservedWord.INT_ID:
                     eat(ReservedWord.INT);
@@ -721,20 +726,28 @@ public class Parser extends Thread {
             for(Token followElement : followSet){
                 if(followElement.equals(currentToken)){
                     followElementFound = true;
+                    recoveringFromError = false;
                     break;
                 }
             }
             
             
-        }while(!((currentToken = lexer.getToken()) == Token.EOF) && !followElementFound);
+        }while(!followElementFound && !((currentToken = lexer.getToken()) == Token.EOF)); 
+        
     }
     
     private void error(){
-        errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+        if(!recoveringFromError){
+            errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
+            recoveringFromError = true;
+        }
     }
     
     private void error(Token expected){
-        errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "Expected " + expected + "\n");
+        if(!recoveringFromError){
+            errorMessages.append(PrintColor.RED + "Unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(" Expected ").append(expected).append(PrintColor.RESET + "\n");
+            recoveringFromError = true;
+        }
     }
     
     public static void main(String[] args) {
