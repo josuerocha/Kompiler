@@ -338,6 +338,10 @@ public class Parser extends Thread {
                 error();
                 synchTo(writeStatementFollow);
         }
+        
+         if(recoveringFromError){
+            synchTo(writeStatementFollow);
+        }
     }
     
     private void expression(){
@@ -589,9 +593,6 @@ public class Parser extends Thread {
     }
     
     private void writable(){
-        if(recoveringFromError){
-            synchTo(writeStatementFollow);
-        }
         
         switch(currentToken.getTag()){
             case Token.LIT_CONSTANT_ID:
