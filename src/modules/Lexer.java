@@ -44,10 +44,6 @@ public class Lexer extends Thread {
         char character;
         try {
             character = (char) this.reader.read();
-            
-            if (character == '\n') {
-                this.currentLine++;
-            }
 
         } catch (IOException ex) {
             throw new LexerException("EXCEPTION: input and output error reading file.", ex);
@@ -89,6 +85,9 @@ public class Lexer extends Thread {
             //DISCARD DELIMITER CHARACTERS
             while (checkDelimiter()) {
                 checkForDisposables = true;
+                if(currentChar == '\n'){
+                    this.currentLine++;
+                }
                 currentChar = readChar();
             }
 
