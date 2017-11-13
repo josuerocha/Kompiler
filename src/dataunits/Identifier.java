@@ -7,7 +7,7 @@ package dataunits;
  */
 public class Identifier extends Token{
     
-    public static Identifier IDENTIFIER = new Identifier();
+    public static Identifier IDENTIFIER = new Identifier("");
 
     private String lexeme;
     
@@ -16,10 +16,6 @@ public class Identifier extends Token{
         this.lexeme = text;
     }
     
-    private Identifier(){
-        super(Token.IDENTIFIER_ID);
-        this.lexeme = "";
-    }
     
     public String getLexeme(){
         return lexeme;

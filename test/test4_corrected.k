@@ -1,7 +1,7 @@
-program
+program	
 	int a, aux, b;
 	string nome, sobrenome, msg;
-	print("Nome: ");
+	print(Nome );
 	scan (nome);
 	print("Sobrenome: ");
 	scan (sobrenome);
@@ -16,7 +16,6 @@ program
 		b = a;
 		a = aux;
 	end
-	
 	print ("Apos a troca: ");
 	print(a);
 	print(b);

@@ -4,17 +4,15 @@ Josué Rocha Lima */
 program
 	//this is an unclosed string literal
 	string str;
-	int opa;	
 	int i;
+	int maxtam;
 	
-	size = 20;
+	maxtam = 20;
 	str = "HELLO WORLD";
-	opa = 20;
-	i = 0;
 	
-	do
+	do 
 		print(i);
-	while i < opa end
-
+		i = i + 1;
+	while i < maxtam end
 
 end

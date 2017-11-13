@@ -17,6 +17,6 @@ program
 		else
 			print("Candidato reprovado")
 		end
-	while (pontuação >= 0)end
-end*/
+	while (pontuação >= 0) end
+*/
 end

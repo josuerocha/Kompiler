@@ -44,6 +44,7 @@ public class Lexer extends Thread {
         char character;
         try {
             character = (char) this.reader.read();
+            
             if (character == '\n') {
                 this.currentLine++;
             }

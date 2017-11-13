@@ -9,7 +9,7 @@ program
 		print("C");
 		scan(c);
 		//Realizacao do teste
-		if ( (a>b) && (a>c) ) then
+		if ( (a>b) && (a>c)) then
 			maior = a;
 		else
 		if (b>c) then
