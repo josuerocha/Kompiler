@@ -44,6 +44,7 @@ public class Lexer extends Thread {
         char character;
         try {
             character = (char) this.reader.read();
+            System.out.print(character);
 
         } catch (IOException ex) {
             throw new LexerException("EXCEPTION: input and output error reading file.", ex);
@@ -87,6 +88,7 @@ public class Lexer extends Thread {
                 checkForDisposables = true;
                 if(currentChar == '\n'){
                     this.currentLine++;
+                    System.out.print(currentLine);
                 }
                 currentChar = readChar();
             }
@@ -98,6 +100,7 @@ public class Lexer extends Thread {
                 if (readChar('/')) {
                     checkForDisposables = true;
                     while (!readChar('\n'));
+                    this.currentLine++;
                     currentChar = ' ';
                 } else if (currentChar == '*') {
                     checkForDisposables = true;

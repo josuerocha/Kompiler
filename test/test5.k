@@ -11,7 +11,8 @@ program
 		//Realizacao do teste
 		if ( (a>b) && (a>c)
 			maior = a
-		)else
+		)
+		else
 		if (b>c) then
 			maior = b;
 		else

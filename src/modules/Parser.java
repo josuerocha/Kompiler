@@ -722,7 +722,6 @@ public class Parser extends Thread {
     private void eat(Token t){
         if (currentToken.equals(t)) {
             currentToken = lexer.getToken();
-            System.out.println(currentToken.toString() + lexer.getCurrentLine());
         }else {
             error(t);
         }
@@ -737,7 +736,6 @@ public class Parser extends Thread {
                 if(followElement.equals(currentToken)){
                     followElementFound = true;
                     recoveringFromError = false;
-                    System.out.println(lexer.getCurrentLine() + currentToken.toString());
                     break;
                 }
             }
