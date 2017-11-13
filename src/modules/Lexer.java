@@ -44,8 +44,6 @@ public class Lexer extends Thread {
         char character;
         try {
             character = (char) this.reader.read();
-            System.out.print(character);
-
         } catch (IOException ex) {
             throw new LexerException("EXCEPTION: input and output error reading file.", ex);
         }
@@ -88,7 +86,6 @@ public class Lexer extends Thread {
                 checkForDisposables = true;
                 if(currentChar == '\n'){
                     this.currentLine++;
-                    System.out.print(currentLine);
                 }
                 currentChar = readChar();
             }
@@ -225,7 +222,8 @@ public class Lexer extends Thread {
 
             while (!readChar('"')) {
                 if (currentChar == '\n') {
-                    return new CompileError("Unclosed string literal", currentLine - 1,buffer.toString());
+                    this.currentLine++;
+                    return new CompileError("Unclosed string literal", currentLine-1,buffer.toString());
                 }
 
                 buffer.append(currentChar);
@@ -261,7 +259,10 @@ public class Lexer extends Thread {
                     currentChar = ' ';
                     return true;
                 }
-            } else if (currentChar == (char) -1) {
+            } else if (currentChar == '\n'){
+                this.currentLine++;
+            
+            }else if (currentChar == (char) -1) {
                 return false;
             }
         }

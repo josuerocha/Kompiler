@@ -750,6 +750,8 @@ public class Parser extends Thread {
             if(currentToken instanceof CompileError){
                 CompileError compileError = (CompileError) currentToken;
                 errorMessages.append(PrintColor.RED + "Lexical error: " + compileError.getMessage() + " on line " + compileError.getLine() + PrintColor.RESET + "\n");
+            }else if(currentToken.equals(Token.EOF)){
+                errorMessages.append(PrintColor.RED + "Syntax error: unexpected end of file.").append( PrintColor.RESET + "\n");
             }else{
                 errorMessages.append(PrintColor.RED + "Syntax error: unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(PrintColor.RESET + "\n");
             }
@@ -763,8 +765,10 @@ public class Parser extends Thread {
             if(currentToken instanceof CompileError){
                 CompileError compileError = (CompileError) currentToken;
                 errorMessages.append(PrintColor.RED + "Lexical error: " + compileError.getMessage() + " on line " + compileError.getLine() + PrintColor.RESET + "\n");
-            }else{
-                errorMessages.append(PrintColor.RED + "Syntax error: unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append(expected + PrintColor.RESET + "\n");
+            }else if(currentToken.equals(Token.EOF)){
+                errorMessages.append(PrintColor.RED + "Syntax error: unexpected end of file ").append( PrintColor.RESET + "\n");
+            } else {
+                errorMessages.append(PrintColor.RED + "Syntax error: unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append( PrintColor.RESET + "\n");
             }
             recoveringFromError = true;
         }
