@@ -22,6 +22,7 @@ public class Parser extends Thread {
     private String filepath;
     private StringBuffer tokenFlow;
     private StringBuffer errorMessages;
+    private boolean success = true;
     private Token currentToken;
     private boolean recoveringFromError = false;
     Lexer lexer;
@@ -93,6 +94,9 @@ public class Parser extends Thread {
     public void run(){
         currentToken = lexer.getToken();
         program();
+        if(success){
+            errorMessages.append(PrintColor.BLUE + "Compiled successfully :) \n" + PrintColor.RESET);
+        }
     }
     
     public String getErrorMessages(){
@@ -741,6 +745,7 @@ public class Parser extends Thread {
     }
     
     private void error(){
+        success = false;
         if(!recoveringFromError){
             if(currentToken instanceof CompileError){
                 CompileError compileError = (CompileError) currentToken;
@@ -753,6 +758,7 @@ public class Parser extends Thread {
     }
     
     private void error(Token expected){
+        success = false;
         if(!recoveringFromError){
             if(currentToken instanceof CompileError){
                 CompileError compileError = (CompileError) currentToken;
