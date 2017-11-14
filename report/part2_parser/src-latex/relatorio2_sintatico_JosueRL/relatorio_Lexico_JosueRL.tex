@@ -1,0 +1,295 @@
+%% Baseado no arquivo: 
+%% abtex2-modelo-trabalho-academico.tex, v-1.9.6 laurocesar
+%% by abnTeX2 group at http://www.abntex.net.br/ 
+%% Adaptado para um modelo dssse TCC (Graduação)
+
+% ------------------------------------------------------------------------
+% ------------------------------------------------------------------------
+% abnTeX2: Modelo de Trabalho Academico (tese de doutorado, dissertacao de
+% mestrado e trabalhos monograficos em geral) em conformidade com 
+% ABNT NBR 14724:2011: Informacao e documentacao - Trabalhos academicos -
+% Apresentacao
+% ------------------------------------------------------------------------
+% ------------------------------------------------------------------------
+
+\documentclass[
+	% -- opções da classe memoir --
+	12pt,				% tamanho da fonte,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,			% para impressão em recto e verso. Oposto a oneside
+	a4paper,			% tamanho do papel. 
+	% -- opções da classe abntex2 --
+	%chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
+	%section=TITLE,		% títulos de seções convertidos em letras maiúsculas
+	%subsection=TITLE,	% títulos de subseções convertidos em letras maiúsculas
+	%subsubsection=TITLE,% títulos de subsubseções convertidos em letras maiúsculas
+	% -- opções do pacote babel --
+	english,			% idioma adicional para hifenização
+	%french,				% idioma adicional para hifenização
+	%spanish,			% idioma adicional para hifenização
+	brazil				% o último idioma é o principal do documento
+	]{abntex2}
+
+% ---
+% Pacotes básicos 
+% ---
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{changepage}
+\usepackage{capt-of}% or use the larger `caption` package
+\usepackage{longtable}
+\usepackage{dsfont}
+\usepackage{float}
+\usepackage{eucal}
+\usepackage{lmodern}
+\usepackage{amssymb}			% Usa a fonte Latin Modern			
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage{lastpage}			% Usado pela Ficha catalográfica
+\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{color}				% Controle das cores
+\usepackage{graphicx}			% Inclusão de gráficos
+\usepackage{microtype} 	% para melhorias de justificação
+\usepackage{makecell}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[nounderscore]{syntax}
+\usepackage{etoolbox} % for patching
+\usepackage{graphicx}
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  literate=%
+        {ã}{{\~{a}}}1
+        {ç}{{\c{c}}}1,
+  numbers=left,
+  xleftmargin=2em,
+  frame=single,
+  framexleftmargin=1.5em,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numberstyle=\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+
+\makeatletter
+% define the main command on the model of the original one
+% we add stepping the counter and typesetting the number
+\def\gr@implnumbereditem<#1> #2 {%
+  \stepcounter{grammarline}%
+  \sbox\z@{\hskip\labelsep\grammarlabel{#1}{#2}}
+  \strut\@@par%
+  \vskip-\parskip%
+  \vskip-\baselineskip%
+  \hrule\@height\z@\@depth\z@\relax%
+  \item[%
+    \rlap{\hskip\dimexpr\linewidth+\grammarindent\relax %% add the number
+          \llap{(\thegrammarline)}}%
+    \unhbox\z@]%
+  \catcode`\<\active%
+}
+% copy the grammar environment under a new name
+\let\numberedgrammar\grammar
+\let\endnumberedgrammar\endgrammar
+% now patch the new environment
+\pretocmd\numberedgrammar{\setcounter{grammarline}{0}}{}{}
+\patchcmd\numberedgrammar
+  {\gr@implitem}
+  {\gr@implnumbereditem}
+  {}{}
+\patchcmd\numberedgrammar
+  {\def\alt{\\\llap{\textbar\quad}}}
+  {\let\alt\alt@num}
+  {}{}
+
+% the command for numbering the \alt lines
+\def\alt@num{\\\relax
+  \stepcounter{grammarline}%
+  \rlap{\hskip\dimexpr\linewidth-\labelwidth+\grammarindent-\labelsep\relax
+        \llap{(\thegrammarline)}}% add the number
+  \llap{\textbar\quad}}
+
+\newcounter{grammarline}
+\makeatother
+% ---
+		
+
+% ---
+% Pacotes de citações
+% ---
+\usepackage[brazilian,hyperpageref]{backref}	 % Paginas com as citações na bibl
+\usepackage[alf]{abntex2cite}	% Citações padrão ABNT
+
+% --- 
+% CONFIGURAÇÕES DE PACOTES
+% --- 
+
+% ---
+% Configurações do pacote backref
+% Usado sem a opção hyperpageref de backref
+\renewcommand{\backrefpagesname}{%Citado na(s) página(s):~
+}
+% Texto padrão antes do número das páginas
+\renewcommand{\backref}{}
+% Define os textos da citação
+\renewcommand*{\backrefalt}[4]{
+	%\ifcase #1 %
+	%	Nenhuma citação no texto.%
+	%\or
+	%	Citado na página #2.%
+	%\else
+	%	Citado #1 vezes nas páginas #2.%
+	%\fi
+    }%
+% ---
+
+% ---
+% Informações de dados para CAPA e FOLHA DE ROSTO
+% ---
+\titulo{KPiler: compilador para a linguagem K}
+\autor{Josué Rocha Lima}
+\local{Belo Horizonte}
+\data{2017}
+\orientador{Kecia Aline Marques Ferreira}
+
+\instituicao{%
+  Centro Federal de Educação Tecnológica de Minas Gerais
+  \par
+  Departamento de Computação
+  \par
+  Curso de Engenharia de Computação
+  }
+\tipotrabalho{Monografia (Graduação)}
+% O preambulo deve conter o tipo do trabalho, o objetivo, 
+% o nome da instituição e a área de concentração 
+\preambulo{Relatório do trabalho prático apresentado à disciplina de compiladores.}
+% ---
+
+
+% ---
+% Configurações de aparência do PDF final
+
+% alterando o aspecto da cor azul
+\definecolor{blue}{RGB}{41,5,195}
+
+% informações do PDF
+\makeatletter
+\hypersetup{
+     	%pagebackref=true,
+		pdftitle={\@title}, 
+		pdfauthor={\@author},
+    	pdfsubject={\imprimirpreambulo},
+	    pdfcreator={LaTeX with abnTeX2},
+		pdfkeywords={abnt}{latex}{abntex}{abntex2}{trabalho acadêmico}, 
+		colorlinks=true,       		% false: boxed links; true: colored links
+    	linkcolor=blue,          	% color of internal links
+    	citecolor=blue,        		% color of links to bibliography
+    	filecolor=magenta,      		% color of file links
+		urlcolor=blue,
+		bookmarksdepth=4
+}
+\makeatother
+% --- 
+
+% --- 
+% Espaçamentos entre linhas e parágrafos 
+% --- 
+
+% O tamanho do parágrafo é dado por:
+\setlength{\parindent}{1.3cm}
+
+% Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{0.2cm}  % tente também \onelineskip
+
+% ---
+% compila o indice
+% ---
+\makeindex
+% ---
+
+% ----
+% Início do documento
+% ----
+\begin{document}
+
+% Seleciona o idioma do documento (conforme pacotes do babel)
+%\selectlanguage{english}
+%\selectlanguage{brazil}
+
+% Retira espaço extra obsoleto entre as frases.
+\frenchspacing 
+
+% ----------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS
+% ----------------------------------------------------------
+
+
+
+\include{src/0_pre_textuais}
+
+% ----------------------------------------------------------
+% ELEMENTOS TEXTUAIS
+% ----------------------------------------------------------
+\textual
+
+% ----------------------------------------------------------
+% Como o documento será grande, sugiro dividir em diversos arquivos, um para cada capítulo.
+% ----------------------------------------------------------
+
+
+\include{src/1_introducao}
+
+\include{src/2_metodologia}
+
+\include{src/3_instrucoes}
+
+\include{src/4_avaliacao_resultados}
+
+\include{src/5_conclusao}
+
+% ----------------------------------------------------------
+
+
+
+
+
+
+
+
+% ----------------------------------------------------------
+% Finaliza a parte no bookmark do PDF
+% para que se inicie o bookmark na raiz
+% e adiciona espaço de parte no Sumário
+% ----------------------------------------------------------
+% \phantompart
+
+
+
+
+
+
+
+% ----------------------------------------------------------
+% ELEMENTOS PÓS-TEXTUAIS
+% ----------------------------------------------------------
+
+\include{src/pos_textuais}
+
+
+
+\end{document}

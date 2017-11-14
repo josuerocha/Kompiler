@@ -1,4 +1,4 @@
-# CompilerJ
+# KPiler
 Compiler developed in the Computer Engineering course as a partial prerequisite for Compilers class as a didatic model. 
 
 **Author**: Josué Rocha Lima
@@ -8,7 +8,7 @@ Compiler developed in the Computer Engineering course as a partial prerequisite 
 # To Do
 
 - [X] Implement lexer module;
-- [ ] Implement parser module;
+- [X] Implement parser module;
 - [ ] Implement semantics module;
 - [ ] Implement code generator module;
 - [ ] Test implementation;
