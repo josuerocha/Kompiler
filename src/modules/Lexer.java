@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import static jdk.nashorn.internal.parser.TokenType.EOF;
 
 /**
  *
@@ -24,7 +23,10 @@ public class Lexer extends Thread {
     private SymbolTable symbolTable = null;
 
     public Lexer(String filePath) throws LexerException {
-
+        
+        symbolTable = new SymbolTable();
+        symbolTable.initializeReservedWords();
+        
         this.currentLine = 1;
 
         try {
@@ -35,8 +37,7 @@ public class Lexer extends Thread {
         } catch (UnsupportedEncodingException ex) {
             throw new LexerException("ERROR: File not found.", ex);
         }
-
-        symbolTable = SymbolTable.getInstance();
+        
     }
 
     public char readChar() throws LexerException {

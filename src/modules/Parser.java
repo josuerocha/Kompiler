@@ -11,6 +11,7 @@ import util.PrintColor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -95,7 +96,7 @@ public class Parser extends Thread {
         currentToken = lexer.getToken();
         program();
         if(success){
-            errorMessages.append(PrintColor.BLUE + "Compiled successfully :) \n" + PrintColor.RESET);
+            errorMessages.append(PrintColor.BLUE + "Compiled successfully :) \n" + PrintColor.RESET);        
         }
     }
     
@@ -741,7 +742,6 @@ public class Parser extends Thread {
             }
            
         }while(!followElementFound && (currentToken = lexer.getToken()) != Token.EOF);
-        //errorMessages.append(currentToken).append("\n");
     }
     
     private void error(){
@@ -781,9 +781,9 @@ public class Parser extends Thread {
             System.out.println("Usage: java -jar KPiler.jar file1.txt file2.txt");
         }
         
-        List<String> paths = new ArrayList<>();
-        List<String> errorMessages = new ArrayList<>();
-        List<Parser> compileJobs = new ArrayList<>();
+        Vector<String> paths = new Vector<>();
+        Vector<String> errorMessages = new Vector<>();
+        Vector<Parser> compileJobs = new Vector<>();
         
         paths.addAll(Arrays.asList(args));
         
@@ -804,7 +804,7 @@ public class Parser extends Thread {
         }
         //PRINTING OUTPUT
         for(int i = 0; i<errorMessages.size(); i++){
-            System.out.println(errorMessages.get(i));
+            System.out.print(errorMessages.get(i));
             
         }
        
