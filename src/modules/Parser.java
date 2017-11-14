@@ -89,14 +89,15 @@ public class Parser extends Thread {
         lexer = new Lexer(this.filepath);
         tokenFlow = new StringBuffer();
         errorMessages =  new StringBuffer();
-        errorMessages.append("ARQUIVO: " + this.filepath + "\n");
+        errorMessages.append("ARQUIVO: ").append(this.filepath).append("\n");
     }
     
     public void run(){
         currentToken = lexer.getToken();
         program();
         if(success){
-            errorMessages.append(PrintColor.BLUE + "Compiled successfully :) \n" + PrintColor.RESET);        
+            errorMessages.append(PrintColor.BLUE + "Compiled successfully :) \n" + PrintColor.RESET);
+            //errorMessages.append(1);
         }
     }
     

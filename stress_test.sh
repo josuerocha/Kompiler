@@ -1,6 +1,9 @@
 #!/bin/bash
 
-desiredOutput="111111"
+export desiredOutput="$(java -jar KPiler.jar test/test1_corrected.k test/test2_corrected.k test/test3_corrected.k test/test4_corrected.k test/test5_corrected.k test/test6_corrected.k)"
+
+echo "Desired output:"
+echo $desiredOutput
 
 ((errorCount = 0))
 ((matchCount = 0))
