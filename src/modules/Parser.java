@@ -667,6 +667,7 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
+                
                 expression();
                 break;
                 
@@ -782,9 +783,9 @@ public class Parser extends Thread {
             System.out.println("Usage: java -jar KPiler.jar file1.txt file2.txt");
         }
         
-        Vector<String> paths = new Vector<>();
-        Vector<String> errorMessages = new Vector<>();
-        Vector<Parser> compileJobs = new Vector<>();
+        List<String> paths = new ArrayList<>();
+        List<String> errorMessages = new ArrayList<>();
+        List<Parser> compileJobs = new ArrayList<>();
         
         paths.addAll(Arrays.asList(args));
         
