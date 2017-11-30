@@ -24,5 +24,5 @@ OR
 - Navigate to folder containing KPiler.jar and execute java -jar KPiler.jar <filename1.k> <filename2.k> ... <filenamen.k>
 
 **Example:**
-      java -jar KPiler.jar test/test1.k test/test1.k
+      java -jar KPiler.jar test/test1.k test/test2.k
 
