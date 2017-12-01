@@ -51,6 +51,10 @@ public class Lexer extends Thread {
 
         return character;
     }
+    
+    public SymbolTable getSymbolTableInstance(){
+        return this.symbolTable;
+    }
 
     private void markReaderPosition() throws LexerException {
         try {

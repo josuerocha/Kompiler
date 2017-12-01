@@ -1,5 +1,6 @@
 package modules;
 
+import data_structures.SymbolTable;
 import dataunits.CompileError;
 import dataunits.Identifier;
 import dataunits.IntConstant;
@@ -19,69 +20,16 @@ import java.util.Vector;
  */
 public class Parser extends Thread {
     
-    private static final int MAX_JOBS = 10;
+    private static final int MAX_THREADS = 10;
+    
     private String filepath;
     private StringBuffer tokenFlow;
     private StringBuffer errorMessages;
     private boolean success = true;
     private Token currentToken;
     private boolean recoveringFromError = false;
+    private SymbolTable symbolTable;
     Lexer lexer;
-    
-    
-    //FOLLOW SETS OF EACH PRODUCTION
-    Token[] declistFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
-            declistPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
-            declFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
-            identifierListFollow = {Token.SEMI_COLON},
-            possibleIdentifierFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
-            typeFollow = {Identifier.IDENTIFIER},
-            stmtListFollow = {ReservedWord.WHILE,ReservedWord.END,ReservedWord.ELSE},
-            assignStatementFollow = {Token.SEMI_COLON},
-            ifStatementFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
-                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            ifStatementPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
-                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            whileStatementFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
-                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            stmtSuffixFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
-                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            readStatementFollow = {Token.SEMI_COLON},
-            writeStatementFollow = {Token.SEMI_COLON},
-            writableFollow = {Token.CLOSE_PAREN},
-            simpleExpressionPrimeFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
-                                     Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN,
-                                     Token.SEMI_COLON},
-            termPrimeFollow = {Operator.PLUS, Operator.MINUS, Operator.OR, Operator.EQUAL, Operator.GT, 
-                                Operator.GE,Operator.LT, Operator.LE, Operator.DIFFERENT, Token.CLOSE_PAREN, 
-                                ReservedWord.END, ReservedWord.THEN, ReservedWord.SEMI_COLON},
-            factoraFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS, Operator.OR,
-                            Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT,Operator.LE, Operator.DIFFERENT, 
-                            Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
-            factorFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS, Operator.OR,
-                            Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT,Operator.LE, Operator.DIFFERENT, 
-                            Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
-            relopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
-                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
-            addopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
-                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
-            mulopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
-                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
-            constantFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS,Operator.OR,
-                                Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE, Operator.DIFFERENT,
-                                Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
-            stmtFollow =      {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.IF,ReservedWord.SCAN,
-                                ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            termFollow =     {Operator.PLUS, Operator.MINUS, Operator.OR, Operator.EQUAL,Operator.GT, Operator.GE,
-                              Operator.LT, Operator.LE, Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END,
-                              ReservedWord.THEN, Token.SEMI_COLON},
-            stmtListPrimeFollow = {ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
-            simpleExpressionFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
-                                Operator.DIFFERENT, Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.END,
-                                Token.SEMI_COLON},
-            expressionFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
-            expressionPrimeFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
-            conditionFollow = {ReservedWord.END, ReservedWord.THEN};
             
     
     public Parser(String path){
@@ -524,6 +472,7 @@ public class Parser extends Thread {
             case '<':
             case Operator.LESS_EQUAL_ID:
             case Operator.DIFFERENT_ID:
+                
                 relop(); simpleExpression();
                 break;
                 
@@ -792,7 +741,7 @@ public class Parser extends Thread {
         
         while(paths.size() > 0 || compileJobs.size() > 0){
             
-            if(compileJobs.size() < MAX_JOBS && paths.size() > 0){
+            if(compileJobs.size() < MAX_THREADS && paths.size() > 0){
                 compileJobs.add(new Parser(paths.remove(0)));
                 compileJobs.get(compileJobs.size() -1).start();
             }
@@ -811,5 +760,59 @@ public class Parser extends Thread {
         }
        
     }
+    
+        //FOLLOW SETS OF EACH PRODUCTION
+    Token[] declistFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            declistPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            declFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            identifierListFollow = {Token.SEMI_COLON},
+            possibleIdentifierFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.SCAN},
+            typeFollow = {Identifier.IDENTIFIER},
+            stmtListFollow = {ReservedWord.WHILE,ReservedWord.END,ReservedWord.ELSE},
+            assignStatementFollow = {Token.SEMI_COLON},
+            ifStatementFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            ifStatementPrimeFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            whileStatementFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            stmtSuffixFollow = {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, 
+                            ReservedWord.IF,ReservedWord.SCAN, ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            readStatementFollow = {Token.SEMI_COLON},
+            writeStatementFollow = {Token.SEMI_COLON},
+            writableFollow = {Token.CLOSE_PAREN},
+            simpleExpressionPrimeFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
+                                     Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN,
+                                     Token.SEMI_COLON},
+            termPrimeFollow = {Operator.PLUS, Operator.MINUS, Operator.OR, Operator.EQUAL, Operator.GT, 
+                                Operator.GE,Operator.LT, Operator.LE, Operator.DIFFERENT, Token.CLOSE_PAREN, 
+                                ReservedWord.END, ReservedWord.THEN, ReservedWord.SEMI_COLON},
+            factoraFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS, Operator.OR,
+                            Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT,Operator.LE, Operator.DIFFERENT, 
+                            Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
+            factorFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS, Operator.OR,
+                            Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT,Operator.LE, Operator.DIFFERENT, 
+                            Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
+            relopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
+                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
+            addopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
+                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
+            mulopFollow = {Operator.NEG, Operator.MINUS, Identifier.IDENTIFIER, Token.OPEN_PAREN,
+                            IntConstant.INT_CONSTANT,LiteralConstant.LIT_CONSTANT},
+            constantFollow = {Operator.MUL, Operator.DIV, Operator.AND, Operator.PLUS, Operator.MINUS,Operator.OR,
+                                Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE, Operator.DIFFERENT,
+                                Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN, Token.SEMI_COLON},
+            stmtFollow =      {Identifier.IDENTIFIER, ReservedWord.DO, ReservedWord.PRINT, ReservedWord.IF,ReservedWord.SCAN,
+                                ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            termFollow =     {Operator.PLUS, Operator.MINUS, Operator.OR, Operator.EQUAL,Operator.GT, Operator.GE,
+                              Operator.LT, Operator.LE, Operator.DIFFERENT,Token.CLOSE_PAREN, ReservedWord.END,
+                              ReservedWord.THEN, Token.SEMI_COLON},
+            stmtListPrimeFollow = {ReservedWord.WHILE, ReservedWord.END, ReservedWord.ELSE},
+            simpleExpressionFollow = {Operator.EQUAL, Operator.GT, Operator.GE, Operator.LT, Operator.LE,
+                                Operator.DIFFERENT, Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.END,
+                                Token.SEMI_COLON},
+            expressionFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
+            expressionPrimeFollow = {Token.CLOSE_PAREN, ReservedWord.END, ReservedWord.THEN},
+            conditionFollow = {ReservedWord.END, ReservedWord.THEN};
 
 }
