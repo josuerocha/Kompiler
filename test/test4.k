@@ -1,6 +1,7 @@
-	int: a, aux$, b;
+program	
+	int a, aux, b;
 	string nome, sobrenome, msg;
-	print(Nome: );
+	print(Nome );
 	scan (nome);
 	print("Sobrenome: ");
 	scan (sobrenome);
@@ -14,8 +15,8 @@
 		aux = b;
 		b = a;
 		a = aux;
-	end;
+	end
 	print ("Apos a troca: ");
-	out(a);
-	out(b)
+	print(a);
+	print(b);
 end

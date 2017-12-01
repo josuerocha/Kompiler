@@ -1,6 +1,7 @@
 package modules;
 
 import data_structures.SymbolTable;
+import data_structures.SymbolTableEntry;
 import dataunits.CompileError;
 import dataunits.Identifier;
 import dataunits.IntConstant;
@@ -122,6 +123,15 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 eat(Identifier.IDENTIFIER); possibleIdentifier();
+                
+                //SEMANTICS: identifier unity check
+                if(currentToken instanceof Identifier){
+                    Identifier id = (Identifier) currentToken;
+                    SymbolTableEntry idInfo = symbolTable.get(id.getLexeme());
+                    
+                    
+                }
+                
                 break;
                 
             default:

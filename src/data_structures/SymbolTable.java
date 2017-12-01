@@ -12,7 +12,7 @@ import java.util.Map;
 public class SymbolTable {
     
     static SymbolTable instance = null;
-    private Map<String,Token> map = new HashMap<>();
+    private Map<String,SymbolTableEntry> map = new HashMap<>();
     
     public SymbolTable(){
         
@@ -34,7 +34,9 @@ public class SymbolTable {
     
     public void put(String key,Token word){
         if(!map.containsKey(key)){
-            map.put(key,word);
+            SymbolTableEntry entry = new SymbolTableEntry();
+            entry.setToken(word);
+            map.put(key,entry);
         }
     }
     
@@ -42,7 +44,12 @@ public class SymbolTable {
         return map.containsKey(key);
     }
     
-    public Token get(String key){
+    public SymbolTableEntry get(String key){
         return map.get(key);
+    }
+    
+    public Token getIdentifier(String key){
+        SymbolTableEntry entry = map.get(key);
+        return entry.getToken();
     }
 }

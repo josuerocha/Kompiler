@@ -9,9 +9,8 @@ program
 		print("C");
 		scan(c);
 		//Realizacao do teste
-		if ( (a>b) && (a>c)
-			maior = a
-		)
+		if ( (a>b) && (a>c)) then
+			maior = a;
 		else
 		if (b>c) then
 			maior = b;
@@ -19,9 +18,9 @@ program
 			maior = c;
 		end
 		end
-		print("Maior valor:"");
+		print("Maior valor:");
 		print (maior);
 		print ("Outro? ");
 		scan(outro);
-	while (outro >= 0)
+	while (outro >= 0) end
 end

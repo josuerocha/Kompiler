@@ -3,11 +3,16 @@ Josué Rocha Lima */
 
 program
 	//this is an unclosed string literal
-	string str = "HELLO WORLD"
-	int 20 = 20;
-
-	for i = 0 : str.size()
+	string str;
+	int i;
+	int maxtam;
+	
+	maxtam = 20;
+	str = "HELLO WORLD";
+	
+	do 
 		print(i);
-	end
+		i = i + 1;
+	while i < maxtam end
 
 end

@@ -206,7 +206,7 @@ public class Lexer extends Thread {
 
             String lexeme = buffer.toString();
             if (symbolTable.contains(lexeme)) {
-                Token t = symbolTable.get(lexeme);
+                Token t = symbolTable.getIdentifier(lexeme);
 
                 if (t instanceof ReservedWord) {
                     return new ReservedWord(lexeme);
