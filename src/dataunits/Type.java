@@ -6,21 +6,20 @@ package dataunits;
  */
 
 
-public class Type {
+public enum Type {
     
     //TYPE PREDEFINITIONS
-    public enum TypeEnum {INT_ID,STRING_ID,VOID_ID,ERROR_ID };
+    INT_ID(1),STRING_ID(2),VOID_ID(3),ERROR_ID(4);
     
-    private TypeEnum typeId;
+    private int typeId;
     
-    public Type(TypeEnum typeId){
+    private Type(int typeId){
         this.typeId = typeId;
     }
 
-    public TypeEnum getTypeId() {
+    public int getTypeId() {
         return typeId;
     }
      
-    
     
 }

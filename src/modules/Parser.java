@@ -9,6 +9,7 @@ import dataunits.LiteralConstant;
 import dataunits.Operator;
 import dataunits.ReservedWord;
 import dataunits.Token;
+import dataunits.Type;
 import util.PrintColor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ public class Parser extends Thread {
     public Parser(String path){
         this.filepath = path;
         lexer = new Lexer(this.filepath);
+        symbolTable = lexer.getSymbolTableInstance();
         tokenFlow = new StringBuffer();
         errorMessages =  new StringBuffer();
         errorMessages.append("ARQUIVO: ").append(this.filepath).append("\n");
@@ -52,7 +54,7 @@ public class Parser extends Thread {
     
     public String getErrorMessages(){
         return errorMessages.toString() +
-        " _________________________________";
+        " _________________________________\n";
     }
     
     private void program(){
@@ -108,7 +110,8 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case ReservedWord.INT_ID:
             case ReservedWord.STRING_ID:
-                type(); identifierList(); eat(Token.SEMI_COLON);
+                Type type;
+                type = type(); identifierList(type); eat(Token.SEMI_COLON);
                 break;
                 
             default:
@@ -118,19 +121,16 @@ public class Parser extends Thread {
         }
     }
     
-    private void identifierList(){
+    private void identifierList(Type type){
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
-                eat(Identifier.IDENTIFIER); possibleIdentifier();
+                Token potentialId;
+                potentialId = currentToken; eat(Identifier.IDENTIFIER); 
+                possibleIdentifier(type);
                 
                 //SEMANTICS: identifier unity check
-                if(currentToken instanceof Identifier){
-                    Identifier id = (Identifier) currentToken;
-                    SymbolTableEntry idInfo = symbolTable.get(id.getLexeme());
-                    
-                    
-                }
+                checkIdentifierUnicity(potentialId, type);
                 
                 break;
                 
@@ -141,11 +141,17 @@ public class Parser extends Thread {
         }
     }
     
-    private void possibleIdentifier(){
+    private void possibleIdentifier(Type type){
         
         switch(currentToken.getTag()){
             case ',':
-                eat(Token.COMMA); eat(Identifier.IDENTIFIER); possibleIdentifier();
+                Token potentialId;
+                eat(Token.COMMA); 
+                potentialId = currentToken; eat(Identifier.IDENTIFIER); 
+                possibleIdentifier(type);
+                
+                checkIdentifierUnicity(potentialId, type);
+                
                 break;
             case ';':
             
@@ -664,14 +670,17 @@ public class Parser extends Thread {
     }
     
     
-    private void type(){
+    private Type type(){
+        Type type = null;
         switch (currentToken.getTag()){
             case ReservedWord.INT_ID:
                     eat(ReservedWord.INT);
+                    type = Type.INT_ID;
                 break;
                 
             case ReservedWord.STRING_ID:
                     eat(ReservedWord.STRING);
+                    type = Type.STRING_ID;
                 break;
                 
             default:
@@ -679,13 +688,15 @@ public class Parser extends Thread {
                 error();
                 synchTo(typeFollow);
         }
+        
+        return type;
     }
     
     private void eat(Token t){
         if (currentToken.equals(t)) {
             currentToken = lexer.getToken();
         }else {
-            error(t);
+            error();
         }
     }
     
@@ -720,18 +731,22 @@ public class Parser extends Thread {
         }
     }
     
-    private void error(Token expected){
-        success = false;
-        if(!recoveringFromError){
-            if(currentToken instanceof CompileError){
-                CompileError compileError = (CompileError) currentToken;
-                errorMessages.append(PrintColor.RED + "Lexical error: " + compileError.getMessage() + " on line " + compileError.getLine() + PrintColor.RESET + "\n");
-            }else if(currentToken.equals(Token.EOF)){
-                errorMessages.append(PrintColor.RED + "Syntax error: unexpected end of file ").append( PrintColor.RESET + "\n");
-            } else {
-                errorMessages.append(PrintColor.RED + "Syntax error: unexpected token ").append(currentToken).append(" on line ").append(lexer.getCurrentLine()).append( PrintColor.RESET + "\n");
+    public void semanticError(String message){
+        this.success = false;
+        errorMessages.append(PrintColor.RED + "Sematic error: " + message + " on line " + lexer.getCurrentLine() + "\n" + PrintColor.RESET);
+    }
+    
+    public void checkIdentifierUnicity(Token token, Type type){
+        //SEMANTICS: identifier unity check
+        if(token instanceof Identifier){
+            Identifier id = (Identifier) token;
+            SymbolTableEntry idInfo = symbolTable.get(id.getLexeme());
+
+            if(idInfo.isInstalled()){
+                semanticError("identifier " + id.getLexeme() + " has already been declared");
+            }else{
+                idInfo.installType(type);
             }
-            recoveringFromError = true;
         }
     }
     
