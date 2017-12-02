@@ -599,7 +599,7 @@ public class Parser extends Thread {
                     
                     Identifier id = (Identifier) currentToken;
                     type = symbolTable.get(id.getLexeme()).getType();
-                    errorMessages.append("GRABBING TYPE " + type + "\n");
+                    errorMessages.append("GRABBING TYPE " + id.getLexeme() + " " + type + "\n");
                 }
                 
                 eat(Identifier.IDENTIFIER);
