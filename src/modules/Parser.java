@@ -393,11 +393,11 @@ public class Parser extends Thread {
                 Type type2, output;
                 addop(); type2 = term(); 
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && !sumIndicator){
-                    type = type.ERROR;
+                    type = Type.ERROR;
                 }else if(type1.equals(type2)){
                     type = type1;
                 }else{
-                    type = type.ERROR;
+                    type = Type.ERROR;
                 }
                 
                 output = simpleExpressionPrime(type2);
@@ -644,7 +644,7 @@ public class Parser extends Thread {
                 break;
             case Token.LIT_CONSTANT_ID:
                 eat(new LiteralConstant(""));
-                type = type.STRING;
+                type = Type.STRING;
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "constant\n" + PrintColor.RESET);
@@ -809,7 +809,7 @@ public class Parser extends Thread {
         if(!recoveringFromError){
             if(currentToken instanceof CompileError){
                 CompileError compileError = (CompileError) currentToken;
-                errorMessages.append(PrintColor.RED + "Lexical error: " + compileError.getMessage() + " on line " + compileError.getLine() + PrintColor.RESET + "\n");
+                errorMessages.append(PrintColor.RED + "Lexical error: ").append(compileError.getMessage()).append(" on line ").append(compileError.getLine()).append(PrintColor.RESET + "\n");
             }else if(currentToken.equals(Token.EOF)){
                 errorMessages.append(PrintColor.RED + "Syntax error: unexpected end of file.").append( PrintColor.RESET + "\n");
             }else{
