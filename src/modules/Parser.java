@@ -599,7 +599,12 @@ public class Parser extends Thread {
                     
                     Identifier id = (Identifier) currentToken;
                     type = symbolTable.get(id.getLexeme()).getType();
-                    errorMessages.append("GRABBING TYPE " + id.getLexeme() + " " + type + "\n");
+                    
+                    if(type == null){
+                        semanticError("use of undeclared identifier");
+                        type = Type.ERROR_ID;
+                    }
+                    
                 }
                 
                 eat(Identifier.IDENTIFIER);
