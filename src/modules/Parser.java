@@ -601,7 +601,7 @@ public class Parser extends Thread {
                     type = symbolTable.get(id.getLexeme()).getType();
                     
                     if(type == null){
-                        semanticError("use of undeclared identifier");
+                        semanticError("use of undeclared identifier < "+ id.getLexeme() + " >");
                         type = Type.ERROR_ID;
                     }
                     
@@ -824,7 +824,7 @@ public class Parser extends Thread {
             SymbolTableEntry idInfo = symbolTable.get(id.getLexeme());
 
             if(idInfo.isInstalled()){
-                semanticError("identifier " + id.getLexeme() + " has already been declared");
+                semanticError("redeclaration of identifier < " + id.getLexeme() + " >");
             }else{
                 idInfo.installType(type);
             }
