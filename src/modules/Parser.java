@@ -318,8 +318,8 @@ public class Parser extends Thread {
         }
     }
     
-    private void expression(){
-        
+    private Type expression(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -327,7 +327,14 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                simpleExpression(); expressionPrime();
+                Type type1, type2;
+                type1 = simpleExpression(); type2 = expressionPrime();
+                if(type1.equals(type2)){
+                    type = type1;
+                }else{
+                    type = Type.ERROR_ID;
+                }
+                
                 break;
                 
             default:
@@ -335,10 +342,12 @@ public class Parser extends Thread {
                 error();
                 synchTo(expressionFollow);
         }
+        
+        return type;
     }
     
-    private void simpleExpression(){
-        
+    private Type simpleExpression(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -346,7 +355,16 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                term(); simpleExpressionPrime();
+                Type type1,type2;
+                type1 = term(); type2 = simpleExpressionPrime(type1);
+                
+                if(type1.equals(type2) ){
+                    type = type1;
+                }else{
+                    type = Type.ERROR_ID;
+                }
+                
+                
                 break;
                 
             default:
@@ -354,15 +372,33 @@ public class Parser extends Thread {
                 error();
                 synchTo(simpleExpressionFollow);
         }
+        return type;
     }
     
-    private void simpleExpressionPrime(){
-
+    private Type simpleExpressionPrime(Type type1){
+        Type type = Type.VOID_ID;
+        boolean sumIndicator = false;
         switch(currentToken.getTag()){
             case '+':
+                sumIndicator = true;
             case '-':
             case Operator.OR_ID:
-                addop(); term(); simpleExpressionPrime();
+                Type type2, output;
+                addop(); type2 = term(); 
+                if(type1.equals(Type.STRING_ID) && type2.equals(Type.STRING_ID) && !sumIndicator){
+                    type = type.ERROR_ID;
+                }else if(type1.equals(type2)){
+                    type = type1;
+                }else{
+                    type = type.ERROR_ID;
+                }
+                
+                output = simpleExpressionPrime(type2);
+                
+                if(output.equals(Type.ERROR_ID)){
+                    type = Type.ERROR_ID;
+                }
+                
                 break;
             
             case Operator.EQUAL_ID:
@@ -384,6 +420,8 @@ public class Parser extends Thread {
                 synchTo(simpleExpressionPrimeFollow);
                 
         }
+        
+        return type;
     }
     
     private void addop(){
@@ -406,8 +444,8 @@ public class Parser extends Thread {
         }
     }
     
-    private void term(){
-        
+    private Type term(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -415,7 +453,16 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                factora(); termPrime();
+                Type type1, type2;
+                
+                type1 = factora(); type2 = termPrime();
+                
+                if(type1.equals(type2)){
+                    type = type1;
+                }else{
+                    type = Type.ERROR_ID;
+                }
+                
             break;
             
             default:
@@ -423,15 +470,24 @@ public class Parser extends Thread {
                 error();
                 synchTo(termFollow);
         }
+        return type;
     }
     
-    private void termPrime(){
-        
+    private Type termPrime(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case '*':
             case '/':
             case Operator.AND_ID:
-                mulop(); factora(); termPrime();
+                Type type1, type2;
+                
+                mulop(); type1 = factora(); type2 = termPrime();
+                
+                if(type1.equals(Type.INT_ID) && type2.equals(Type.INT_ID)){
+                    type = Type.INT_ID;
+                }else{
+                    type = Type.ERROR_ID;
+                }
                 break;
                 
             case '+':
@@ -455,6 +511,8 @@ public class Parser extends Thread {
                 error();
                 synchTo(termPrimeFollow);
         }
+        
+        return type;
     }
     
     private void mulop(){
@@ -479,8 +537,8 @@ public class Parser extends Thread {
         }
     }
     
-    private void expressionPrime(){
-        
+    private Type expressionPrime(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case Operator.EQUAL_ID:
             case '>':
@@ -489,7 +547,7 @@ public class Parser extends Thread {
             case Operator.LESS_EQUAL_ID:
             case Operator.DIFFERENT_ID:
                 
-                relop(); simpleExpression();
+                relop(); type = simpleExpression();
                 break;
                 
             case ')':
@@ -502,23 +560,24 @@ public class Parser extends Thread {
                 error();
                 synchTo(expressionPrimeFollow);
         }
+        return type;
     }
     
-    private void factora(){
-
+    private Type factora(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case '!':
-                eat(Operator.NEG); factor();
+                eat(Operator.NEG); type = factor();
                 break;
             case '-':
-                eat(Operator.MINUS); factor();
+                eat(Operator.MINUS); type = factor();
                 break;
                 
             case Token.IDENTIFIER_ID:
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                factor();
+                type = factor();
                 break;
                 
             default:
@@ -526,22 +585,33 @@ public class Parser extends Thread {
                 error();
                 synchTo(factoraFollow);
         }
+        
+        return type;
     }
     
-    private void factor(){
-        
+    private Type factor(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
+                //Storing type for verification
+                
+                if(currentToken instanceof Identifier){
+                    
+                    Identifier id = (Identifier) currentToken;
+                    type = symbolTable.get(id.getLexeme()).getType();
+                    errorMessages.append("GRABBING TYPE " + type + "\n");
+                }
+                
                 eat(Identifier.IDENTIFIER);
                 break;
-                
+            
             case Token.INT_CONSTANT_ID:
             case Token.LIT_CONSTANT_ID:
-                constant();
+                type = constant();
                 break;
                 
             case '(':
-                eat(Token.OPEN_PAREN); expression(); eat(Token.CLOSE_PAREN);
+                eat(Token.OPEN_PAREN); type = expression(); eat(Token.CLOSE_PAREN);
                 break; 
                 
             default:
@@ -549,22 +619,28 @@ public class Parser extends Thread {
                 error();
                 synchTo(factorFollow);
         }
+        
+        return type;
     }
     
-    private void constant(){
-        
+    private Type constant(){
+        Type type = Type.VOID_ID;
         switch(currentToken.getTag()){
             case Token.INT_CONSTANT_ID:
                 eat(new IntConstant(1));
+                type = Type.INT_ID;
                 break;
             case Token.LIT_CONSTANT_ID:
-                eat(new LiteralConstant("a"));
+                eat(new LiteralConstant(""));
+                type = type.STRING_ID;
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "constant\n" + PrintColor.RESET);
                 error();
                 synchTo(constantFollow);
         }
+        
+        return type;
     }
     
     private void writable(){
@@ -671,7 +747,7 @@ public class Parser extends Thread {
     
     
     private Type type(){
-        Type type = null;
+        Type type = Type.VOID_ID;
         switch (currentToken.getTag()){
             case ReservedWord.INT_ID:
                     eat(ReservedWord.INT);
@@ -733,7 +809,7 @@ public class Parser extends Thread {
     
     public void semanticError(String message){
         this.success = false;
-        errorMessages.append(PrintColor.RED + "Semantic error: " + message + " on line " + lexer.getCurrentLine() + "\n" + PrintColor.RESET);
+        errorMessages.append(PrintColor.RED + "Semantic error: ").append(message).append(" on line ").append(lexer.getCurrentLine()).append("\n" + PrintColor.RESET);
     }
     
     public void checkIdentifierUnicity(Token token, Type type){
