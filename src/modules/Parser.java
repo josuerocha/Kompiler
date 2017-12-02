@@ -230,7 +230,12 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case ReservedWord.IF_ID:
-                eat(ReservedWord.IF); condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
+                Type type;
+                eat(ReservedWord.IF); type = condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
+                
+                if(!type.equals(Type.INT) && !type.equals(Type.ERROR)){
+                    semanticError("type mismatch in if condition, expected INT received " + type);
+                }
                 break;
             default:
                 error();
@@ -325,10 +330,11 @@ public class Parser extends Thread {
                 Type type1, type2;
                 type1 = simpleExpression(); type2 = expressionPrime();
 
-                if(type1.equals(type2) || type2.equals(Type.VOID)){
+                if(type1.equals(type2) || type2.equals(Type.VOID) || type1.equals(Type.ERROR) || type2.equals(Type.ERROR)){
                     type = type1;
                 }else{
                     type = Type.ERROR;
+                    semanticError("incompatible operands type " + type1 + " and " + type2);
                 }
                 
                 break;
@@ -693,7 +699,8 @@ public class Parser extends Thread {
             }
     }
     
-    private void condition(){
+    private Type condition(){
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -702,13 +709,14 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 
-                expression();
+                type = expression();
                 break;
                 
             default:
                 error();
                 synchTo(conditionFollow);
         }
+        return type;
     }
     
     private void stmt(){
