@@ -733,7 +733,7 @@ public class Parser extends Thread {
     
     public void semanticError(String message){
         this.success = false;
-        errorMessages.append(PrintColor.RED + "Sematic error: " + message + " on line " + lexer.getCurrentLine() + "\n" + PrintColor.RESET);
+        errorMessages.append(PrintColor.RED + "Semantic error: " + message + " on line " + lexer.getCurrentLine() + "\n" + PrintColor.RESET);
     }
     
     public void checkIdentifierUnicity(Token token, Type type){
