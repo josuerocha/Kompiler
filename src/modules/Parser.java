@@ -807,11 +807,10 @@ public class Parser extends Thread {
     public void checkIdentifierUnicity(Token token, Type type){
         //SEMANTICS: identifier unity check
         if(token instanceof Identifier){
-            Identifier id = (Identifier) token;
-            SymbolTableEntry idInfo = symbolTable.get(id.getLexeme());
+            SymbolTableEntry idInfo = symbolTable.get(token.getLexeme());
 
             if(idInfo.isInstalled()){
-                semanticError("redeclaration of identifier < " + id.getLexeme() + " >");
+                semanticError("redeclaration of identifier < " + token.getLexeme() + " >");
             }else{
                 idInfo.installType(type);
             }
