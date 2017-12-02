@@ -64,7 +64,6 @@ public class Parser extends Thread {
                 eat(ReservedWord.PROGRAM); declList(); stmtList(); eat(ReservedWord.END);
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE +"program \n" + PrintColor.RESET);
                 error();
         }
     }
@@ -85,7 +84,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "declList\n" + PrintColor.RESET);
                 error();
                 synchTo(declistFollow);
         }
@@ -99,7 +97,6 @@ public class Parser extends Thread {
                 decl(); declList();
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE + "declListPrime \n" + PrintColor.RESET);
                 error();
                 synchTo(declistPrimeFollow);
         }
@@ -115,7 +112,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "decl\n" + PrintColor.RESET);
                 error();
                 synchTo(declFollow);
         }
@@ -135,7 +131,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "identifierList\n" + PrintColor.RESET);
                 error();
                 synchTo(identifierListFollow);
         }
@@ -200,7 +195,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "stmtListPrime \n" + PrintColor.RESET);
                 error();
                 synchTo(stmtListPrimeFollow);
         }
@@ -212,7 +206,7 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
-                Type typeId = Type.VOID, typeExpression = Type.VOID;
+                Type typeId = Type.VOID, typeExpression;
                 if(currentToken instanceof Identifier){ typeId = symbolTable.get(currentToken.getLexeme()).getType();}
                 
                 eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); typeExpression = simpleExpression();
@@ -239,7 +233,6 @@ public class Parser extends Thread {
                 eat(ReservedWord.IF); condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE + "ifStatement\n" + PrintColor.RESET);
                 error();
                 synchTo(ifStatementFollow);
         }
@@ -257,7 +250,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "ifStatementPrime\n" + PrintColor.RESET);
                 error();
                 synchTo(ifStatementPrimeFollow);
         }
@@ -271,7 +263,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "whileStatement\n" + PrintColor.RESET);
                 error();
                 synchTo(whileStatementFollow);
         }
@@ -284,7 +275,6 @@ public class Parser extends Thread {
                 eat(ReservedWord.WHILE); condition(); eat(ReservedWord.END);
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE + "stmtSufix\n" + PrintColor.RESET);
                 error();
                 synchTo(stmtSuffixFollow);
         }
@@ -299,7 +289,6 @@ public class Parser extends Thread {
                 break;
             
             default:
-                errorMessages.append(PrintColor.BLUE + "readStatement\n" + PrintColor.RESET);
                 error();
                 synchTo(readStatementFollow);
                 
@@ -315,7 +304,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "writeStatement\n" + PrintColor.RESET);
                 error();
                 synchTo(writeStatementFollow);
         }
@@ -336,7 +324,8 @@ public class Parser extends Thread {
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
                 type1 = simpleExpression(); type2 = expressionPrime();
-                if(type1.equals(type2)){
+
+                if(type1.equals(type2) || type2.equals(Type.VOID)){
                     type = type1;
                 }else{
                     type = Type.ERROR;
@@ -345,7 +334,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "expression\n" + PrintColor.RESET);
                 error();
                 synchTo(expressionFollow);
         }
@@ -367,7 +355,10 @@ public class Parser extends Thread {
                 
                 if(type1.equals(type2) ){
                     type = type1;
+                }else if(type2.equals(Type.VOID)){
+                    type = type1;
                 }else{
+                    semanticError("type mismatch in expression operands");
                     type = Type.ERROR;
                 }
                 
@@ -375,7 +366,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "simpleExpression\n" + PrintColor.RESET);
                 error();
                 synchTo(simpleExpressionFollow);
         }
@@ -422,7 +412,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "simpleExprPrime\n" + PrintColor.RESET);
                 error();
                 synchTo(simpleExpressionPrimeFollow);
                 
@@ -445,7 +434,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "addop\n" + PrintColor.RESET);
                 error();
                 synchTo(addopFollow);
         }
@@ -464,12 +452,13 @@ public class Parser extends Thread {
                 
                 type1 = factora(); type2 = termPrime();
                 
-                if(type1.equals(type2)){
+                if(type1.equals(type2) || type2.equals(Type.VOID)){
                     type = type1;
                 }else{
                     type = Type.ERROR;
+
                 }
-                
+
             break;
             
             default:
@@ -490,7 +479,7 @@ public class Parser extends Thread {
                 
                 mulop(); type1 = factora(); type2 = termPrime();
                 
-                if(type1.equals(Type.INT) && type2.equals(Type.INT)){
+                if(type1.equals(Type.INT) && (type2.equals(Type.INT) || type2.equals(Type.VOID))){
                     type = Type.INT;
                 }else{
                     type = Type.ERROR;
@@ -514,7 +503,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "termPrime\n" + PrintColor.RESET);
                 error();
                 synchTo(termPrimeFollow);
         }
@@ -538,7 +526,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "mulop\n" + PrintColor.RESET);
                 error();
                 synchTo(mulopFollow);
         }
@@ -563,7 +550,6 @@ public class Parser extends Thread {
                 
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE + "expressionPrime\n" + PrintColor.RESET);
                 error();
                 synchTo(expressionPrimeFollow);
         }
@@ -588,7 +574,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "factora\n" + PrintColor.RESET);
                 error();
                 synchTo(factoraFollow);
         }
@@ -604,11 +589,10 @@ public class Parser extends Thread {
                 
                 if(currentToken instanceof Identifier){
                     
-                    Identifier id = (Identifier) currentToken;
-                    type = symbolTable.get(id.getLexeme()).getType();
+                    type = symbolTable.get(currentToken.getLexeme()).getType();
                     
                     if(type == null){
-                        semanticError("use of undeclared identifier < "+ id.getLexeme() + " >");
+                        semanticError("use of undeclared identifier < "+ currentToken.getLexeme() + " >");
                         type = Type.ERROR;
                     }
                     
@@ -623,11 +607,11 @@ public class Parser extends Thread {
                 break;
                 
             case '(':
+                
                 eat(Token.OPEN_PAREN); type = expression(); eat(Token.CLOSE_PAREN);
                 break; 
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "factor\n" + PrintColor.RESET);
                 error();
                 synchTo(factorFollow);
         }
@@ -647,7 +631,6 @@ public class Parser extends Thread {
                 type = Type.STRING;
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE + "constant\n" + PrintColor.RESET);
                 error();
                 synchTo(constantFollow);
         }
@@ -671,7 +654,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "writable\n" + PrintColor.RESET);
                 error();
                 synchTo(writableFollow);
         }
@@ -706,7 +688,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "relop\n" + PrintColor.RESET);
                 error();
                 synchTo(relopFollow);
             }
@@ -725,7 +706,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "condition\n" + PrintColor.RESET);
                 error();
                 synchTo(conditionFollow);
         }
@@ -751,7 +731,6 @@ public class Parser extends Thread {
                 ifStatement();
                 break;
             default:
-                errorMessages.append(PrintColor.BLUE + "stmt\n" + PrintColor.RESET);
                 error();
                 synchTo(stmtFollow);
         }
@@ -772,7 +751,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "type\n" + PrintColor.RESET);
                 error();
                 synchTo(typeFollow);
         }
