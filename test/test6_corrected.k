@@ -10,6 +10,10 @@ program
 	maxtam = 20;
 	str = "HELLO WORLD";
 	
+	if(maxtam && str) then
+		print(maxtam);
+	end
+	
 	do 
 		print(i);
 		i = i + 1;

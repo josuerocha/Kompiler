@@ -231,10 +231,11 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case ReservedWord.IF_ID:
                 Type type;
+                int line = lexer.getCurrentLine();
                 eat(ReservedWord.IF); type = condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
                 
-                if(!type.equals(Type.INT) && !type.equals(Type.ERROR)){
-                    semanticError("type mismatch in if condition, expected INT received " + type);
+                if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR)){
+                    semanticError("type mismatch in if condition, expected relational operation received " + type,line);
                 }
                 break;
             default:
@@ -274,10 +275,15 @@ public class Parser extends Thread {
     }
     
     private void stmtSufix(){
-        
+        Type type;
         switch(currentToken.getTag()){
             case ReservedWord.WHILE_ID:
-                eat(ReservedWord.WHILE); condition(); eat(ReservedWord.END);
+                eat(ReservedWord.WHILE); type = condition(); eat(ReservedWord.END);
+                
+                if(!type.equals(Type.INT) && !type.equals(Type.STRING) && !type.equals(Type.ERROR)){
+                    semanticError("Incompatible operand in while statement. Received " + type);
+                }
+                
                 break;
             default:
                 error();
@@ -328,14 +334,7 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
-                type1 = simpleExpression(); type2 = expressionPrime();
-
-                if(type1.equals(type2) || type2.equals(Type.VOID) || type1.equals(Type.ERROR) || type2.equals(Type.ERROR)){
-                    type = type1;
-                }else{
-                    type = Type.ERROR;
-                    semanticError("incompatible operands type " + type1 + " and " + type2);
-                }
+                type1 = simpleExpression(); expressionPrime(type1);
                 
                 break;
                 
@@ -344,6 +343,45 @@ public class Parser extends Thread {
                 synchTo(expressionFollow);
         }
         
+        return type;
+    }
+    
+    private Type expressionPrime(Type type1){
+        Type type = Type.VOID;
+        boolean differentEqualIndicator = false;
+        switch(currentToken.getTag()){
+            case Operator.EQUAL_ID:
+            case Operator.DIFFERENT_ID:
+                differentEqualIndicator = true;
+            case '>':
+            case Operator.GREATER_EQUAL_ID:
+            case '<':
+            case Operator.LESS_EQUAL_ID:
+                Type type2;
+                
+                relop(); type2 = simpleExpression();
+                
+                if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && differentEqualIndicator){
+                    type = Type.LOGICAL;
+                }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
+                    type = Type.LOGICAL;
+                }else{
+                    type = Type.ERROR;
+                    semanticError("incompatible operands in relational expression, type " + type1 + " and " + type2);
+
+                }
+                
+                break;
+                
+            case ')':
+            case ReservedWord.END_ID:
+            case ReservedWord.THEN_ID:
+                
+                break;
+            default:
+                error();
+                synchTo(expressionPrimeFollow);
+        }
         return type;
     }
     
@@ -535,31 +573,6 @@ public class Parser extends Thread {
                 error();
                 synchTo(mulopFollow);
         }
-    }
-    
-    private Type expressionPrime(){
-        Type type = Type.VOID;
-        switch(currentToken.getTag()){
-            case Operator.EQUAL_ID:
-            case '>':
-            case Operator.GREATER_EQUAL_ID:
-            case '<':
-            case Operator.LESS_EQUAL_ID:
-            case Operator.DIFFERENT_ID:
-                
-                relop(); type = simpleExpression();
-                break;
-                
-            case ')':
-            case ReservedWord.END_ID:
-            case ReservedWord.THEN_ID:
-                
-                break;
-            default:
-                error();
-                synchTo(expressionPrimeFollow);
-        }
-        return type;
     }
     
     private Type factora(){
@@ -809,6 +822,13 @@ public class Parser extends Thread {
         this.success = false;
         if(!recoveringFromError){
             errorMessages.append(PrintColor.RED + "Semantic error: ").append(message).append(" on line ").append(lexer.getCurrentLine()).append(".").append("\n" + PrintColor.RESET);
+        }
+    }
+    
+    public void semanticError(String message,int line){
+        this.success = false;
+        if(!recoveringFromError){
+            errorMessages.append(PrintColor.RED + "Semantic error: ").append(message).append(" on line ").append(line).append(".").append("\n" + PrintColor.RESET);
         }
     }
     

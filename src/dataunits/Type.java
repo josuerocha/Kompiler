@@ -9,7 +9,7 @@ package dataunits;
 public enum Type {
     
     //TYPE PREDEFINITIONS
-    INT(1),STRING(2),VOID(3),ERROR(4);
+    INT(1),STRING(2),LOGICAL(3),VOID(4),ERROR(5);
     
     private int typeId;
     
