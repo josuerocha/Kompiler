@@ -212,7 +212,14 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
-                eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); simpleExpression();
+                Type typeId = Type.VOID, typeExpression = Type.VOID;
+                if(currentToken instanceof Identifier){ typeId = symbolTable.get(currentToken.getLexeme()).getType();}
+                
+                eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); typeExpression = simpleExpression();
+                
+                if(typeId != null && !typeId.equals(typeExpression) && !typeId.equals(Type.ERROR) && !typeExpression.equals(Type.ERROR)){
+                    semanticError("type mismatch on assignment, expected " + typeId + " received " + typeExpression);
+                }
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "assignStatement" + PrintColor.RESET);
@@ -319,7 +326,7 @@ public class Parser extends Thread {
     }
     
     private Type expression(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -332,7 +339,7 @@ public class Parser extends Thread {
                 if(type1.equals(type2)){
                     type = type1;
                 }else{
-                    type = Type.ERROR_ID;
+                    type = Type.ERROR;
                 }
                 
                 break;
@@ -347,7 +354,7 @@ public class Parser extends Thread {
     }
     
     private Type simpleExpression(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -361,7 +368,7 @@ public class Parser extends Thread {
                 if(type1.equals(type2) ){
                     type = type1;
                 }else{
-                    type = Type.ERROR_ID;
+                    type = Type.ERROR;
                 }
                 
                 
@@ -376,7 +383,7 @@ public class Parser extends Thread {
     }
     
     private Type simpleExpressionPrime(Type type1){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         boolean sumIndicator = false;
         switch(currentToken.getTag()){
             case '+':
@@ -385,18 +392,18 @@ public class Parser extends Thread {
             case Operator.OR_ID:
                 Type type2, output;
                 addop(); type2 = term(); 
-                if(type1.equals(Type.STRING_ID) && type2.equals(Type.STRING_ID) && !sumIndicator){
-                    type = type.ERROR_ID;
+                if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && !sumIndicator){
+                    type = type.ERROR;
                 }else if(type1.equals(type2)){
                     type = type1;
                 }else{
-                    type = type.ERROR_ID;
+                    type = type.ERROR;
                 }
                 
                 output = simpleExpressionPrime(type2);
                 
-                if(output.equals(Type.ERROR_ID)){
-                    type = Type.ERROR_ID;
+                if(output.equals(Type.ERROR)){
+                    type = Type.ERROR;
                 }
                 
                 break;
@@ -445,7 +452,7 @@ public class Parser extends Thread {
     }
     
     private Type term(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -460,7 +467,7 @@ public class Parser extends Thread {
                 if(type1.equals(type2)){
                     type = type1;
                 }else{
-                    type = Type.ERROR_ID;
+                    type = Type.ERROR;
                 }
                 
             break;
@@ -474,7 +481,7 @@ public class Parser extends Thread {
     }
     
     private Type termPrime(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '*':
             case '/':
@@ -483,10 +490,10 @@ public class Parser extends Thread {
                 
                 mulop(); type1 = factora(); type2 = termPrime();
                 
-                if(type1.equals(Type.INT_ID) && type2.equals(Type.INT_ID)){
-                    type = Type.INT_ID;
+                if(type1.equals(Type.INT) && type2.equals(Type.INT)){
+                    type = Type.INT;
                 }else{
-                    type = Type.ERROR_ID;
+                    type = Type.ERROR;
                 }
                 break;
                 
@@ -538,7 +545,7 @@ public class Parser extends Thread {
     }
     
     private Type expressionPrime(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case Operator.EQUAL_ID:
             case '>':
@@ -564,7 +571,7 @@ public class Parser extends Thread {
     }
     
     private Type factora(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '!':
                 eat(Operator.NEG); type = factor();
@@ -590,7 +597,7 @@ public class Parser extends Thread {
     }
     
     private Type factor(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 //Storing type for verification
@@ -602,7 +609,7 @@ public class Parser extends Thread {
                     
                     if(type == null){
                         semanticError("use of undeclared identifier < "+ id.getLexeme() + " >");
-                        type = Type.ERROR_ID;
+                        type = Type.ERROR;
                     }
                     
                 }
@@ -629,15 +636,15 @@ public class Parser extends Thread {
     }
     
     private Type constant(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch(currentToken.getTag()){
             case Token.INT_CONSTANT_ID:
                 eat(new IntConstant(1));
-                type = Type.INT_ID;
+                type = Type.INT;
                 break;
             case Token.LIT_CONSTANT_ID:
                 eat(new LiteralConstant(""));
-                type = type.STRING_ID;
+                type = type.STRING;
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "constant\n" + PrintColor.RESET);
@@ -752,16 +759,16 @@ public class Parser extends Thread {
     
     
     private Type type(){
-        Type type = Type.VOID_ID;
+        Type type = Type.VOID;
         switch (currentToken.getTag()){
             case ReservedWord.INT_ID:
                     eat(ReservedWord.INT);
-                    type = Type.INT_ID;
+                    type = Type.INT;
                 break;
                 
             case ReservedWord.STRING_ID:
                     eat(ReservedWord.STRING);
-                    type = Type.STRING_ID;
+                    type = Type.STRING;
                 break;
                 
             default:
@@ -814,7 +821,9 @@ public class Parser extends Thread {
     
     public void semanticError(String message){
         this.success = false;
-        errorMessages.append(PrintColor.RED + "Semantic error: ").append(message).append(" on line ").append(lexer.getCurrentLine()).append(".").append("\n" + PrintColor.RESET);
+        if(!recoveringFromError){
+            errorMessages.append(PrintColor.RED + "Semantic error: ").append(message).append(" on line ").append(lexer.getCurrentLine()).append(".").append("\n" + PrintColor.RESET);
+        }
     }
     
     public void checkIdentifierUnicity(Token token, Type type){
