@@ -1,13 +1,13 @@
 program	
 	int a, aux, b;
 	string nome, sobrenome, msg;
-	print(nome );
+	print(Nome );
 	scan (nome);
 	print("Sobrenome: ");
 	scan (sobrenome);
 	msg = "Ola, " + nome + " " +
 	sobrenome + "!";
-	msg = msg + "1";
+	msg = msg + 1;
 	print (msg);
 	scan (a);
 	scan(b);

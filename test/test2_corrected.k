@@ -1,5 +1,5 @@
 program
-	int a, b, c, val;
+	int a, c;
 	int d, e;
 	a = 0; d = 35;
 	c = d / 12;

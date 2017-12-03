@@ -216,7 +216,7 @@ public class Parser extends Thread {
                 
                         if(typeId == null){
                             printUndeclaredId(id,line);
-                        }else if( !typeId.equals(typeExpression) && !typeId.equals(Type.ERROR) && !typeExpression.equals(Type.ERROR)){
+                        }else if( !typeId.equals(typeExpression) && !typeId.equals(Type.ERROR) && !typeExpression.equals(Type.ERROR) && !typeExpression.equals(Type.VOID)){
                             semanticError("type mismatch on assignment, expected " + typeId + " received " + typeExpression);
                         }
                 }
@@ -413,6 +413,7 @@ public class Parser extends Thread {
                 Type type1,type2;
                 type1 = term(); type2 = simpleExpressionPrime(type1);
                 
+                
                 if(type1.equals(type2) ){
                     type = type1;
                 }else if(type2.equals(Type.VOID)){
@@ -452,7 +453,7 @@ public class Parser extends Thread {
                     type = Type.LOGICAL;
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
                     type = Type.INT;
-                }else{
+                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Checking whether error message has already been output
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                     type = Type.ERROR;
                 }
@@ -554,7 +555,7 @@ public class Parser extends Thread {
                     type = Type.LOGICAL;
                 }else if(type1.equals(Type.VOID) && type2.equals(Type.VOID)){
                     
-                }else{
+                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){
                     type = Type.ERROR;
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }
