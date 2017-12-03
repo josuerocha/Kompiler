@@ -8,7 +8,6 @@ program
 	scan (b);
 	scan (y);
 	result = (a*b + 1) / 2;
-
 	print ("Resultado: ");
 	print (result);
 	print ("Total: ");
