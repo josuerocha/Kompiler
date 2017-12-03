@@ -9,9 +9,12 @@ program
 	
 	maxtam = 20;
 	str = "HELLO WORLD";
+	i = 0;
+	
 	
 	do 
 		print(i);
+	    print(k);	// BUG HERE
 		i = i + 1;
 	while i < maxtam end
 

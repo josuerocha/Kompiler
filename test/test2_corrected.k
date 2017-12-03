@@ -1,6 +1,6 @@
 program
 	int a, c;
-	int d, e;
+	int d, e, b, val;
 	a = 0; d = 35;
 	c = d / 12;
 	scan (a);

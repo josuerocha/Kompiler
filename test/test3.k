@@ -12,10 +12,10 @@ program
 		print("Disponibilidade Candidato: ");
 		scan(disponibilidade);
 
-		if ((pontuação > pontuacaoMinima) && (disponibilidade=="Sim")) then
+		if ((pontuacao > pontuacaoMinima) && (disponibilidade=="Sim")) then
 			print("Candidato aprovado");
 		else
 			print("Candidato reprovado");
 		end
-	while (pontuação >= 0) end
+	while (pontuacao >= 0) end
 end

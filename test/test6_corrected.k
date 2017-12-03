@@ -9,6 +9,7 @@ program
 	
 	maxtam = 20;
 	str = "HELLO WORLD";
+	i = 0;
 	
 	do 
 		print(i);
