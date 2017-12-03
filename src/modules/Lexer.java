@@ -207,8 +207,8 @@ public class Lexer extends Thread {
         //RECOGNIZE IDENTIFIERS
         if (Character.isLetter(currentChar)) {
             
-            StringBuffer invalidChar = new StringBuffer();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder invalidChar = new StringBuilder();
+            StringBuilder buffer = new StringBuilder();
             boolean isInvalidChar = false;
             boolean isValidChar;
             
