@@ -348,7 +348,7 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
-                type1 = simpleExpression(); type2 = expressionPrime(type1);
+                type1 = simpleExpression(); type = expressionPrime(type1);
                 break;
                 
             default:
@@ -378,6 +378,9 @@ public class Parser extends Thread {
                     type = Type.LOGICAL;
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
                     type = Type.LOGICAL;
+                }else if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && !differentEqualIndicator){
+                    type = Type.ERROR;
+                    semanticError("operators >,>=,<,<= not suported for expression type " + type1 + " and " + type2);
                 }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){
                     type = Type.ERROR;
                     semanticError("incompatible operands in relational expression, type " + type1 + " and " + type2);
@@ -414,7 +417,7 @@ public class Parser extends Thread {
                     type = type1;
                 }else if(type2.equals(Type.VOID)){
                     type = type1;
-                }else{
+                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){
                     semanticError("type mismatch in expression operands. Received types " + type1 + " and " + type2);
                     type = Type.ERROR;
                 }
@@ -432,19 +435,25 @@ public class Parser extends Thread {
     private Type simpleExpressionPrime(Type type1){
         Type type = Type.VOID;
         boolean sumIndicator = false;
+        boolean orIndicator = false;
         switch(currentToken.getTag()){
             case '+':
                 sumIndicator = true;
-            case '-':
             case Operator.OR_ID:
+                orIndicator = (sumIndicator != true);
+            case '-':
+            
                 Type type2, output;
                 addop(); type2 = term(); 
                                 
-                if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && !sumIndicator){
-                    type = Type.ERROR;
-                }else if(type1.equals(type2)){
-                    type = type1;
+                if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && sumIndicator){
+                    type = Type.STRING;
+                }else if(type1.equals(Type.LOGICAL) && type2.equals(Type.LOGICAL) && orIndicator){
+                    type = Type.LOGICAL;
+                }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
+                    type = Type.INT;
                 }else{
+                    semanticError("type mismatch on expression types " + type1 + " " + type2);
                     type = Type.ERROR;
                 }
                 
@@ -529,19 +538,25 @@ public class Parser extends Thread {
     
     private Type termPrime(){
         Type type = Type.VOID;
+        boolean andIndicator = false;
         switch(currentToken.getTag()){
+            case Operator.AND_ID:
+                andIndicator = true;
             case '*':
             case '/':
-            case Operator.AND_ID:
+            
                 Type type1, type2;
                 mulop(); type1 = factora(); type2 = termPrime();
                                 
                 if(type1.equals(Type.INT) && (type2.equals(Type.INT) || type2.equals(Type.VOID))){
                     type = Type.INT;
+                }else if(type1.equals(Type.LOGICAL) && (type2.equals(Type.LOGICAL) || type2.equals(Type.VOID)) && andIndicator){
+                    type = Type.LOGICAL;
                 }else if(type1.equals(Type.VOID) && type2.equals(Type.VOID)){
                     
                 }else{
                     type = Type.ERROR;
+                    semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }
                 break;
                 

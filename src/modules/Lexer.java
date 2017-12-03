@@ -177,6 +177,11 @@ public class Lexer extends Thread {
                 if (readChar('&')) {
                     return Operator.AND;
                 }
+            
+            case '|':
+                if (readChar('|')) {
+                    return Operator.OR;
+                }
 
             case '+':
                 currentChar = ' ';

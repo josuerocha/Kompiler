@@ -10,7 +10,7 @@ program
 	maxtam = 20;
 	str = "HELLO WORLD";
 	
-	if(maxtam && str) then
+	if(str && "str") then
 		print(maxtam);
 	end
 	
