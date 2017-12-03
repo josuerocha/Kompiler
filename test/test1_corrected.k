@@ -1,7 +1,7 @@
 program
-	int a, b;
+	int a, b, y;
 	int result;
-	int a,x,total;
+	int x,total;
 
 	a = 2;
 	x = 1;

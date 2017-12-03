@@ -206,12 +206,19 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 Type typeId = Type.VOID, typeExpression;
-                if(currentToken instanceof Identifier){ typeId = symbolTable.get(currentToken.getLexeme()).getType();}
+                Token id = eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); typeExpression = simpleExpression();
                 
-                eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); typeExpression = simpleExpression();
+                //Checking whether id has been declared and getting its type
                 
-                if(typeId != null && !typeId.equals(typeExpression) && !typeId.equals(Type.ERROR) && !typeExpression.equals(Type.ERROR)){
-                    semanticError("type mismatch on assignment, expected " + typeId + " received " + typeExpression);
+                if(id instanceof Identifier){ 
+                    typeId = symbolTable.get(id.getLexeme()).getType();
+                    int line = lexer.getCurrentLine();
+                
+                        if(typeId == null){
+                            printUndeclaredId(id,line);
+                        }else if( !typeId.equals(typeExpression) && !typeId.equals(Type.ERROR) && !typeExpression.equals(Type.ERROR)){
+                            semanticError("type mismatch on assignment, expected " + typeId + " received " + typeExpression);
+                        }
                 }
                 break;
             default:
@@ -296,12 +303,12 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case ReservedWord.SCAN_ID:
                 eat(ReservedWord.SCAN); eat(Token.OPEN_PAREN);
-                Token id = currentToken; int line = lexer.getCurrentLine();
-                eat(Identifier.IDENTIFIER); eat(Token.CLOSE_PAREN);
+                int line = lexer.getCurrentLine();
+                Token id = eat(Identifier.IDENTIFIER); eat(Token.CLOSE_PAREN);
                 
                 if(id instanceof Identifier){
                     if(!symbolTable.get(id.getLexeme()).isInstalled()){
-                        semanticError("use of undeclared identifier < "+ id.getLexeme() + " >",line);
+                        printUndeclaredId(id,line);
                     }
                 }
                 break;
@@ -408,7 +415,7 @@ public class Parser extends Thread {
                 }else if(type2.equals(Type.VOID)){
                     type = type1;
                 }else{
-                    semanticError("type mismatch in expression operands");
+                    semanticError("type mismatch in expression operands. Received types " + type1 + " and " + type2);
                     type = Type.ERROR;
                 }
                 
@@ -432,6 +439,7 @@ public class Parser extends Thread {
             case Operator.OR_ID:
                 Type type2, output;
                 addop(); type2 = term(); 
+                                
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && !sumIndicator){
                     type = Type.ERROR;
                 }else if(type1.equals(type2)){
@@ -526,11 +534,12 @@ public class Parser extends Thread {
             case '/':
             case Operator.AND_ID:
                 Type type1, type2;
-                
                 mulop(); type1 = factora(); type2 = termPrime();
-                
+                                
                 if(type1.equals(Type.INT) && (type2.equals(Type.INT) || type2.equals(Type.VOID))){
                     type = Type.INT;
+                }else if(type1.equals(Type.VOID) && type2.equals(Type.VOID)){
+                    
                 }else{
                     type = Type.ERROR;
                 }
@@ -611,19 +620,17 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 //Storing type for verification
+                Token id = eat(Identifier.IDENTIFIER);
                 
-                if(currentToken instanceof Identifier){
-                    
-                    type = symbolTable.get(currentToken.getLexeme()).getType();
-                    
+                if(id instanceof Identifier){
+                    type = symbolTable.get(id.getLexeme()).getType();
+                    //Checking whether id has been declared
                     if(type == null){
-                        semanticError("use of undeclared identifier < "+ currentToken.getLexeme() + " >");
+                        printUndeclaredId(id,lexer.getCurrentLine());
                         type = Type.ERROR;
                     }
-                    
                 }
                 
-                eat(Identifier.IDENTIFIER);
                 break;
             
             case Token.INT_CONSTANT_ID:
@@ -785,12 +792,15 @@ public class Parser extends Thread {
         return type;
     }
     
-    private void eat(Token t){
+    private Token eat(Token t){
+        Token previousToken = currentToken;
         if (currentToken.equals(t)) {
             currentToken = lexer.getToken();
         }else {
             error();
         }
+        
+        return previousToken;
     }
     
     private void synchTo(Token[] followSet){
@@ -836,6 +846,10 @@ public class Parser extends Thread {
         if(!recoveringFromError){
             errorMessages.append(PrintColor.RED + "Semantic error: ").append(message).append(" on line ").append(line).append(".").append("\n" + PrintColor.RESET);
         }
+    }
+    
+    public void printUndeclaredId(Token id,int line){
+        semanticError("use of undeclared identifier < "+ id.getLexeme() + " >",line);
     }
     
     public void checkIdentifierUnicity(Token token, Type type){
