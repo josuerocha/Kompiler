@@ -453,7 +453,7 @@ public class Parser extends Thread {
                     type = Type.LOGICAL;
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
                     type = Type.INT;
-                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Checking whether error message has already been output
+                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Avoiding to show an error message that has already been shown
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                     type = Type.ERROR;
                 }
@@ -555,7 +555,7 @@ public class Parser extends Thread {
                     type = Type.LOGICAL;
                 }else if(type1.equals(Type.VOID) && type2.equals(Type.VOID)){
                     
-                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){
+                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Avoiding to show an error message that has already been shown
                     type = Type.ERROR;
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }

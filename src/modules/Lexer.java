@@ -9,6 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -21,6 +24,7 @@ public class Lexer extends Thread {
     private int currentLine;
     private char currentChar = ' ';
     private SymbolTable symbolTable = null;
+    Pattern p = Pattern.compile("[A-Za-z]");
 
     public Lexer(String filePath) throws LexerException {
         
@@ -199,16 +203,32 @@ public class Lexer extends Thread {
             int number = Integer.parseInt(buffer.toString());
             return new IntConstant(number);
         }
-
+        
         //RECOGNIZE IDENTIFIERS
         if (Character.isLetter(currentChar)) {
+            
+            StringBuffer invalidChar = new StringBuffer();
             StringBuffer buffer = new StringBuffer();
-
+            boolean isInvalidChar = false;
+            boolean isValidChar;
+            
             do {
                 buffer.append(currentChar);
+                
+                 
+                isValidChar = isAtoZChar(currentChar);
+                if(!isValidChar){
+                    invalidChar.append(currentChar);
+                    if(!isInvalidChar){
+                        isInvalidChar = true;
+                    }
+                }
+                
                 currentChar = readChar();
             } while (Character.isLetterOrDigit(currentChar));
 
+            
+            
             String lexeme = buffer.toString();
             if (symbolTable.contains(lexeme)) {
                 Token t = symbolTable.getIdentifier(lexeme);
@@ -218,7 +238,11 @@ public class Lexer extends Thread {
                 } else {
                     return new Identifier(lexeme);
                 }
-            } else {
+            } else if(isInvalidChar){
+                
+                
+                return new CompileError("Invalid character " + invalidChar.toString() + " in identifier specification < "+ lexeme + " >",currentLine,lexeme);
+            }else {
                 Identifier id = new Identifier(lexeme);
                 symbolTable.put(lexeme, id);
                 return id;
@@ -251,6 +275,11 @@ public class Lexer extends Thread {
         currentChar = ' ';
         return t;
     }
+    
+    private boolean isAtoZChar(char ch){
+        
+        return  p.matcher(Character.toString(ch)).matches();
+    }
 
     public int getCurrentLine() {
         return currentLine;
@@ -259,21 +288,24 @@ public class Lexer extends Thread {
     private boolean checkDelimiter() {
         return currentChar == ' ' || currentChar == '\r' || currentChar == '\t' || currentChar == '\b' || currentChar == '\n';
     }
-
+    
     private boolean discardMultiLineComment() {
         while (true) {
             currentChar = readChar();
 
-            if (currentChar == '*') {
-                if (readChar('/')) {
-                    currentChar = ' ';
-                    return true;
-                }
-            } else if (currentChar == '\n'){
-                this.currentLine++;
-            
-            }else if (currentChar == (char) -1) {
-                return false;
+            switch (currentChar) {
+                case '*':
+                    if (readChar('/')) {
+                        currentChar = ' ';
+                        return true;
+                    }   break;
+                case '\n':
+                    this.currentLine++;
+                    break;
+                case (char) -1:
+                    return false;
+                default:
+                    break;
             }
         }
     }
