@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import util.PrintColor;
 
 /**
  *
@@ -37,9 +38,15 @@ public class Lexer extends Thread {
             this.fstream = new FileInputStream(filePath);
             this.reader = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
         } catch (FileNotFoundException ex) {
-            throw new LexerException("ERROR: File not found.", ex);
+            String message = "**ERROR: FILE NOT FOUND. Please check if filepath was correctly specified.**";
+            System.out.println(PrintColor.RED + message + PrintColor.RESET);
+            System.exit(1);
+            //throw new LexerException(message, ex);
         } catch (UnsupportedEncodingException ex) {
-            throw new LexerException("ERROR: File not found.", ex);
+            String message = "**ERROR: UNSUPPORTED ENCODING**";
+            System.out.println(PrintColor.RED + message + PrintColor.RESET);
+            System.exit(1);
+            //throw new LexerException(message, ex);
         }
         
     }
