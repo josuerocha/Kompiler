@@ -14,7 +14,6 @@ import util.PrintColor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 /**
  *
@@ -234,7 +233,8 @@ public class Parser extends Thread {
                 int line = lexer.getCurrentLine();
                 eat(ReservedWord.IF); type = condition(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
                 
-                if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR)){
+                
+                if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR) && !type.equals(Type.VOID)){
                     semanticError("type mismatch in if condition, expected relational operation received " + type,line);
                 }
                 break;
@@ -280,8 +280,8 @@ public class Parser extends Thread {
             case ReservedWord.WHILE_ID:
                 eat(ReservedWord.WHILE); type = condition(); eat(ReservedWord.END);
                 
-                if(!type.equals(Type.INT) && !type.equals(Type.STRING) && !type.equals(Type.ERROR)){
-                    semanticError("Incompatible operand in while statement. Received " + type);
+                if( !type.equals(Type.LOGICAL) && !type.equals(Type.VOID) && !type.equals(Type.ERROR)){
+                    semanticError("Invalid operand in while statement condition. Received " + type);
                 }
                 
                 break;
@@ -295,8 +295,15 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case ReservedWord.SCAN_ID:
-                eat(ReservedWord.SCAN); eat(Token.OPEN_PAREN); 
+                eat(ReservedWord.SCAN); eat(Token.OPEN_PAREN);
+                Token id = currentToken; int line = lexer.getCurrentLine();
                 eat(Identifier.IDENTIFIER); eat(Token.CLOSE_PAREN);
+                
+                if(id instanceof Identifier){
+                    if(!symbolTable.get(id.getLexeme()).isInstalled()){
+                        semanticError("use of undeclared identifier < "+ id.getLexeme() + " >",line);
+                    }
+                }
                 break;
             
             default:
@@ -334,8 +341,7 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
-                type1 = simpleExpression(); expressionPrime(type1);
-                
+                type1 = simpleExpression(); type2 = expressionPrime(type1);
                 break;
                 
             default:
@@ -365,7 +371,7 @@ public class Parser extends Thread {
                     type = Type.LOGICAL;
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
                     type = Type.LOGICAL;
-                }else{
+                }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){
                     type = Type.ERROR;
                     semanticError("incompatible operands in relational expression, type " + type1 + " and " + type2);
 
@@ -661,7 +667,7 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case Token.LIT_CONSTANT_ID:
-                eat(new LiteralConstant("a"));
+                eat(new LiteralConstant(" "));
                 break;
                 
             case '!':
