@@ -1,6 +1,6 @@
 program
-	int pontuacao, pontuacaoMaxima, pontuacaoMinima;
-	string disponibilidade;
+	int pontuacao, pontuacaoMaxima, disponibilidade;
+	string pontuacaoMinima;
 	disponibilidade = "Sim";
 	pontuacaoMinima = 50;
 	pontuacaoMaxima = 100;
