@@ -14,7 +14,7 @@ program
 	
 	do 
 		print(i);
-	    print(k);	// BUG HERE
+	    	print(k);	// BUG HERE
 		i = i + 1;
 	while i < maxtam end
 

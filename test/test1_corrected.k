@@ -1,7 +1,7 @@
 program
 	int a, b;
 	int result;
-	int x,total,y; // Before:	int a,x,total,y;
+	int x,y,total;
 
 	a = 2;
 	x = 1;

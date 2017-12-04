@@ -11,6 +11,7 @@ program
 	str = "HELLO WORLD";
 	i = 0;
 	
+	
 	do 
 		print(i);
 		i = i + 1;
