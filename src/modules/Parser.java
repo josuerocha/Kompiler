@@ -11,10 +11,13 @@ import dataunits.ReservedWord;
 import dataunits.Token;
 import dataunits.Type;
 import dataunits.Attribute;
+import dataunits.Instruction;
 import util.PrintColor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -31,6 +34,8 @@ public class Parser extends Thread {
     private Token currentToken;
     private boolean recoveringFromError = false;
     private SymbolTable symbolTable;
+    private CodeGenerator codeGenerator;
+    private int relativeAddressPointer = 0;
     Lexer lexer;
             
     
@@ -40,6 +45,7 @@ public class Parser extends Thread {
         symbolTable = lexer.getSymbolTableInstance();
         tokenFlow = new StringBuffer();
         errorMessages =  new StringBuffer();
+        codeGenerator = new CodeGenerator(extractFilename());
         errorMessages.append("ARQUIVO: ").append(this.filepath).append("\n");
     }
     
@@ -48,7 +54,7 @@ public class Parser extends Thread {
         program();
         if(success){
             errorMessages.append(PrintColor.BLUE + "Compiled successfully :) \n" + PrintColor.RESET);
-            //errorMessages.append(1);
+            codeGenerator.writeSourceFile();
         }
     }
     
@@ -57,8 +63,19 @@ public class Parser extends Thread {
         " _________________________________\n";
     }
     
-    private void program(){
+    private String extractFilename(){
+        String filename = "";
+        Pattern p = Pattern.compile("/(.*).k");   // the pattern to search for
+        Matcher m = p.matcher(this.filepath);
+        if(m.find()){
+            filename = m.group(1);
+        }
         
+        return filename;
+    }
+    
+    private void program(){
+        codeGenerator.gen(new Instruction("START"));
         switch(currentToken.getTag()){
             case ReservedWord.PROGRAM_ID:
                 eat(ReservedWord.PROGRAM); declList(); stmtList(); eat(ReservedWord.END);
@@ -66,6 +83,7 @@ public class Parser extends Thread {
             default:
                 error();
         }
+        codeGenerator.gen(new Instruction("STOP"));
     }
     
     private void declList(){
@@ -121,12 +139,15 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
-                Token potentialId;
-                potentialId = currentToken; eat(Identifier.IDENTIFIER); 
+                Token id;
+                
+                id = eat(Identifier.IDENTIFIER); 
+                codeGenerator.gen(new Instruction("PUSHN 1")); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
+                symbolTable.get(id.getLexeme()).setRelativeAdress(relativeAddressPointer++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
                 possibleIdentifier(type);
                 
                 //SEMANTICS: identifier unity check
-                checkIdentifierUnicity(potentialId, type);
+                checkIdentifierUnicity(id, type);
                 
                 break;
                 
@@ -140,12 +161,19 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case ',':
-                Token potentialId;
+                Token id;
                 eat(Token.COMMA); 
-                potentialId = currentToken; eat(Identifier.IDENTIFIER); 
+                id = eat(Identifier.IDENTIFIER); 
+                //SEMANTIC ACTIONS
+                
+                codeGenerator.gen(new Instruction("PUSHN 1")); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
+                symbolTable.get(id.getLexeme()).setRelativeAdress(relativeAddressPointer++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
+                checkIdentifierUnicity(id, type);
+                //END - SEMANTIC ACTIONS
+                
                 possibleIdentifier(type);
                 
-                checkIdentifierUnicity(potentialId, type);
+                
                 
                 break;
             case ';':
@@ -209,8 +237,8 @@ public class Parser extends Thread {
                 Type typeId = Type.VOID, typeExpression;
                 Token id = eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); typeExpression = simpleExpression().getType();
                 
+                //SEMANTIC ACTIONS
                 //Checking whether id has been declared and getting its type
-                
                 if(id instanceof Identifier){ 
                     typeId = symbolTable.get(id.getLexeme()).getType();
                     int line = lexer.getCurrentLine();
@@ -221,6 +249,9 @@ public class Parser extends Thread {
                             semanticError("type mismatch on assignment, expected " + typeId + " received " + typeExpression);
                         }
                 }
+                
+                //END SEMANTIC ACTIONS
+                
                 break;
             default:
                 errorMessages.append(PrintColor.BLUE + "assignStatement" + PrintColor.RESET);
@@ -243,7 +274,7 @@ public class Parser extends Thread {
                 
                 
                 if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR) && !type.equals(Type.VOID)){
-                    semanticError("type mismatch in if condition, expected relational operation received " + type,line);
+                    semanticError("type mismatch in if condition. Expected relational operation received: " + type,line);
                 }
                 break;
             default:

@@ -21,7 +21,7 @@ public class Instruction {
     }
 
     public String getMinemonic() {
-        return minemonic;
+        return this.minemonic;
     }
 
     public int getBranchAddress() {

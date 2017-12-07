@@ -1,6 +1,8 @@
 package modules;
 
 import dataunits.Instruction;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,18 +14,37 @@ import java.util.List;
 
 public class CodeGenerator {
     
-    List<Instruction> instructions;
+    private String filename;
+    private String path = "output/";
+    private List<Instruction> instructions;
     
-    public CodeGenerator(){
+    public CodeGenerator(String filename){
         instructions = new ArrayList<>();
-        
+        this.filename = filename + ".asm";
     }
     
-    private void gen(Instruction inst){
+    public void gen(Instruction inst){
         
-        
-        
+        instructions.add(inst);
     }
     
-    
+    public void writeSourceFile(){
+        
+        BufferedWriter fileWriter = null;
+        try{
+            fileWriter = new BufferedWriter(new FileWriter(this.path + this.filename,false));
+            
+            for(Instruction inst : instructions){
+                fileWriter.write( inst.getMinemonic());
+                fileWriter.newLine();
+            }
+            
+            fileWriter.close();
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+       
+        
+    }
 }

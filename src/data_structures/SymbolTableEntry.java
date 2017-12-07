@@ -15,6 +15,7 @@ public class SymbolTableEntry {
     private Token token;
     private Type type;
     private boolean installed;
+    private int relativeAdress;
 
     public SymbolTableEntry(){
         this.installed = false;
@@ -41,6 +42,16 @@ public class SymbolTableEntry {
         this.type = type;
         this.installed = true;
     }
+
+    public int getRelativeAdress() {
+        return relativeAdress;
+    }
+
+    public void setRelativeAdress(int relativeAdress) {
+        this.relativeAdress = relativeAdress;
+    }
+    
+    
     
     public boolean isInstalled(){
         return this.installed;
