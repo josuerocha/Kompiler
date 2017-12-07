@@ -1,5 +1,8 @@
 package dataunits;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author jr
@@ -11,6 +14,8 @@ public class Attribute {
     private Type type;
     private int address;
     private boolean constant;
+    public List<Integer> truelist = new ArrayList<>();
+    public List<Integer> falselist = new ArrayList<>();
     
     public Attribute(Type type){
         this.type = type;
@@ -38,8 +43,6 @@ public class Attribute {
     public boolean isConstant() {
         return constant;
     }
-
-    
-    
+  
     
 }

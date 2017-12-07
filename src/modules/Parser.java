@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import util.ListUtil;
 
 /**
  *
@@ -37,7 +38,8 @@ public class Parser extends Thread {
     private CodeGenerator codeGenerator;
     private int offset = 0;
     Lexer lexer;
-            
+    
+    
     
     public Parser(String path){
         this.filepath = path;
@@ -470,6 +472,7 @@ public class Parser extends Thread {
     }
     
     private Attribute simpleExpression(){
+        Attribute a = new Attribute(Type.VOID);
         Type type = Type.VOID;
         switch(currentToken.getTag()){
             case '!':
@@ -478,10 +481,14 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
+                Attribute a1, a2;
                 Type type1,type2;
-                type1 = term().getType(); type2 = simpleExpressionPrime(type1).getType();
                 
+                a1 = term(); type1 = a1.getType(); a2 = simpleExpressionPrime(new Attribute(type1));
+                 type2 = a2.getType();
                 
+                //SEMANTIC ACTIONS
+                 
                 if(type1.equals(type2) ){
                     type = type1;
                 }else if(type2.equals(Type.VOID)){
@@ -491,6 +498,9 @@ public class Parser extends Thread {
                     type = Type.ERROR;
                 }
                 
+                a = new Attribute(type, genTempAddress());
+                
+                //END SEMANTIC ACTIONS
                 
                 break;
                 
@@ -498,10 +508,11 @@ public class Parser extends Thread {
                 error();
                 synchTo(simpleExpressionFollow);
         }
-        return new Attribute(type);
+        return a;
     }
     
-    private Attribute simpleExpressionPrime(Type type1){
+    private Attribute simpleExpressionPrime(Attribute a1){
+        Attribute a = new Attribute(Type.VOID);
         Type type = Type.VOID;
         boolean sumIndicator = false;
         boolean orIndicator = false;
@@ -511,10 +522,12 @@ public class Parser extends Thread {
             case Operator.OR_ID:
                 orIndicator = (sumIndicator != true);
             case '-':
-            
-                Type type2, output;
-                addop(); type2 = term().getType(); 
-                                
+                Attribute a2;
+                Type type1, type2, output;
+                type1 = a1.getType();
+                addop(); int mInst = offset; a2 = term(); 
+                type2 = a2.getType();
+                //SEMANTIC ACTIONS
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && sumIndicator){
                     type = Type.STRING;
                 }else if(type1.equals(Type.LOGICAL) && type2.equals(Type.LOGICAL) && orIndicator){
@@ -526,7 +539,21 @@ public class Parser extends Thread {
                     type = Type.ERROR;
                 }
                 
-                output = simpleExpressionPrime(type2).getType();
+                a = new Attribute(type);
+                
+                if(sumIndicator){
+                    codeGenerator.gen(new Instruction("ADD"));
+                }else if(orIndicator){
+                    codeGenerator.backpatch(a1.falselist,mInst);
+                    a.truelist = ListUtil.merge(a1.truelist,a2.truelist);
+                    a.falselist = a2.falselist;
+                }else{
+                    codeGenerator.gen(new Instruction("SUB"));
+                }
+                
+                //END SEMANTIC ACTIONS
+                
+                output = simpleExpressionPrime(new Attribute(type2)).getType();
                 
                 if(output.equals(Type.ERROR)){
                     type = Type.ERROR;
@@ -553,7 +580,7 @@ public class Parser extends Thread {
                 
         }
         
-        return new Attribute(type);
+        return a;
     }
     
     private void addop(){
