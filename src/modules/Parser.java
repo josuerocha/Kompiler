@@ -383,8 +383,6 @@ public class Parser extends Thread {
                 //SEMANTIC ACTIONS
                 if(!a.isConstant()){
                     codeGenerator.gen(new Instruction("PUSHL " + a.getAddress()));
-                }else{
-                    codeGenerator.gen(new Instruction("PUSHS " + a.getStrVal()));
                 }
                 
                 
@@ -757,7 +755,7 @@ public class Parser extends Thread {
     }
     
     private Attribute writable(){
-        Attribute a;
+        Attribute a = new Attribute(Type.VOID);
         switch(currentToken.getTag()){
             case Token.LIT_CONSTANT_ID:
                 Token t = eat(new LiteralConstant(" "));
