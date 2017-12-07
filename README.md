@@ -12,7 +12,7 @@ For a detailed report please refer to the report folder in the project root.
 - [X] Implement lexer module;
 - [X] Implement parser module;
 - [X] Implement follow set based error recovery;
-- [ ] Implement semantics module;
+- [X] Implement semantics module;
 - [ ] Implement code generator module;
 
 # Instructions
