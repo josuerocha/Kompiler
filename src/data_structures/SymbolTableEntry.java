@@ -1,6 +1,7 @@
 package data_structures;
 
 import dataunits.Token;
+import dataunits.Attribute;
 import dataunits.Type;
 
 /**
