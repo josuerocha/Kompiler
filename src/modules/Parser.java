@@ -35,7 +35,7 @@ public class Parser extends Thread {
     private boolean recoveringFromError = false;
     private SymbolTable symbolTable;
     private CodeGenerator codeGenerator;
-    private int relativeAddressPointer = 0;
+    private int offset = 0;
     Lexer lexer;
             
     
@@ -143,7 +143,7 @@ public class Parser extends Thread {
                 
                 id = eat(Identifier.IDENTIFIER); 
                 codeGenerator.gen(new Instruction("PUSHN 1")); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
-                symbolTable.get(id.getLexeme()).setRelativeAdress(relativeAddressPointer++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
+                symbolTable.get(id.getLexeme()).setRelativeAdress(offset++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
                 possibleIdentifier(type);
                 
                 //SEMANTICS: identifier unity check
@@ -167,7 +167,7 @@ public class Parser extends Thread {
                 //SEMANTIC ACTIONS
                 
                 codeGenerator.gen(new Instruction("PUSHN 1")); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
-                symbolTable.get(id.getLexeme()).setRelativeAdress(relativeAddressPointer++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
+                symbolTable.get(id.getLexeme()).setRelativeAdress(offset++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
                 checkIdentifierUnicity(id, type);
                 //END - SEMANTIC ACTIONS
                 
@@ -234,9 +234,11 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
+                Attribute att;
                 Type typeId = Type.VOID, typeExpression;
-                Token id = eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); typeExpression = simpleExpression().getType();
-                
+                Token id = eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); att = simpleExpression();
+                typeExpression = att.getType();
+           
                 //SEMANTIC ACTIONS
                 //Checking whether id has been declared and getting its type
                 if(id instanceof Identifier){ 
@@ -249,6 +251,10 @@ public class Parser extends Thread {
                             semanticError("type mismatch on assignment, expected " + typeId + " received " + typeExpression);
                         }
                 }
+                
+                //code generation
+                codeGenerator.gen(new Instruction("PUSHI " + att.getTempAddress()));
+                codeGenerator.gen(new Instruction("STOREL " + symbolTable.get(id.getLexeme()).getRelativeAdress()));
                 
                 //END SEMANTIC ACTIONS
                 
@@ -911,6 +917,10 @@ public class Parser extends Thread {
                 idInfo.installType(type);
             }
         }
+    }
+    
+    public int genTempAddress(){
+        return offset++;
     }
     
     public static void main(String[] args) {
