@@ -140,14 +140,17 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 Token id;
-                
+                int initOffset = offset;
                 id = eat(Identifier.IDENTIFIER); 
-                codeGenerator.gen(new Instruction("PUSHN 1")); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
                 symbolTable.get(id.getLexeme()).setRelativeAdress(offset++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
                 possibleIdentifier(type);
                 
                 //SEMANTICS: identifier unity check
                 checkIdentifierUnicity(id, type);
+                
+                //SEMANTIC ACTIONS - CODE GENERATION
+                codeGenerator.gen(new Instruction("PUSHN " + (offset-initOffset))); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
+                //END - SEMANTIC ACTIONS
                 
                 break;
                 
@@ -166,14 +169,12 @@ public class Parser extends Thread {
                 id = eat(Identifier.IDENTIFIER); 
                 //SEMANTIC ACTIONS
                 
-                codeGenerator.gen(new Instruction("PUSHN 1")); //SEMANTIC ACTION FOR RESERVING VARIABLE SPACE
                 symbolTable.get(id.getLexeme()).setRelativeAdress(offset++); //DEFINES RELATIVE ADDRESS AND INCREMENTS IT
                 checkIdentifierUnicity(id, type);
                 //END - SEMANTIC ACTIONS
                 
                 possibleIdentifier(type);
-                
-                
+               
                 
                 break;
             case ';':
@@ -253,7 +254,7 @@ public class Parser extends Thread {
                 }
                 
                 //code generation
-                codeGenerator.gen(new Instruction("PUSHI " + att.getTempAddress()));
+                codeGenerator.gen(new Instruction("PUSHI " + att.getAddress()));
                 codeGenerator.gen(new Instruction("STOREL " + symbolTable.get(id.getLexeme()).getRelativeAdress()));
                 
                 //END SEMANTIC ACTIONS
@@ -344,11 +345,24 @@ public class Parser extends Thread {
                 int line = lexer.getCurrentLine();
                 Token id = eat(Identifier.IDENTIFIER); eat(Token.CLOSE_PAREN);
                 
+                //SEMANTIC ACTIONS
+                Type idType = Type.VOID;
                 if(id instanceof Identifier){
+                    SymbolTableEntry entry = symbolTable.get(id.getLexeme());
+                    idType = entry.getType();
+                    
+                    codeGenerator.gen(new Instruction("READ"));
+                    if(idType.equals(Type.INT)){ codeGenerator.gen(new Instruction("ATOI")); }
+                    if(idType.equals(Type.INT)){ codeGenerator.gen(new Instruction("STOREL " + entry.getRelativeAdress())); }
+                    
                     if(!symbolTable.get(id.getLexeme()).isInstalled()){
-                        printUndeclaredId(id,line);
+                        printUndeclaredId(id,line); 
                     }
                 }
+                
+                //END SEMANTIC ACTIONS
+                
+                
                 break;
             
             default:
@@ -363,7 +377,25 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case ReservedWord.PRINT_ID:
-                eat(ReservedWord.PRINT); eat(Token.OPEN_PAREN); writable(); eat(Token.CLOSE_PAREN);
+                Attribute a;
+                eat(ReservedWord.PRINT); eat(Token.OPEN_PAREN); a = writable(); eat(Token.CLOSE_PAREN);
+                
+                //SEMANTIC ACTIONS
+                if(!a.isConstant()){
+                    codeGenerator.gen(new Instruction("PUSHL " + a.getAddress()));
+                }else{
+                    codeGenerator.gen(new Instruction("PUSHS " + a.getStrVal()));
+                }
+                
+                
+                if(a.getType().equals(Type.INT)){
+                        codeGenerator.gen(new Instruction("WRITEI"));
+                }else if(a.getType().equals(Type.STRING)){
+                        codeGenerator.gen(new Instruction("WRITES"));
+                        break;
+                }
+                //END SEMANTIC ACTIONS
+                
                 break;
                 
             default:
@@ -724,11 +756,15 @@ public class Parser extends Thread {
         return new Attribute(type);
     }
     
-    private void writable(){
-        
+    private Attribute writable(){
+        Attribute a;
         switch(currentToken.getTag()){
             case Token.LIT_CONSTANT_ID:
-                eat(new LiteralConstant(" "));
+                Token t = eat(new LiteralConstant(" "));
+                a = new Attribute(Type.STRING,true);
+                
+                codeGenerator.gen(new Instruction("PUSHS \"" + t.getLexeme() + "\""));
+                
                 break;
                 
             case '!':
@@ -736,14 +772,15 @@ public class Parser extends Thread {
             case Token.IDENTIFIER_ID:
             case '(':
             case Token.INT_CONSTANT_ID:
-                simpleExpression();
+                a = simpleExpression();
                 break;
                 
             default:
                 error();
                 synchTo(writableFollow);
         }
-
+        
+        return a;
     }
     
     private void relop(){
