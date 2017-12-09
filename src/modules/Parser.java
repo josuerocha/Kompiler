@@ -256,7 +256,7 @@ public class Parser extends Thread {
                 }
                 
                 //code generation
-                codeGenerator.gen(new Instruction("PUSHI " + att.getAddress()));
+                codeGenerator.gen(new Instruction("PUSHL " + att.getAddress()));
                 codeGenerator.gen(new Instruction("STOREL " + symbolTable.get(id.getLexeme()).getRelativeAdress()));
                 
                 //END SEMANTIC ACTIONS
