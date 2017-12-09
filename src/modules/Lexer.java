@@ -200,7 +200,7 @@ public class Lexer extends Thread {
 
         //RECOGNIZE NUMERICAL CONSTANT
         if (Character.isDigit(currentChar)) {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             do {
                 buffer.append(currentChar);
                 currentChar = readChar();
