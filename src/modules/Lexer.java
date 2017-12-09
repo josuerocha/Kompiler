@@ -91,6 +91,7 @@ public class Lexer extends Thread {
         }
     }
 
+    @SuppressWarnings("empty-statement")
     public Token getToken() {
         boolean checkForDisposables = true;
         while (checkForDisposables) {
