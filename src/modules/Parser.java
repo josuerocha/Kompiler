@@ -527,6 +527,7 @@ public class Parser extends Thread {
                 type1 = a1.getType();
                 addop(); int mInst = offset; a2 = term(); 
                 type2 = a2.getType();
+                
                 //SEMANTIC ACTIONS
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && sumIndicator){
                     type = Type.STRING;
@@ -538,8 +539,9 @@ public class Parser extends Thread {
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                     type = Type.ERROR;
                 }
+                //END SEMANTIC ACTIONSa
                 
-                a = new Attribute(type);
+                a.setType(type);
                 
                 if(sumIndicator){
                     codeGenerator.gen(new Instruction("ADD"));
@@ -766,11 +768,13 @@ public class Parser extends Thread {
         Type type = Type.VOID;
         switch(currentToken.getTag()){
             case Token.INT_CONSTANT_ID:
-                eat(new IntConstant(1));
+                Token t = eat(new IntConstant(1));
                 type = Type.INT;
+                codeGenerator.gen(new Instruction("PUSHI " + t.getLexeme()));
                 break;
             case Token.LIT_CONSTANT_ID:
                 eat(new LiteralConstant(""));
+                codeGenerator.gen(new Instruction("PUSHS \"" + t.getLexeme() + "\""));
                 type = Type.STRING;
                 break;
             default:

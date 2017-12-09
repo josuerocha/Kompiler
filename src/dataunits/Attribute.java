@@ -43,6 +43,18 @@ public class Attribute {
     public boolean isConstant() {
         return constant;
     }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setAddress(int address) {
+        this.address = address;
+    }
+
+    public void setConstant(boolean constant) {
+        this.constant = constant;
+    }
   
     
 }
