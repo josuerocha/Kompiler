@@ -772,6 +772,7 @@ public class Parser extends Thread {
                 t = eat(new IntConstant(1));
                 type = Type.INT;
                 codeGenerator.gen(new Instruction("PUSHI " + t.getLexeme()));
+                System.out.println(t.getLexeme());
                 break;
             case Token.LIT_CONSTANT_ID:
                 t = eat(new LiteralConstant(""));
