@@ -766,14 +766,15 @@ public class Parser extends Thread {
     
     private Attribute constant(){
         Type type = Type.VOID;
+        Token t;
         switch(currentToken.getTag()){
             case Token.INT_CONSTANT_ID:
-                Token t = eat(new IntConstant(1));
+                t = eat(new IntConstant(1));
                 type = Type.INT;
                 codeGenerator.gen(new Instruction("PUSHI " + t.getLexeme()));
                 break;
             case Token.LIT_CONSTANT_ID:
-                eat(new LiteralConstant(""));
+                t = eat(new LiteralConstant(""));
                 codeGenerator.gen(new Instruction("PUSHS \"" + t.getLexeme() + "\""));
                 type = Type.STRING;
                 break;
