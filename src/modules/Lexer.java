@@ -258,7 +258,7 @@ public class Lexer extends Thread {
 
         //RECOGNIZE STRING LITERALS
         if (currentChar == '"') {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
 
             while (!readChar('"')) {
                 if (currentChar == '\n') {
