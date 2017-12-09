@@ -25,10 +25,16 @@ public class IntConstant extends Token{
         return this.value;
     }
     
+    /**
+     *
+     * @return
+     */
+    @Override
     public String getLexeme(){
         return Integer.toString(this.value);
     }
     
+    @Override
     public String toString(){
         return "<INT_CONSTANT," + Integer.toString(value) + ">";
     }
