@@ -6,7 +6,7 @@ program
 	print(b);
 	print(" A: ");
 	print(a);
-	a = 3 + b;
+	a = 3 - b;
 	print(" RESULTADO: ");	
 	print(a);
 end

@@ -196,6 +196,10 @@ public class Lexer extends Thread {
             case '+':
                 currentChar = ' ';
                 return Operator.PLUS;
+                
+            case '-':
+                currentChar = ' ';
+                return Operator.MINUS;
         }
 
         //RECOGNIZE NUMERICAL CONSTANT

@@ -633,16 +633,24 @@ public class Parser extends Thread {
     private Attribute termPrime(){
         Type type = Type.VOID;
         boolean andIndicator = false;
+        boolean mulIndicator = false;
+        boolean divIndicator = false;
         switch(currentToken.getTag()){
             case Operator.AND_ID:
                 andIndicator = true;
             case '*':
+                mulIndicator = !andIndicator;
             case '/':
-            
+                divIndicator = !andIndicator && !mulIndicator;
+                
                 Type type1, type2;
                 mulop(); type1 = factora().getType(); type2 = termPrime().getType();
                                 
-                if(type1.equals(Type.INT) && (type2.equals(Type.INT) || type2.equals(Type.VOID))){
+                if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
+                    type = Type.INT;
+                    if(mulIndicator) {codeGenerator.gen(new Instruction("MUL"));}
+                    else if(divIndicator) {codeGenerator.gen(new Instruction("DIV"));}
+                }else if(type1.equals(Type.INT) && type2.equals(Type.VOID)){
                     type = Type.INT;
                 }else if(type1.equals(Type.LOGICAL) && (type2.equals(Type.LOGICAL) || type2.equals(Type.VOID)) && andIndicator){
                     type = Type.LOGICAL;
@@ -652,6 +660,7 @@ public class Parser extends Thread {
                     type = Type.ERROR;
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }
+                
                 break;
                 
             case '+':
