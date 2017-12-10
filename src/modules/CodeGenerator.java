@@ -28,6 +28,10 @@ public class CodeGenerator {
         instructions.add(inst);
     }
     
+    public int getCurrentLine(){
+        return instructions.size() - 1;
+    }
+    
     public void backpatch(List<Integer> list, int address){
         
     }

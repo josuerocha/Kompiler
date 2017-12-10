@@ -256,7 +256,6 @@ public class Parser extends Thread {
                 }
                 
                 //code generation
-                codeGenerator.gen(new Instruction("PUSHL " + att.getAddress()));
                 codeGenerator.gen(new Instruction("STOREL " + symbolTable.get(id.getLexeme()).getRelativeAdress()));
                 
                 //END SEMANTIC ACTIONS
@@ -348,7 +347,7 @@ public class Parser extends Thread {
                 Token id = eat(Identifier.IDENTIFIER); eat(Token.CLOSE_PAREN);
                 
                 //SEMANTIC ACTIONS
-                Type idType = Type.VOID;
+                Type idType;
                 if(id instanceof Identifier){
                     SymbolTableEntry entry = symbolTable.get(id.getLexeme());
                     idType = entry.getType();
@@ -383,10 +382,6 @@ public class Parser extends Thread {
                 eat(ReservedWord.PRINT); eat(Token.OPEN_PAREN); a = writable(); eat(Token.CLOSE_PAREN);
                 
                 //SEMANTIC ACTIONS
-                if(!a.isConstant()){
-                    codeGenerator.gen(new Instruction("PUSHL " + a.getAddress()));
-                }
-                
                 
                 if(a.getType().equals(Type.INT)){
                         codeGenerator.gen(new Instruction("WRITEI"));
@@ -497,8 +492,8 @@ public class Parser extends Thread {
                     semanticError("type mismatch in expression operands. Received types " + type1 + " and " + type2);
                     type = Type.ERROR;
                 }
-                
-                a = new Attribute(type, genTempAddress());
+                int tempAddress = genTempAddress();
+                a = new Attribute(type, tempAddress);
                 
                 //END SEMANTIC ACTIONS
                 
@@ -513,7 +508,6 @@ public class Parser extends Thread {
     
     private Attribute simpleExpressionPrime(Attribute a1){
         Attribute a = new Attribute(Type.VOID);
-        Type type = Type.VOID;
         boolean sumIndicator = false;
         boolean orIndicator = false;
         switch(currentToken.getTag()){
@@ -525,25 +519,26 @@ public class Parser extends Thread {
                 Attribute a2;
                 Type type1, type2, output;
                 type1 = a1.getType();
-                addop(); int mInst = offset; a2 = term(); 
+                addop(); int mInst = codeGenerator.getCurrentLine(); a2 = term(); 
                 type2 = a2.getType();
                 
                 //SEMANTIC ACTIONS
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && sumIndicator){
-                    type = Type.STRING;
+                    a.setType(Type.STRING);
                 }else if(type1.equals(Type.LOGICAL) && type2.equals(Type.LOGICAL) && orIndicator){
-                    type = Type.LOGICAL;
+                    a.setType(Type.LOGICAL);
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
-                    type = Type.INT;
+                    a.setType(Type.INT);
                 }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Avoiding to show an error message that has already been shown
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
-                    type = Type.ERROR;
+                   a.setType(Type.ERROR);
                 }
                 //END SEMANTIC ACTIONSa
                 
-                a.setType(type);
                 
-                if(sumIndicator){
+                if(sumIndicator && a.getType().equals(Type.STRING)){
+                    codeGenerator.gen(new Instruction("CONCAT"));
+                }else if(sumIndicator){
                     codeGenerator.gen(new Instruction("ADD"));
                 }else if(orIndicator){
                     codeGenerator.backpatch(a1.falselist,mInst);
@@ -553,12 +548,13 @@ public class Parser extends Thread {
                     codeGenerator.gen(new Instruction("SUB"));
                 }
                 
+                
                 //END SEMANTIC ACTIONS
                 
                 output = simpleExpressionPrime(new Attribute(type2)).getType();
                 
                 if(output.equals(Type.ERROR)){
-                    type = Type.ERROR;
+                    a.setType(Type.ERROR);
                 }
                 
                 break;
@@ -737,10 +733,23 @@ public class Parser extends Thread {
                 
                 if(id instanceof Identifier){
                     type = symbolTable.get(id.getLexeme()).getType();
-                    //Checking whether id has been declared
-                    if(type == null){
+                    int address = symbolTable.get(id.getLexeme()).getRelativeAdress();
+                    if(null == type){
                         printUndeclaredId(id,lexer.getCurrentLine());
                         type = Type.ERROR;
+                    } //Checking whether id has been declared
+                    switch (type) {
+                        
+                        case STRING:
+                            codeGenerator.gen(new Instruction("PUSHL " + address));
+                            break;
+                            
+                        case INT:
+                            codeGenerator.gen(new Instruction("PUSHL " + address));
+                            break;
+                            
+                        default:
+                            break;
                     }
                 }
                 
@@ -772,7 +781,6 @@ public class Parser extends Thread {
                 t = eat(new IntConstant(1));
                 type = Type.INT;
                 codeGenerator.gen(new Instruction("PUSHI " + t.getLexeme()));
-                System.out.println(t.getLexeme());
                 break;
             case Token.LIT_CONSTANT_ID:
                 t = eat(new LiteralConstant(""));
