@@ -3,6 +3,7 @@ package modules;
 import dataunits.Instruction;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,12 @@ public class CodeGenerator {
     }
     
     public void backpatch(List<Integer> list, int address){
-        
+        for(Integer i : list){
+            if (!instructions.get(i).patchAddress(address)){
+                System.out.println("ERROR backpatching instruction " + i);
+                System.out.println(instructions.get(i));
+            }
+        }
     }
     
     public void writeSourceFile(){
@@ -53,7 +59,8 @@ public class CodeGenerator {
             
             fileWriter.close();
             
-        }catch(Exception ex){
+        }catch(IOException ex){
+            System.out.println(ex.getMessage());
             ex.printStackTrace();
         }
        

@@ -19,6 +19,12 @@ public class Instruction {
     public int getAddress() {
         return address;
     }
+    
+    public boolean patchAddress(int address){
+        minemonic = minemonic.replace("_", Integer.toString(address));
+        
+        return !minemonic.contains("_");
+    }
 
     public String getMinemonic() {
         return this.minemonic;
@@ -28,6 +34,9 @@ public class Instruction {
         return branchAddress;
     }
     
-    
+    @Override
+    public String toString(){
+        return this.minemonic;
+    }
     
 }

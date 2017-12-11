@@ -425,7 +425,7 @@ public class Parser extends Thread {
     }
     
     private Attribute expressionPrime(Type type1){
-        Type type = Type.VOID;
+        Attribute a = new Attribute(Type.VOID);
         boolean differentEqualIndicator = false;
         switch(currentToken.getTag()){
             case Operator.EQUAL_ID:
@@ -437,20 +437,54 @@ public class Parser extends Thread {
             case Operator.LESS_EQUAL_ID:
                 Type type2;
                 
+                Token relop = currentToken;
                 relop(); type2 = simpleExpression().getType();
                 
+                //SEMANTIC ACTIONS
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && differentEqualIndicator){
-                    type = Type.LOGICAL;
+                    a.setType(Type.LOGICAL);
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
-                    type = Type.LOGICAL;
+                    a.setType(Type.LOGICAL);
                 }else if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && !differentEqualIndicator){
-                    type = Type.ERROR;
+                    a.setType(Type.ERROR);
                     semanticError("operators >,>=,<,<= not suported for expression type " + type1 + " and " + type2);
                 }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){
-                    type = Type.ERROR;
+                    a.setType(Type.ERROR);
                     semanticError("incompatible operands in relational expression, type " + type1 + " and " + type2);
-
                 }
+                
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr());
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+1);
+                
+                switch(relop.getTag()){
+                    case Operator.EQUAL_ID:
+                        codeGenerator.gen(new Instruction("SUB"));
+                        codeGenerator.gen(new Instruction("JZ"));
+                        
+                    case Operator.DIFFERENT_ID:
+                        codeGenerator.gen(new Instruction("SUB"));
+                        codeGenerator.gen(new Instruction("JZ"));
+                        
+                        break;
+                    case '>':
+                        codeGenerator.gen(new Instruction("SUP"));
+                        
+                        break;
+                    case Operator.GREATER_EQUAL_ID:
+                        codeGenerator.gen(new Instruction("SUPEQ"));
+                        
+                        break;
+                    case '<':
+                        codeGenerator.gen(new Instruction("INF"));
+                        
+                        break;
+                    case Operator.LESS_EQUAL_ID:
+                        codeGenerator.gen(new Instruction("INF"));
+                    
+                }
+                
+                //END SEMANTIC ACTIONS
+                
                 
                 break;
                 
@@ -463,7 +497,7 @@ public class Parser extends Thread {
                 error();
                 synchTo(expressionPrimeFollow);
         }
-        return new Attribute(type);
+        return a;
     }
     
     private Attribute simpleExpression(){
