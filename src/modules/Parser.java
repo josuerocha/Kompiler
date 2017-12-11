@@ -610,10 +610,9 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
-                
-                type1 = factora().getType(); type2 = termPrime().getType();
-                
+                type1 = factora().getType();  type2 = termPrime(new Attribute(type1)).getType();
                 if(type1.equals(type2) || type2.equals(Type.VOID)){
+                    
                     type = type1;
                 }else{
                     type = Type.ERROR;
@@ -630,11 +629,11 @@ public class Parser extends Thread {
         return new Attribute(type);
     }
     
-    private Attribute termPrime(){
+    private Attribute termPrime(Attribute a1){
         Type type = Type.VOID;
         boolean andIndicator = false;
         boolean mulIndicator = false;
-        boolean divIndicator = false;
+        boolean divIndicator;
         switch(currentToken.getTag()){
             case Operator.AND_ID:
                 andIndicator = true;
@@ -643,18 +642,20 @@ public class Parser extends Thread {
             case '/':
                 divIndicator = !andIndicator && !mulIndicator;
                 
-                Type type1, type2;
-                mulop(); type1 = factora().getType(); type2 = termPrime().getType();
+                Type type1 = a1.getType(), type2;
+                mulop(); type2 = factora().getType(); termPrime(new Attribute(type2));
                                 
                 if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
                     type = Type.INT;
                     if(mulIndicator) {codeGenerator.gen(new Instruction("MUL"));}
                     else if(divIndicator) {codeGenerator.gen(new Instruction("DIV"));}
-                }else if(type1.equals(Type.INT) && type2.equals(Type.VOID)){
-                    type = Type.INT;
+                }else if(type1.equals(Type.INT) && (type2.equals(Type.VOID)) && (mulIndicator || divIndicator )){
+                
                 }else if(type1.equals(Type.LOGICAL) && (type2.equals(Type.LOGICAL) || type2.equals(Type.VOID)) && andIndicator){
                     type = Type.LOGICAL;
-                }else if(type1.equals(Type.VOID) && type2.equals(Type.VOID)){
+                }else if(type1.equals(Type.VOID) && type2.equals(Type.INT)){
+                    type = type.INT;
+                }else if(type1.equals(Type.VOID) && (type2.equals(Type.VOID))){
                     
                 }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Avoiding to show an error message that has already been shown
                     type = Type.ERROR;
@@ -747,19 +748,9 @@ public class Parser extends Thread {
                         printUndeclaredId(id,lexer.getCurrentLine());
                         type = Type.ERROR;
                     } //Checking whether id has been declared
-                    switch (type) {
-                        
-                        case STRING:
-                            codeGenerator.gen(new Instruction("PUSHL " + address));
-                            break;
+                    
+                    codeGenerator.gen(new Instruction("PUSHL " + address));
                             
-                        case INT:
-                            codeGenerator.gen(new Instruction("PUSHL " + address));
-                            break;
-                            
-                        default:
-                            break;
-                    }
                 }
                 
                 break;
