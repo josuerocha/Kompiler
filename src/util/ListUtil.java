@@ -20,5 +20,11 @@ public class ListUtil {
         return output;
     }
     
+    public static List<Integer> makeList(int i){
+        List<Integer> outputList = new ArrayList<>();
+        outputList.add(i);
+        return outputList;
+    }
+    
     
 }

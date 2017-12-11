@@ -519,7 +519,7 @@ public class Parser extends Thread {
                 Attribute a2;
                 Type type1, type2, output;
                 type1 = a1.getType();
-                addop(); int mInst = codeGenerator.getCurrentLine(); a2 = term(); 
+                addop(); int mInst = codeGenerator.getInst(); a2 = term(); 
                 type2 = a2.getType();
                 
                 //SEMANTIC ACTIONS
