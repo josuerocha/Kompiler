@@ -17,7 +17,7 @@ public class CodeGenerator {
     
     private String filename;
     private String path = "output/";
-    private List<Instruction> instructions;
+    public List<Instruction> instructions;
     private List<Instruction> instructionBuffer;
     
     public CodeGenerator(String filename){

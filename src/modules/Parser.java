@@ -671,11 +671,8 @@ public class Parser extends Thread {
                 
                 if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
                     a.setType(Type.INT);
-                    codeGenerator.appendBuffer();
-                    errorMessages.append("Entrou");
                 }else if(type1.equals(Type.INT) && (type2.equals(Type.VOID)) && (mulIndicator || divIndicator )){
-                    
-                    
+                    codeGenerator.appendBuffer();
                 }else if(type1.equals(Type.LOGICAL) && (type2.equals(Type.LOGICAL) || type2.equals(Type.VOID)) && andIndicator){
                     a.setType(Type.LOGICAL);
                     codeGenerator.backpatch(a1.truelist, mInst);
@@ -684,6 +681,7 @@ public class Parser extends Thread {
                     
                 }else if(type1.equals(Type.VOID) && type2.equals(Type.INT)){
                     a.setType(Type.INT);
+                    
                 }else if(type1.equals(Type.VOID) && (type2.equals(Type.VOID))){
                     
                 }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Avoiding to show an error message that has already been shown
@@ -691,6 +689,7 @@ public class Parser extends Thread {
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }
                 
+                codeGenerator.appendBuffer();
                 break;
                 
             case '+':
