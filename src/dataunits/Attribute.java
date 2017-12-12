@@ -16,6 +16,7 @@ public class Attribute {
     private boolean constant;
     public List<Integer> truelist = new ArrayList<>();
     public List<Integer> falselist = new ArrayList<>();
+    public List<Integer> nextlist;
     
     public Attribute(){
         this.type = Type.VOID;

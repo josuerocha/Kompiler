@@ -51,6 +51,7 @@ public class Parser extends Thread {
         errorMessages.append("ARQUIVO: ").append(this.filepath).append("\n");
     }
     
+    @Override
     public void run(){
         currentToken = lexer.getToken();
         program();
@@ -208,7 +209,6 @@ public class Parser extends Thread {
                 break;
                 
             default:
-                errorMessages.append(PrintColor.BLUE + "stmtList \n" + PrintColor.RESET);
                 error();
                 synchTo(stmtListFollow);
         } 
@@ -216,6 +216,7 @@ public class Parser extends Thread {
     }
     
     private void stmtListPrime(){
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
             case ReservedWord.DO_ID:
@@ -238,7 +239,7 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 Attribute att;
-                Type typeId = Type.VOID, typeExpression;
+                Type typeId, typeExpression;
                 Token id = eat(Identifier.IDENTIFIER); eat(Operator.ASSIGN); att = simpleExpression();
                 typeExpression = att.getType();
            
@@ -272,23 +273,35 @@ public class Parser extends Thread {
         }
     }
     
-    private void ifStatement(){
-        
+    private Attribute ifStatement(){
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case ReservedWord.IF_ID:
                 Type type;
                 int line = lexer.getCurrentLine();
-                eat(ReservedWord.IF); type = condition().getType(); eat(ReservedWord.THEN); stmtListPrime(); ifStatementPrime();
+                eat(ReservedWord.IF); a = condition(); eat(ReservedWord.THEN); int mInst = codeGenerator.getNextInstr();
+                stmtListPrime(); ifStatementPrime();
+                type = a.getType();
                 
+                //SEMANTIC ACTIONS
+                
+                codeGenerator.backpatch(a.truelist, mInst);
+                a.nextlist = a.falselist;
+                codeGenerator.backpatch(a.nextlist, codeGenerator.getNextInstr());
                 
                 if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR) && !type.equals(Type.VOID)){
                     semanticError("type mismatch in if condition. Expected relational operation received: " + type,line);
                 }
+                
+                
+                //END SEMANTIC ACTIONS
+                
                 break;
             default:
                 error();
                 synchTo(ifStatementFollow);
         }
+        return a;
     }
     
     private void ifStatementPrime(){
@@ -312,7 +325,9 @@ public class Parser extends Thread {
         
         switch(currentToken.getTag()){
             case ReservedWord.DO_ID:
-                eat(ReservedWord.DO); stmtListPrime(); stmtSufix();
+                eat(ReservedWord.DO); 
+                int initInstr = codeGenerator.getNextInstr(); 
+                stmtListPrime(); stmtSufix(initInstr);
                 break;
                 
             default:
@@ -321,15 +336,18 @@ public class Parser extends Thread {
         }
     }
     
-    private void stmtSufix(){
-        Type type;
+    private void stmtSufix(int address){
+        Attribute a;
         switch(currentToken.getTag()){
             case ReservedWord.WHILE_ID:
-                eat(ReservedWord.WHILE); type = condition().getType(); eat(ReservedWord.END);
-                
+                eat(ReservedWord.WHILE); a = condition(); eat(ReservedWord.END);
+                Type type = a.getType();
                 if( !type.equals(Type.LOGICAL) && !type.equals(Type.VOID) && !type.equals(Type.ERROR)){
                     semanticError("Invalid operand in while statement condition. Received " + type);
                 }
+                
+                codeGenerator.backpatch(a.truelist, address);
+                codeGenerator.backpatch(a.falselist, codeGenerator.getNextInstr());
                 
                 break;
             default:
@@ -654,6 +672,7 @@ public class Parser extends Thread {
                 if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
                     a.setType(Type.INT);
                     codeGenerator.appendBuffer();
+                    errorMessages.append("Entrou");
                 }else if(type1.equals(Type.INT) && (type2.equals(Type.VOID)) && (mulIndicator || divIndicator )){
                     
                     
