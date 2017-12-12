@@ -542,7 +542,7 @@ public class Parser extends Thread {
                 Attribute a2;
                 Type type1, type2, output;
                 type1 = a1.getType();
-                addop(); int mInst = codeGenerator.getInst(); a2 = term(); 
+                addop(type1);  int mInst = codeGenerator.getInst(); a2 = term();  codeGenerator.appendBuffer();
                 type2 = a2.getType();
                 
                 //SEMANTIC ACTIONS
@@ -559,16 +559,10 @@ public class Parser extends Thread {
                 //END SEMANTIC ACTIONSa
                 
                 
-                if(sumIndicator && a.getType().equals(Type.STRING)){
-                    codeGenerator.gen(new Instruction("CONCAT"));
-                }else if(sumIndicator){
-                    codeGenerator.gen(new Instruction("ADD"));
-                }else if(orIndicator){
+                if(orIndicator){
                     codeGenerator.backpatch(a1.falselist,mInst);
                     a.truelist = ListUtil.merge(a1.truelist,a2.truelist);
                     a.falselist = a2.falselist;
-                }else{
-                    codeGenerator.gen(new Instruction("SUB"));
                 }
                 
                 
@@ -604,14 +598,22 @@ public class Parser extends Thread {
         return a;
     }
     
-    private void addop(){
+    private void addop(Type type){
         
         switch(currentToken.getTag()){
             case '+':
                 eat(Operator.PLUS);
+                
+                if(type.equals(type.INT)){
+                    codeGenerator.genBuffer(new Instruction("ADD"));
+                }else if(type.equals(type.STRING)){
+                    codeGenerator.genBuffer(new Instruction("CONCAT"));
+                }
+                
                 break;
             case '-':
                 eat(Operator.MINUS);
+                codeGenerator.genBuffer(new Instruction("SUB"));
                 break;
             case Operator.OR_ID:
                 eat(Operator.OR);
