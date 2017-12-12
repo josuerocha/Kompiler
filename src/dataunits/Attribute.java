@@ -62,13 +62,17 @@ public class Attribute {
     }
     
     public void incrementLists(int inc){
-        for(Integer i : truelist){
-            i++;
+        List<Integer> newTruelist = new ArrayList<>();
+        for(int i = 0; i < truelist.size(); i++){
+            newTruelist.add(truelist.get(i) + inc);
         }
+        this.truelist = newTruelist;
         
-        for(Integer i: falselist){
-            i++;
+        List<Integer> newFalselist = new ArrayList<>();
+        for(int i=0; i<falselist.size(); i++){
+            newFalselist.add(falselist.get(i) + inc);
         }
+        falselist = newFalselist;
         
     }
     

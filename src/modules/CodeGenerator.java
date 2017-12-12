@@ -51,6 +51,7 @@ public class CodeGenerator {
     
     public void backpatch(List<Integer> list, int address){
         for(Integer i : list){
+            
             if (!instructions.get(i).patchAddress(address)){
                 System.out.println("ERROR backpatching instruction " + i);
                 System.out.println(instructions.get(i));
