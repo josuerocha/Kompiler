@@ -437,8 +437,7 @@ public class Parser extends Thread {
             case Operator.LESS_EQUAL_ID:
                 Type type2;
                 
-                Token relop = currentToken;
-                relop(); type2 = simpleExpression().getType();
+                a = relop(); int initIndex = codeGenerator.getNextInstr(); type2 = simpleExpression().getType();
                 
                 //SEMANTIC ACTIONS
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && differentEqualIndicator){
@@ -453,38 +452,9 @@ public class Parser extends Thread {
                     semanticError("incompatible operands in relational expression, type " + type1 + " and " + type2);
                 }
                 
-                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr());
-                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+1);
-                
-                switch(relop.getTag()){
-                    case Operator.EQUAL_ID:
-                        codeGenerator.gen(new Instruction("SUB"));
-                        codeGenerator.gen(new Instruction("JZ"));
-                        
-                    case Operator.DIFFERENT_ID:
-                        codeGenerator.gen(new Instruction("SUB"));
-                        codeGenerator.gen(new Instruction("JZ"));
-                        
-                        break;
-                    case '>':
-                        codeGenerator.gen(new Instruction("SUP"));
-                        
-                        break;
-                    case Operator.GREATER_EQUAL_ID:
-                        codeGenerator.gen(new Instruction("SUPEQ"));
-                        
-                        break;
-                    case '<':
-                        codeGenerator.gen(new Instruction("INF"));
-                        
-                        break;
-                    case Operator.LESS_EQUAL_ID:
-                        codeGenerator.gen(new Instruction("INF"));
-                    
-                }
-                
+                a.incrementLists(codeGenerator.getNextInstr() - initIndex);
+                codeGenerator.appendBuffer();
                 //END SEMANTIC ACTIONS
-                
                 
                 break;
                 
@@ -856,37 +826,74 @@ public class Parser extends Thread {
         return a;
     }
     
-    private void relop(){
-        
+    private Attribute relop(){
+        Attribute a = new Attribute(Type.VOID);
         switch(currentToken.getTag()){
             case Operator.EQUAL_ID:
                 eat(Operator.EQUAL);
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr()+2);
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+3);
+                codeGenerator.genBuffer(new Instruction("EQUAL"));
+                codeGenerator.genBuffer(new Instruction("NOT"));
+                codeGenerator.genBuffer(new Instruction("JZ _"));
+                codeGenerator.genBuffer(new Instruction("JUMP _"));
                 break;
                 
             case '>':
                 eat(Operator.GT);
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr()+2);
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+3);
+                codeGenerator.genBuffer(new Instruction("SUP"));
+                codeGenerator.genBuffer(new Instruction("NOT"));
+                codeGenerator.genBuffer(new Instruction("JZ _"));
+                codeGenerator.genBuffer(new Instruction("JUMP _"));
                 break;
                 
             case Operator.GREATER_EQUAL_ID:
                 eat(Operator.GE);
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr()+2);
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+3);
+                codeGenerator.genBuffer(new Instruction("SUPEQ"));
+                codeGenerator.genBuffer(new Instruction("NOT"));
+                codeGenerator.genBuffer(new Instruction("JZ _"));
+                codeGenerator.genBuffer(new Instruction("JUMP _"));
                 break;
                 
             case '<':
                 eat(Operator.LT);
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr()+2);
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+3);
+                codeGenerator.genBuffer(new Instruction("INF"));
+                codeGenerator.genBuffer(new Instruction("NOT"));
+                codeGenerator.genBuffer(new Instruction("JZ _"));
+                codeGenerator.genBuffer(new Instruction("JUMP _"));
                 break;
                 
             case Operator.LESS_EQUAL_ID:
                 eat(Operator.LE);
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr()+2);
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+3);
+                codeGenerator.genBuffer(new Instruction("INFEQ"));
+                codeGenerator.genBuffer(new Instruction("NOT"));
+                codeGenerator.genBuffer(new Instruction("JZ _"));
+                codeGenerator.genBuffer(new Instruction("JUMP _"));
                 break;
                 
             case Operator.DIFFERENT_ID:
                 eat(Operator.DIFFERENT);
+                a.truelist = ListUtil.makeList(codeGenerator.getNextInstr()+1);
+                a.falselist = ListUtil.makeList(codeGenerator.getNextInstr()+2);
+                codeGenerator.genBuffer(new Instruction("EQUAL"));
+                codeGenerator.genBuffer(new Instruction("JZ _"));
+                codeGenerator.genBuffer(new Instruction("JUMP _"));
                 break;
                 
             default:
                 error();
                 synchTo(relopFollow);
             }
+        
+        return a;
     }
     
     private Attribute condition(){

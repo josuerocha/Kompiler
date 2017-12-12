@@ -55,6 +55,16 @@ public class Attribute {
     public void setConstant(boolean constant) {
         this.constant = constant;
     }
-  
+    
+    public void incrementLists(int inc){
+        for(Integer i : truelist){
+            i++;
+        }
+        
+        for(Integer i: falselist){
+            i++;
+        }
+        
+    }
     
 }

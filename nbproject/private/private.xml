@@ -6,6 +6,9 @@
             <file>file:/home/jr/KPiler/src/modules/Parser.java</file>
             <file>file:/home/jr/KPiler/src/dataunits/IntConstant.java</file>
             <file>file:/home/jr/KPiler/src/modules/Lexer.java</file>
+            <file>file:/home/jr/KPiler/src/util/ListUtil.java</file>
+            <file>file:/home/jr/KPiler/src/dataunits/Instruction.java</file>
+            <file>file:/home/jr/KPiler/src/modules/CodeGenerator.java</file>
         </group>
     </open-files>
 </project-private>

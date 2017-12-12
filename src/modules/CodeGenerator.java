@@ -18,15 +18,27 @@ public class CodeGenerator {
     private String filename;
     private String path = "output/";
     private List<Instruction> instructions;
+    private List<Instruction> instructionBuffer;
     
     public CodeGenerator(String filename){
         instructions = new ArrayList<>();
+        instructionBuffer = new ArrayList<>();
         this.filename = filename + ".asm";
     }
     
     public void gen(Instruction inst){
         
         instructions.add(inst);
+    }
+    
+    public void genBuffer(Instruction inst){
+        
+        instructionBuffer.add(inst);
+    }
+    
+    public void appendBuffer(){
+        instructions.addAll(instructionBuffer);
+        instructionBuffer.clear();
     }
     
     public int getNextInstr(){
