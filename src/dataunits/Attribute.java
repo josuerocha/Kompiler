@@ -17,6 +17,11 @@ public class Attribute {
     public List<Integer> truelist = new ArrayList<>();
     public List<Integer> falselist = new ArrayList<>();
     
+    public Attribute(){
+        this.type = Type.VOID;
+        this.constant = false;
+    }
+    
     public Attribute(Type type){
         this.type = type;
         this.constant = false;

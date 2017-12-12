@@ -404,7 +404,7 @@ public class Parser extends Thread {
     }
     
     private Attribute expression(){
-        Type type = Type.VOID;
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -412,8 +412,8 @@ public class Parser extends Thread {
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                Type type1, type2;
-                type1 = simpleExpression().getType(); type = expressionPrime(type1).getType();
+                Attribute a1;
+                a1 = simpleExpression(); a = expressionPrime(a1);
                 break;
                 
             default:
@@ -421,10 +421,10 @@ public class Parser extends Thread {
                 synchTo(expressionFollow);
         }
         
-        return new Attribute(type);
+        return a;
     }
     
-    private Attribute expressionPrime(Type type1){
+    private Attribute expressionPrime(Attribute a1){
         Attribute a = new Attribute(Type.VOID);
         boolean differentEqualIndicator = false;
         switch(currentToken.getTag()){
@@ -440,6 +440,7 @@ public class Parser extends Thread {
                 a = relop(); int initIndex = codeGenerator.getNextInstr(); type2 = simpleExpression().getType();
                 
                 //SEMANTIC ACTIONS
+                Type type1 = a1.getType();
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && differentEqualIndicator){
                     a.setType(Type.LOGICAL);
                 }else if(type1.equals(Type.INT) && type2.equals(Type.INT)){
@@ -614,9 +615,8 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
-                type1 = factora().getType();  type2 = termPrime(new Attribute(type1)).getType();
+                Attribute a1 = factora();  type1 = a1.getType(); type2 = termPrime(a1).getType();
                 if(type1.equals(type2) || type2.equals(Type.VOID)){
-                    
                     type = type1;
                 }else{
                     type = Type.ERROR;
@@ -634,7 +634,7 @@ public class Parser extends Thread {
     }
     
     private Attribute termPrime(Attribute a1){
-        Type type = Type.VOID;
+        Attribute a = new Attribute(Type.VOID);
         boolean andIndicator = false;
         boolean mulIndicator = false;
         boolean divIndicator;
@@ -647,22 +647,28 @@ public class Parser extends Thread {
                 divIndicator = !andIndicator && !mulIndicator;
                 
                 Type type1 = a1.getType(), type2;
-                mulop(); type2 = factora().getType(); termPrime(new Attribute(type2));
-                                
-                if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
-                    type = Type.INT;
-                    if(mulIndicator) {codeGenerator.gen(new Instruction("MUL"));}
-                    else if(divIndicator) {codeGenerator.gen(new Instruction("DIV"));}
-                }else if(type1.equals(Type.INT) && (type2.equals(Type.VOID)) && (mulIndicator || divIndicator )){
+                mulop(); int mInst = codeGenerator.getNextInstr(); Attribute a2 = factora(); 
+                type2 = a2.getType(); termPrime(new Attribute(type2));
                 
+                
+                if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
+                    a.setType(Type.INT);
+                    codeGenerator.appendBuffer();
+                }else if(type1.equals(Type.INT) && (type2.equals(Type.VOID)) && (mulIndicator || divIndicator )){
+                    
+                    
                 }else if(type1.equals(Type.LOGICAL) && (type2.equals(Type.LOGICAL) || type2.equals(Type.VOID)) && andIndicator){
-                    type = Type.LOGICAL;
+                    a.setType(Type.LOGICAL);
+                    codeGenerator.backpatch(a1.truelist, mInst);
+                    a.truelist = a2.truelist;
+                    a.falselist = ListUtil.merge(a1.falselist, a2.falselist);
+                    
                 }else if(type1.equals(Type.VOID) && type2.equals(Type.INT)){
-                    type = type.INT;
+                    a.setType(Type.INT);
                 }else if(type1.equals(Type.VOID) && (type2.equals(Type.VOID))){
                     
                 }else if(!type1.equals(Type.ERROR) && !type2.equals(Type.ERROR)){ //Avoiding to show an error message that has already been shown
-                    type = Type.ERROR;
+                    a.setType(Type.ERROR);
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }
                 
@@ -689,7 +695,7 @@ public class Parser extends Thread {
                 synchTo(termPrimeFollow);
         }
         
-        return new Attribute(type);
+        return a;
     }
     
     private void mulop(){
@@ -697,10 +703,12 @@ public class Parser extends Thread {
         switch(currentToken.getTag()){
             case '*':
                 eat(Operator.MUL);
+                codeGenerator.genBuffer(new Instruction("MUL"));
                 break;
                 
             case '/':
                 eat(Operator.DIV);
+                codeGenerator.genBuffer(new Instruction("DIV"));
                 break;
                 
             case Operator.AND_ID:
@@ -714,20 +722,20 @@ public class Parser extends Thread {
     }
     
     private Attribute factora(){
-        Type type = Type.VOID;
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case '!':
-                eat(Operator.NEG); type = factor().getType();
+                eat(Operator.NEG); a = factor();
                 break;
             case '-':
-                eat(Operator.MINUS); type = factor().getType();
+                eat(Operator.MINUS); a = factor();
                 break;
                 
             case Token.IDENTIFIER_ID:
             case '(':
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
-                type = factor().getType();
+                a = factor();
                 break;
                 
             default:
@@ -735,22 +743,22 @@ public class Parser extends Thread {
                 synchTo(factoraFollow);
         }
         
-        return new Attribute(type);
+        return a;
     }
     
     private Attribute factor(){
-        Type type = Type.VOID;
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case Token.IDENTIFIER_ID:
                 //Storing type for verification
                 Token id = eat(Identifier.IDENTIFIER);
                 
                 if(id instanceof Identifier){
-                    type = symbolTable.get(id.getLexeme()).getType();
+                    a.setType( symbolTable.get(id.getLexeme()).getType());
                     int address = symbolTable.get(id.getLexeme()).getRelativeAdress();
-                    if(null == type){
+                    if(null == a.getType()){
                         printUndeclaredId(id,lexer.getCurrentLine());
-                        type = Type.ERROR;
+                        a.setType(Type.ERROR);
                     } //Checking whether id has been declared
                     
                     codeGenerator.gen(new Instruction("PUSHL " + address));
@@ -761,12 +769,12 @@ public class Parser extends Thread {
             
             case Token.INT_CONSTANT_ID:
             case Token.LIT_CONSTANT_ID:
-                type = constant().getType();
+                a = constant();
                 break;
                 
             case '(':
                 
-                eat(Token.OPEN_PAREN); type = expression().getType(); eat(Token.CLOSE_PAREN);
+                eat(Token.OPEN_PAREN); a = expression(); eat(Token.CLOSE_PAREN);
                 break; 
                 
             default:
@@ -774,7 +782,7 @@ public class Parser extends Thread {
                 synchTo(factorFollow);
         }
         
-        return new Attribute(type);
+        return a;
     }
     
     private Attribute constant(){
@@ -897,7 +905,7 @@ public class Parser extends Thread {
     }
     
     private Attribute condition(){
-        Type type = Type.VOID;
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -906,14 +914,14 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 
-                type = expression().getType();
+                a = expression();
                 break;
                 
             default:
                 error();
                 synchTo(conditionFollow);
         }
-        return new Attribute(type);
+        return a;
     }
     
     private void stmt(){
