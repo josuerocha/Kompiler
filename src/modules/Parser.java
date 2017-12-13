@@ -495,7 +495,6 @@ public class Parser extends Thread {
                 a.incrementLists(codeGenerator.getNextInstr() - initIndex);
                 codeGenerator.appendBuffer();
                 //END SEMANTIC ACTIONS
-                
                 break;
                 
             case ')':
