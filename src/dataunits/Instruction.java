@@ -21,9 +21,11 @@ public class Instruction {
     }
     
     public boolean patchAddress(int address){
+        boolean contained = minemonic.contains("_");
+        
         minemonic = minemonic.replace("_", Integer.toString(address));
         
-        return !minemonic.contains("_");
+        return !minemonic.contains("_") && contained;
     }
 
     public String getMinemonic() {

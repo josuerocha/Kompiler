@@ -18,7 +18,11 @@ public class ListUtil {
             output.addAll(list1);
         }
         if(list2 != null){
-            output.addAll(list2);
+            for(Integer i : list2){
+                if(!output.contains(i)){
+                    output.add(i);
+                }
+            }
         }
         return output;
     }

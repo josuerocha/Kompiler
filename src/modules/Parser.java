@@ -280,14 +280,21 @@ public class Parser extends Thread {
                 Type type;
                 int line = lexer.getCurrentLine();
                 eat(ReservedWord.IF); a = condition(); eat(ReservedWord.THEN); int mInst = codeGenerator.getNextInstr();
-                stmtListPrime(); ifStatementPrime();
+                stmtListPrime(); 
+                codeGenerator.backpatch(a.truelist, mInst);
+                codeGenerator.backpatch(a.falselist, codeGenerator.getNextInstr());
+                ifStatementPrime();
                 type = a.getType();
                 
                 //SEMANTIC ACTIONS
+                errorMessages.append("IFSTMT\n");
+                for(Integer i : a.truelist){
+                    errorMessages.append(i + " ");
+                }errorMessages.append("\n");
+                for(Integer i : a.falselist){
+                    errorMessages.append(i + " ");
+                }errorMessages.append("\n");
                 
-                codeGenerator.backpatch(a.truelist, mInst);
-                a.nextlist = a.falselist;
-                codeGenerator.backpatch(a.nextlist, codeGenerator.getNextInstr());
                 
                 if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR) && !type.equals(Type.VOID)){
                     semanticError("type mismatch in if condition. Expected relational operation received: " + type,line);
@@ -372,7 +379,7 @@ public class Parser extends Thread {
                     
                     codeGenerator.gen(new Instruction("READ"));
                     if(idType.equals(Type.INT)){ codeGenerator.gen(new Instruction("ATOI")); }
-                    if(idType.equals(Type.INT)){ codeGenerator.gen(new Instruction("STOREL " + entry.getRelativeAdress())); }
+                    codeGenerator.gen(new Instruction("STOREL " + entry.getRelativeAdress()));
                     
                     if(!symbolTable.get(id.getLexeme()).isInstalled()){
                         printUndeclaredId(id,line); 
@@ -405,7 +412,6 @@ public class Parser extends Thread {
                         codeGenerator.gen(new Instruction("WRITEI"));
                 }else if(a.getType().equals(Type.STRING)){
                         codeGenerator.gen(new Instruction("WRITES"));
-                        break;
                 }
                 //END SEMANTIC ACTIONS
                 
@@ -432,12 +438,24 @@ public class Parser extends Thread {
             case LiteralConstant.LIT_CONSTANT_ID:
                 Attribute a1;
                 a1 = simpleExpression(); a = expressionPrime(a1);
+                if(a.getType().equals(Type.VOID)){
+                    a = a1;
+                }
+                
                 break;
                 
             default:
                 error();
                 synchTo(expressionFollow);
         }
+        
+        errorMessages.append("EXPRESSION\n");
+        for (Integer i : a.truelist){
+            errorMessages.append(i + " ");
+        }errorMessages.append("\n ");
+        for (Integer i : a.falselist){
+            errorMessages.append(i + " ");
+        }errorMessages.append("\n ");
         
         return a;
     }
@@ -453,10 +471,10 @@ public class Parser extends Thread {
             case Operator.GREATER_EQUAL_ID:
             case '<':
             case Operator.LESS_EQUAL_ID:
-                Type type2;
+                Type type2; Attribute a2;
                 
-                a = relop(); int initIndex = codeGenerator.getNextInstr(); type2 = simpleExpression().getType();
-                
+                a = relop(); int initIndex = codeGenerator.getNextInstr(); a2 = simpleExpression();
+                type2 = a2.getType();
                 //SEMANTIC ACTIONS
                 Type type1 = a1.getType();
                 if(type1.equals(Type.STRING) && type2.equals(Type.STRING) && differentEqualIndicator){
@@ -502,9 +520,9 @@ public class Parser extends Thread {
                 Attribute a1, a2;
                 Type type1,type2;
                 
-                a1 = term(); type1 = a1.getType(); a2 = simpleExpressionPrime(new Attribute(type1));
-                 type2 = a2.getType();
-                
+                a1 = term(); type1 = a1.getType(); a2 = simpleExpressionPrime(a1);
+                type2 = a2.getType();
+                a = a1;
                 //SEMANTIC ACTIONS
                  
                 if(type1.equals(type2) ){
@@ -515,8 +533,8 @@ public class Parser extends Thread {
                     semanticError("type mismatch in expression operands. Received types " + type1 + " and " + type2);
                     type = Type.ERROR;
                 }
-                int tempAddress = genTempAddress();
-                a = new Attribute(type, tempAddress);
+                
+                a.setType(type);
                 
                 //END SEMANTIC ACTIONS
                 
@@ -542,7 +560,7 @@ public class Parser extends Thread {
                 Attribute a2;
                 Type type1, type2, output;
                 type1 = a1.getType();
-                addop(type1);  int mInst = codeGenerator.getInst(); a2 = term();  codeGenerator.appendBuffer();
+                addop(type1);  int mInst = codeGenerator.getInst(); a2 = term();  codeGenerator.appendBufferReverse();
                 type2 = a2.getType();
                 
                 //SEMANTIC ACTIONS
@@ -556,19 +574,16 @@ public class Parser extends Thread {
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                    a.setType(Type.ERROR);
                 }
-                //END SEMANTIC ACTIONSa
+                //END SEMANTIC ACTIONS
                 
+                output = simpleExpressionPrime(a).getType();
                 
                 if(orIndicator){
                     codeGenerator.backpatch(a1.falselist,mInst);
-                    a.truelist = ListUtil.merge(a1.truelist,a2.truelist);
+                    
                     a.falselist = a2.falselist;
                 }
                 
-                
-                //END SEMANTIC ACTIONS
-                
-                output = simpleExpressionPrime(new Attribute(type2)).getType();
                 
                 if(output.equals(Type.ERROR)){
                     a.setType(Type.ERROR);
@@ -626,7 +641,7 @@ public class Parser extends Thread {
     }
     
     private Attribute term(){
-        Type type = Type.VOID;
+        Attribute a = new Attribute();
         switch(currentToken.getTag()){
             case '!':
             case '-':
@@ -635,22 +650,25 @@ public class Parser extends Thread {
             case IntConstant.INT_CONSTANT_ID:
             case LiteralConstant.LIT_CONSTANT_ID:
                 Type type1, type2;
-                Attribute a1 = factora();  type1 = a1.getType(); type2 = termPrime(a1).getType();
+                Attribute a1 = factora();  type1 = a1.getType(); a = termPrime(a1);
+                type2 = a.getType();
+                if(type2.equals(Type.VOID)){
+                    a = a1;
+                }
                 if(type1.equals(type2) || type2.equals(Type.VOID)){
-                    type = type1;
+                    a.setType(type1);;
                 }else{
-                    type = Type.ERROR;
+                    a.setType(Type.ERROR);
 
                 }
 
             break;
             
             default:
-                errorMessages.append(PrintColor.BLUE + "term\n" + PrintColor.RESET);
                 error();
                 synchTo(termFollow);
         }
-        return new Attribute(type);
+        return a;
     }
     
     private Attribute termPrime(Attribute a1){
@@ -668,7 +686,7 @@ public class Parser extends Thread {
                 
                 Type type1 = a1.getType(), type2;
                 mulop(); int mInst = codeGenerator.getNextInstr(); Attribute a2 = factora(); 
-                type2 = a2.getType(); termPrime(new Attribute(type2));
+                type2 = a2.getType(); termPrime(a2);
                 
                 
                 if(type1.equals(Type.INT) && (type2.equals(Type.INT)) && (mulIndicator || divIndicator )){
@@ -677,10 +695,6 @@ public class Parser extends Thread {
                     codeGenerator.appendBuffer();
                 }else if(type1.equals(Type.LOGICAL) && (type2.equals(Type.LOGICAL) || type2.equals(Type.VOID)) && andIndicator){
                     a.setType(Type.LOGICAL);
-                    codeGenerator.backpatch(a1.truelist, mInst);
-                    a.truelist = a2.truelist;
-                    a.falselist = ListUtil.merge(a1.falselist, a2.falselist);
-                    
                 }else if(type1.equals(Type.VOID) && type2.equals(Type.INT)){
                     a.setType(Type.INT);
                     
@@ -691,7 +705,14 @@ public class Parser extends Thread {
                     semanticError("type mismatch on expression types " + type1 + " " + type2);
                 }
                 
-                codeGenerator.appendBuffer();
+                if(andIndicator){
+                    codeGenerator.backpatch(a1.truelist, mInst);
+                    a.truelist = a2.truelist;
+                    a.falselist = ListUtil.merge(a1.falselist, a2.falselist);
+                    
+                }
+                
+                codeGenerator.appendBufferReverse();
                 break;
                 
             case '+':
@@ -714,6 +735,17 @@ public class Parser extends Thread {
                 error();
                 synchTo(termPrimeFollow);
         }
+        errorMessages.append("TERM PRIME \n");
+                    for(Integer i : a.truelist){
+                        errorMessages.append(i + " ");
+                    }
+                    errorMessages.append("\n");
+                    
+                    for(Integer i : a.falselist){
+                        errorMessages.append(i + " ");
+                    }
+                    errorMessages.append("\n");
+        
         
         return a;
     }
@@ -941,6 +973,15 @@ public class Parser extends Thread {
                 error();
                 synchTo(conditionFollow);
         }
+        
+        errorMessages.append("CONDITION\n");
+        for (Integer i : a.truelist){
+            errorMessages.append(i + " ");
+        }errorMessages.append("\n ");
+        for (Integer i : a.falselist){
+            errorMessages.append(i + " ");
+        }errorMessages.append("\n ");
+        
         return a;
     }
     

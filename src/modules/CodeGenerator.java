@@ -16,8 +16,8 @@ import java.util.List;
 
 public class CodeGenerator {
     
-    private String filename;
-    private String path = "output/";
+    private final String filename;
+    private final String path = "output/";
     public List<Instruction> instructions;
     private List<Instruction> instructionBuffer;
     
@@ -38,6 +38,11 @@ public class CodeGenerator {
     }
     
     public void appendBuffer(){
+        instructions.addAll(instructionBuffer);
+        instructionBuffer.clear();
+    }
+    
+    public void appendBufferReverse(){
         Collections.reverse(instructionBuffer);
         instructions.addAll(instructionBuffer);
         instructionBuffer.clear();
@@ -55,6 +60,7 @@ public class CodeGenerator {
         for(Integer i : list){
             
             if (!instructions.get(i).patchAddress(address)){
+                System.out.println(this.filename);
                 System.out.println("ERROR backpatching instruction " + i);
                 System.out.println(instructions.get(i));
             }
@@ -68,6 +74,9 @@ public class CodeGenerator {
             fileWriter = new BufferedWriter(new FileWriter(this.path + this.filename,false));
             
             for(Instruction inst : instructions){
+                if(inst.getMinemonic().contains("_")){
+                    System.out.println("ERROR contains _ " + this.filename);
+                }
                 fileWriter.write( inst.getMinemonic());
                 fileWriter.newLine();
             }

@@ -1,14 +1,14 @@
 program
 	int pontuacao, pontuacaoMaxima;
-	string	disponibilidade;	//	Before:	int disponibilidade;
-	int pontuacaoMinima; 		// Before:	string pontuacaoMinima;
+	string	disponibilidade;	
+	int pontuacaoMinima; 		
 	disponibilidade = "Sim";
 	pontuacaoMinima = 50;
 	pontuacaoMaxima = 100;
 	/* Entrada de dados
 	Verifica aprovação de candidatos */
 	do
-	print("Pontuacao Candidato: ");
+		print("Pontuacao Candidato: ");
 		scan(pontuacao);
 		print("Disponibilidade Candidato: ");
 		scan(disponibilidade);
