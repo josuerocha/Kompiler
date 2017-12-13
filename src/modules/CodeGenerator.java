@@ -22,12 +22,14 @@ public class CodeGenerator {
     private final String path = "output/";
     private List<Instruction> instructions;
     private List<Instruction> instructionBuffer;
+    private List<Instruction> instructionStringBuffer;
     private int labelCount = 0;
     private Map<Integer,String> addressToLabel;
     
     public CodeGenerator(String filename){
         instructions = new ArrayList<>();
         instructionBuffer = new ArrayList<>();
+        instructionStringBuffer = new ArrayList<>();
         addressToLabel = new HashMap<>();
         this.filename = filename + ".asm";
     }
@@ -42,9 +44,20 @@ public class CodeGenerator {
         instructionBuffer.add(inst);
     }
     
+    public void genStringBuffer(Instruction inst){
+        
+        instructionStringBuffer.add(inst);
+    }
+    
     public void appendBuffer(){
         instructions.addAll(instructionBuffer);
         instructionBuffer.clear();
+    }
+    
+    public void appendStringBufferReverse(){
+        Collections.reverse(instructionStringBuffer);
+        instructions.addAll(instructionStringBuffer);
+        instructionStringBuffer.clear();
     }
     
     public void appendBufferReverse(){

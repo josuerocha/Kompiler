@@ -282,16 +282,18 @@ public class Parser extends Thread {
                 eat(ReservedWord.IF); a = condition(); eat(ReservedWord.THEN); 
                 int mInst = codeGenerator.getNextInstr();
                 stmtListPrime();
-                codeGenerator.gen(new Instruction("JUMP _"));
+                
                 int elseAddress = codeGenerator.getNextInstr();
-                codeGenerator.backpatch(a.falselist,elseAddress);
                 codeGenerator.backpatch(a.truelist, mInst);
                 
                 boolean hasElse = ifStatementPrime();
+                
                 if(hasElse){
-                    int next = codeGenerator.getNextInstr();
-                    codeGenerator.backpatch(elseAddress -1, next);
+                    codeGenerator.backpatch(a.falselist,elseAddress+1);
+                }else{
+                    codeGenerator.backpatch(a.falselist,elseAddress);
                 }
+                
                 //SEMANTIC ACTIONS
                 type = a.getType();
                 if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR) && !type.equals(Type.VOID)){
@@ -316,8 +318,18 @@ public class Parser extends Thread {
                 break;
                 
             case ReservedWord.ELSE_ID:
-                eat(ReservedWord.ELSE); stmtList(); eat(ReservedWord.END);
+                eat(ReservedWord.ELSE); 
                 hasElse = true;
+                //SEMANTIC ACTIONS
+                codeGenerator.gen(new Instruction("JUMP _"));
+                int elseAddress = codeGenerator.getInst();
+                //END SEMANTIC ACTIONS
+                stmtList(); 
+                eat(ReservedWord.END);
+                
+                int next = codeGenerator.getNextInstr();
+                codeGenerator.backpatch(elseAddress, next);
+                
                 break;
                 
             default:
@@ -515,7 +527,7 @@ public class Parser extends Thread {
                 type2 = a2.getType();
                 a = a1;
                 //SEMANTIC ACTIONS
-                 
+                codeGenerator.appendStringBufferReverse();
                 if(type1.equals(type2) ){
                     type = type1;
                 }else if(type2.equals(Type.VOID)){
@@ -551,7 +563,9 @@ public class Parser extends Thread {
                 Attribute a2;
                 Type type1, type2, output;
                 type1 = a1.getType();
-                addop(type1);  int mInst = codeGenerator.getInst(); a2 = term();  codeGenerator.appendBufferReverse();
+                addop(type1);  int mInst = codeGenerator.getInst(); a2 = term();  
+                
+                
                 type2 = a2.getType();
                 
                 //SEMANTIC ACTIONS
@@ -568,7 +582,8 @@ public class Parser extends Thread {
                 //END SEMANTIC ACTIONS
                 
                 output = simpleExpressionPrime(a).getType();
-                
+                codeGenerator.appendStringBufferReverse();
+                codeGenerator.appendBufferReverse();
                 if(orIndicator){
                     codeGenerator.backpatch(a1.falselist,mInst);
                     
@@ -793,8 +808,11 @@ public class Parser extends Thread {
                         a.setType(Type.ERROR);
                     } //Checking whether id has been declared
                     
-                    codeGenerator.gen(new Instruction("PUSHL " + address));
-                            
+                    if(a.getType().equals(Type.INT)){
+                        codeGenerator.gen(new Instruction("PUSHL " + address));
+                    }else{
+                        codeGenerator.genStringBuffer(new Instruction("PUSHL " + address));
+                    }
                 }
                 
                 break;
@@ -828,7 +846,7 @@ public class Parser extends Thread {
                 break;
             case Token.LIT_CONSTANT_ID:
                 t = eat(new LiteralConstant(""));
-                codeGenerator.gen(new Instruction("PUSHS \"" + t.getLexeme() + "\""));
+                codeGenerator.genStringBuffer(new Instruction("PUSHS \"" + t.getLexeme() + "\""));
                 type = Type.STRING;
                 break;
             default:

@@ -1,7 +1,7 @@
 program	
 	int a, aux, b;
 	string nome, sobrenome, msg;
-	print(nome );
+	print("Nome: ");
 	scan (nome);
 	print("Sobrenome: ");
 	scan (sobrenome);

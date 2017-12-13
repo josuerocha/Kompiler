@@ -1,0 +1,10 @@
+START
+PUSHS "Ferreira"
+PUSHS "Marques "
+CONCAT
+PUSHS "Aline "
+CONCAT
+PUSHS "Kecia "
+CONCAT
+WRITES
+STOP

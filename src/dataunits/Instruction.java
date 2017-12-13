@@ -45,4 +45,13 @@ public class Instruction {
         return this.minemonic;
     }
     
+    public boolean equals(Object o){
+        boolean equal = false;
+        if(o instanceof Instruction){
+            Instruction inst = (Instruction) o;
+            equal = inst.getMinemonic().equals(this.minemonic);
+        }
+        
+        return equal;
+    }
 }
