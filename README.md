@@ -13,7 +13,7 @@ For a detailed report please refer to the report folder in the project root.
 - [X] Implement parser module;
 - [X] Implement follow set based error recovery;
 - [X] Implement semantics module;
-- [ ] Implement code generator module;
+- [X] Implement code generator module;
 
 # Instructions
 
