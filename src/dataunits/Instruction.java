@@ -20,14 +20,18 @@ public class Instruction {
         return address;
     }
     
-    public boolean patchAddress(int address){
+    public boolean patchAddress(String label){
         boolean contained = minemonic.contains("_");
         
-        minemonic = minemonic.replace("_", Integer.toString(address));
+        minemonic = minemonic.replace("_", label);
         
         return !minemonic.contains("_") && contained;
     }
 
+    public void appendLabel(String label){
+        this.minemonic = label + ": " + this.minemonic;
+    }
+    
     public String getMinemonic() {
         return this.minemonic;
     }

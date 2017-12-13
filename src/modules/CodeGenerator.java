@@ -6,7 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,12 +20,15 @@ public class CodeGenerator {
     
     private final String filename;
     private final String path = "output/";
-    public List<Instruction> instructions;
+    private List<Instruction> instructions;
     private List<Instruction> instructionBuffer;
+    private int labelCount = 0;
+    private Map<Integer,String> addressToLabel;
     
     public CodeGenerator(String filename){
         instructions = new ArrayList<>();
         instructionBuffer = new ArrayList<>();
+        addressToLabel = new HashMap<>();
         this.filename = filename + ".asm";
     }
     
@@ -58,17 +63,31 @@ public class CodeGenerator {
     
     public void backpatch(List<Integer> list, int address){
         for(Integer i : list){
+            String label = getString(labelCount+1);
+            if(!addressToLabel.containsKey(address)){
+                addressToLabel.put(address, label);
+                labelCount++;
+            }
             
-            if (!instructions.get(i).patchAddress(address)){
+            if (!instructions.get(i).patchAddress(label)){
                 System.out.println(this.filename);
                 System.out.println("ERROR backpatching instruction " + i);
                 System.out.println(instructions.get(i));
             }
+            
+        }
+    }
+    
+    public void appendLabels(){
+        
+        for(Integer i : addressToLabel.keySet()){
+            String label = addressToLabel.get(i);
+            instructions.get(i).appendLabel(label);
         }
     }
     
     public void writeSourceFile(){
-        
+        appendLabels();
         BufferedWriter fileWriter = null;
         try{
             fileWriter = new BufferedWriter(new FileWriter(this.path + this.filename,false));
@@ -89,5 +108,15 @@ public class CodeGenerator {
         }
        
         
+    }
+    
+    private String getString(int n) {
+    char[] buf = new char[(int) Math.floor(Math.log(25 * (n + 1)) / Math.log(26))];
+        for (int i = buf.length - 1; i >= 0; i--) {
+            n--;
+            buf[i] = (char) ('A' + n % 26);
+            n /= 26;
+        }
+    return new String(buf);
     }
 }
