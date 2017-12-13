@@ -63,8 +63,12 @@ public class CodeGenerator {
     
     public void backpatch(List<Integer> list, int address){
         for(Integer i : list){
-            String label = getString(labelCount+1);
-            if(!addressToLabel.containsKey(address)){
+            
+            String label;
+            if(addressToLabel.containsKey(address)){
+                label = addressToLabel.get(address);
+            }else{
+                label = getString(labelCount+1);
                 addressToLabel.put(address, label);
                 labelCount++;
             }
@@ -76,6 +80,26 @@ public class CodeGenerator {
             }
             
         }
+    }
+    
+    public void backpatch(int i, int address){
+            
+            String label;
+            if(addressToLabel.containsKey(address)){
+                label = addressToLabel.get(address);
+            }else{
+                label = getString(labelCount+1);
+                addressToLabel.put(address, label);
+                labelCount++;
+            }
+            
+            if (!instructions.get(i).patchAddress(label)){
+                System.out.println(this.filename);
+                System.out.println("ERROR backpatching instruction " + i);
+                System.out.println(instructions.get(i));
+            }
+            
+        
     }
     
     public void appendLabels(){

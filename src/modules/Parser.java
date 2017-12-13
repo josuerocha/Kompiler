@@ -279,27 +279,24 @@ public class Parser extends Thread {
             case ReservedWord.IF_ID:
                 Type type;
                 int line = lexer.getCurrentLine();
-                eat(ReservedWord.IF); a = condition(); eat(ReservedWord.THEN); int mInst = codeGenerator.getNextInstr();
-                stmtListPrime(); 
+                eat(ReservedWord.IF); a = condition(); eat(ReservedWord.THEN); 
+                int mInst = codeGenerator.getNextInstr();
+                stmtListPrime();
+                codeGenerator.gen(new Instruction("JUMP _"));
+                int elseAddress = codeGenerator.getNextInstr();
+                codeGenerator.backpatch(a.falselist,elseAddress);
                 codeGenerator.backpatch(a.truelist, mInst);
-                codeGenerator.backpatch(a.falselist, codeGenerator.getNextInstr());
-                ifStatementPrime();
-                type = a.getType();
                 
+                boolean hasElse = ifStatementPrime();
+                if(hasElse){
+                    int next = codeGenerator.getNextInstr();
+                    codeGenerator.backpatch(elseAddress -1, next);
+                }
                 //SEMANTIC ACTIONS
-                errorMessages.append("IFSTMT\n");
-                for(Integer i : a.truelist){
-                    errorMessages.append(i + " ");
-                }errorMessages.append("\n");
-                for(Integer i : a.falselist){
-                    errorMessages.append(i + " ");
-                }errorMessages.append("\n");
-                
-                
+                type = a.getType();
                 if(!type.equals(Type.LOGICAL) && !type.equals(Type.ERROR) && !type.equals(Type.VOID)){
                     semanticError("type mismatch in if condition. Expected relational operation received: " + type,line);
                 }
-                
                 
                 //END SEMANTIC ACTIONS
                 
@@ -311,8 +308,8 @@ public class Parser extends Thread {
         return a;
     }
     
-    private void ifStatementPrime(){
-        
+    private boolean ifStatementPrime(){
+        boolean hasElse = false;
         switch(currentToken.getTag()){
             case ReservedWord.END_ID:
                 eat(ReservedWord.END);
@@ -320,12 +317,14 @@ public class Parser extends Thread {
                 
             case ReservedWord.ELSE_ID:
                 eat(ReservedWord.ELSE); stmtList(); eat(ReservedWord.END);
+                hasElse = true;
                 break;
                 
             default:
                 error();
                 synchTo(ifStatementPrimeFollow);
         }
+        return hasElse;
     }
     
     private void whileStatement(){
@@ -448,14 +447,6 @@ public class Parser extends Thread {
                 error();
                 synchTo(expressionFollow);
         }
-        
-        errorMessages.append("EXPRESSION\n");
-        for (Integer i : a.truelist){
-            errorMessages.append(i + " ");
-        }errorMessages.append("\n ");
-        for (Integer i : a.falselist){
-            errorMessages.append(i + " ");
-        }errorMessages.append("\n ");
         
         return a;
     }
@@ -735,17 +726,6 @@ public class Parser extends Thread {
                 error();
                 synchTo(termPrimeFollow);
         }
-        errorMessages.append("TERM PRIME \n");
-                    for(Integer i : a.truelist){
-                        errorMessages.append(i + " ");
-                    }
-                    errorMessages.append("\n");
-                    
-                    for(Integer i : a.falselist){
-                        errorMessages.append(i + " ");
-                    }
-                    errorMessages.append("\n");
-        
         
         return a;
     }
@@ -973,14 +953,6 @@ public class Parser extends Thread {
                 error();
                 synchTo(conditionFollow);
         }
-        
-        errorMessages.append("CONDITION\n");
-        for (Integer i : a.truelist){
-            errorMessages.append(i + " ");
-        }errorMessages.append("\n ");
-        for (Integer i : a.falselist){
-            errorMessages.append(i + " ");
-        }errorMessages.append("\n ");
         
         return a;
     }
