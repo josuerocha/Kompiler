@@ -74,6 +74,11 @@ public class CodeGenerator {
         return instructions.size()-1;
     }
     
+    /**
+     * Uses backpatch technique to replace a token with a branch address, allowing one-step code generation
+     * @param list List of instructions addresses that will be backpatched. Ex: truelist, falselist or nextlist.
+     * @param address branch address that will be inserted into the instructions contained in the argument list.
+     */
     public void backpatch(List<Integer> list, int address){
         for(Integer i : list){
             
