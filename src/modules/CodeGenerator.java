@@ -100,6 +100,11 @@ public class CodeGenerator {
         }
     }
     
+    /**
+     * Uses backpatch technique to replace a token with a branch address, allowing one-step code generation
+     * @param i index of a instruction that will be backpatched. Ex: address in instruction array.
+     * @param address branch address that will be inserted into the instructions contained in the argument list.
+     */
     public void backpatch(int i, int address){
             
             String label;
