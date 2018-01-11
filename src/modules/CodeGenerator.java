@@ -26,6 +26,10 @@ public class CodeGenerator {
     private int labelCount = 0;
     private Map<Integer,String> addressToLabel;
     
+        /**
+     * Initializes code generation parameters
+     * @param filename name of file to contain object code output.
+     */
     public CodeGenerator(String filename){
         instructions = new ArrayList<>();
         instructionBuffer = new ArrayList<>();
