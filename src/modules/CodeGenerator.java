@@ -38,6 +38,10 @@ public class CodeGenerator {
         this.filename = filename + ".asm";
     }
     
+    /**
+     * Adds instruction to instruction List.
+     * @param inst Instruction object to be added.
+     */
     public void gen(Instruction inst){
         
         instructions.add(inst);
