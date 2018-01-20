@@ -174,6 +174,10 @@ public class CodeGenerator {
         
     }
     
+    /**
+     * Generates string label formed by letters according to argument n, which is the instruction index.
+     * @param n instruction index.
+     */
     private String getString(int n) {
     char[] buf = new char[(int) Math.floor(Math.log(25 * (n + 1)) / Math.log(26))];
         for (int i = buf.length - 1; i >= 0; i--) {
