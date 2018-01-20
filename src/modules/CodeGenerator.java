@@ -78,6 +78,10 @@ public class CodeGenerator {
         return instructions.size();
     }
     
+    /**
+     * Gets last instruction index.
+     * 
+     */
     public int getInst(){
         return instructions.size()-1;
     }
