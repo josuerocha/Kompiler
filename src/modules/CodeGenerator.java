@@ -133,6 +133,10 @@ public class CodeGenerator {
         
     }
     
+    /**
+     * Appends branch string label to corresponding instruction.
+     * 
+     */
     public void appendLabels(){
         
         for(Integer i : addressToLabel.keySet()){
@@ -141,6 +145,11 @@ public class CodeGenerator {
         }
     }
     
+    
+    /**
+     * Appends branch string label to respective instruction.
+     * 
+     */
     public void writeSourceFile(){
         appendLabels();
         BufferedWriter fileWriter = null;
