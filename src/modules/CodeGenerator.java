@@ -147,7 +147,7 @@ public class CodeGenerator {
     
     
     /**
-     * Appends branch string label to respective instruction.
+     * Writes source file according to path set in field path and filename passed into the constructor.
      * 
      */
     public void writeSourceFile(){
