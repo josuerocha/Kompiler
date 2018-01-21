@@ -71,6 +71,9 @@ public class Parser extends Thread {
         " _________________________________\n";
     }
     
+	/*
+	* This function uses regex to extract the file name from the informed path.
+	*/
     private String extractFilename(){
         String filename = "";
         Pattern p = Pattern.compile("/(.*).k");   // the pattern to search for
