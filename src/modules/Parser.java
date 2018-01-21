@@ -85,6 +85,9 @@ public class Parser extends Thread {
         return filename;
     }
     
+	/*
+	* The compiler was implemented using a recursive descent parser architecture. For each grammar production a recursive method was implemented.
+	*/
     private void program(){
         codeGenerator.gen(new Instruction("START"));
         switch(currentToken.getTag()){
