@@ -40,7 +40,7 @@ public class Parser extends Thread {
     Lexer lexer;
     
     /*
-	* The parser was organized in a multi-thread architecture in order to speed up compilation
+	* The Parser class is the entry point for the program. It receives the path and calls the Lexer and CodeGenerator in a single step.
 	*/
     public Parser(String path){
         this.filepath = path;
