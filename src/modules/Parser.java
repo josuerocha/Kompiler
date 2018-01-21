@@ -39,8 +39,9 @@ public class Parser extends Thread {
     private int offset = 0;
     Lexer lexer;
     
-    
-    
+    /*
+	* The parser was organized in a multi-thread architecture in order to speed up compilation
+	*/
     public Parser(String path){
         this.filepath = path;
         lexer = new Lexer(this.filepath);
@@ -51,6 +52,10 @@ public class Parser extends Thread {
         errorMessages.append("ARQUIVO: ").append(this.filepath).append("\n");
     }
     
+	
+	/*
+	* The parser was organized in a multi-thread architecture in order to speed up compilation
+	*/
     @Override
     public void run(){
         currentToken = lexer.getToken();
